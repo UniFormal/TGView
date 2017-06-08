@@ -14,7 +14,7 @@
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
         
         <!-- Load the magic path -->
-        <script type="text/javascript" src="?MMT_base_url.js"></script>
+        <!-- Something does not work this way: <script type="text/javascript" src="?MMT_base_url.js"> </script> -->
         
         <!-- load all the local javascript -->
         <script type="text/javascript" src="js/theoryGraph.js"></script>
@@ -76,7 +76,7 @@
         <span id='string_span' style='font-size: 17px; diyplay:none;top:-1000px;left:-1000px;positon:absolute;'></span>
 
         <script type="text/javascript">
-            var mmtUrl= (MMT_base_url==undefined) ? location.href + '../' : MMT_base_url;
+            var mmtUrl = (typeof MMT_base_url=="undefined") ? location.href + '../' : MMT_base_url;
             var selectionMode = false;
             var theoryGraph = new TheoryGraph();
             
