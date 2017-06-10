@@ -144,7 +144,7 @@
             }
 
             function createNewGraph() {
-                theoryGraph.getGraph(mmtUrl+":fancygraph/json/" + getParameterByName("type") + "?uri=" + getParameterByName("graphdata"));
+                theoryGraph.getGraph(mmtUrl+":jgraph/json?key=" + getParameterByName("type") + "&uri=" + getParameterByName("graphdata"));
             }
 
             $(document).bind("contextmenu", function(event) {
