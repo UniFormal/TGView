@@ -4,6 +4,60 @@ var rectTools;
 var dragTools=false;
 var containerTools;
 
+$(function () 
+{ 
+	$('#theory_tree').jstree(
+	{
+		'core' : 
+		{
+			"check_callback" : true,
+			"themes" : { "stripes" : false,"icons":false },
+		},	
+		"types" : 
+		{
+		    "default" : 
+		    {
+		      "valid_children" : ["default","file"]
+		    }
+		 },
+
+		"plugins" : 
+		[
+		"contextmenu", "dnd", "search",
+			"state", "types", "wholerow"
+		]
+	}); 
+
+	//var jsonURL="http://neuralocean.de/graph/test/menu.json";
+	var jsonURL="https://mathhub.info/mh/mmt:jgraph/menu?id=";
+	lazyParent="#";
+	$.get(jsonURL, addTreeNodes);
+
+	$("#theory_tree").on("select_node.jstree",
+		function(evt, data)
+		{
+			console.log("Load: "+data.node);
+			createNewGraph(data.node.typeGraph,data.node.graphdata);
+		}
+	);
+
+
+	$("#theory_tree").on("open_node.jstree",
+		function(evt, data)
+		{
+			lazyParent=data.node.id;
+			data.node.children=[];
+			if(alreadyAdded[lazyParent]!=true)
+			{
+				console.log(lazyParent+" added: "+alreadyAdded[lazyParent]);
+				var jsonURL="https://mathhub.info/mh/mmt/:jgraph/menu?id="+data.node.id;
+				//var jsonURL="http://neuralocean.de/graph/test/menu.json";
+				alreadyAdded[lazyParent]=true;
+				$.get(jsonURL, addTreeNodes);
+			}
+		}
+	);
+});
 
 $(document).bind("contextmenu", function (event) 
 {
