@@ -16,7 +16,7 @@ function addTreeNodes(data)
 		var node=
 		{ 
 			"text" : childNodes[i].menuText, 
-			"id" : childNodes[i].id+Math.floor(Math.random() * 5000),
+			"id" : childNodes[i].id,
 			"graphdata": childNodes[i].uri, 
 			"typeGraph": childNodes[i].type, 
 			"children": child,
