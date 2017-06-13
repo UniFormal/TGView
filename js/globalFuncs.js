@@ -1,9 +1,12 @@
 var alreadyAdded={};
 var lazyParent="#";
-
+var lastGraphTypeUsed;
+var lastGraphDataUsed;
 
 function createNewGraph(type,graphdata) 
 {
+	var type=(typeof type =="undefined") ? lastGraphTypeUsed : type;
+	var graphdata=(typeof graphdata =="undefined") ? lastGraphDataUsed : graphdata;
 	theoryGraph.getGraph(mmtUrl+":jgraph/json?key=" + type + "&uri=" + graphdata);
 }	
 
