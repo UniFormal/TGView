@@ -81,7 +81,9 @@
 		
 
         <script type="text/javascript">
-            var mmtUrl = (typeof MMT_base_url=="undefined") ? ((window.location.protocol=='file:')? "/" : "/mh/mmt/") : MMT_base_url;
+            lastGraphTypeUsed=getParameterByName("type");
+		lastGraphDataUsed=getParameterByName("graphdata");
+		var mmtUrl = (typeof MMT_base_url=="undefined") ? ((window.location.protocol=='file:')? "/" : "/mh/mmt/") : MMT_base_url;
 			if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === "")
 				mmtUrl="/";
 				
