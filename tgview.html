@@ -109,7 +109,7 @@
             }
 
             function selectNodes() {
-                theoryGraph.selectNodesWithIdLike(document.getElementById("selectById").value);
+                theoryGraph.selectNodesWithIdLike(prompt("Please enter a name which should be searched for!", "node_name"));
             }
 
             function downloadGraph() {
@@ -129,7 +129,7 @@
             }
 
             function clusterSelectedNodes() {
-                theoryGraph.cluster(undefined, document.getElementById("clusternameInput").value);
+                theoryGraph.cluster(undefined, prompt("Please choose a name for the cluster", ""));
             }
 
             function colorizeSelectedNodes(color) {
