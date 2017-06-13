@@ -7,6 +7,9 @@ function createNewGraph(type,graphdata)
 {
 	var type=(typeof type =="undefined") ? lastGraphTypeUsed : type;
 	var graphdata=(typeof graphdata =="undefined") ? lastGraphDataUsed : graphdata;
+	
+	lastGraphTypeUsed=type;
+	lastGraphDataUsed=graphdata;
 	theoryGraph.getGraph(mmtUrl+":jgraph/json?key=" + type + "&uri=" + graphdata);
 }	
 
