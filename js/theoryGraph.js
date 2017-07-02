@@ -441,19 +441,19 @@ function TheoryGraph()
 			opti.GenerateRandomSolution();
 			if(originalNodes.length+originalEdges.length>3000)
 			{
-				opti.SolveUsingForces(150);
+				opti.SolveUsingForces(175,document.getElementById('nodeSpacingBox').value);
 			}
 			else if(originalNodes.length+originalEdges.length>2000)
 			{
-				opti.SolveUsingForces(300);
+				opti.SolveUsingForces(300,document.getElementById('nodeSpacingBox').value);
 			}
 			else if(originalNodes.length+originalEdges.length>1000)
 			{
-				opti.SolveUsingForces(500);
+				opti.SolveUsingForces(500,document.getElementById('nodeSpacingBox').value);
 			}
 			else
 			{
-				opti.SolveUsingForces(1000);
+				opti.SolveUsingForces(1000,document.getElementById('nodeSpacingBox').value);
 			}
 		}
 		
@@ -474,7 +474,7 @@ function TheoryGraph()
 		if(THEORY_GRAPH_OPTIONS.physics.enabled==false)
 		{
 			document.body.style.cursor = 'auto';
-			setStatusText("");
+			setStatusText('<font color="green">Received '+originalNodes.length+' nodes</font>');
 		}
 		
 		// If the document is clicked somewhere
@@ -600,7 +600,7 @@ function TheoryGraph()
 			};
 			network.setOptions(options);
 			document.body.style.cursor = 'auto';
-			setStatusText("");
+			setStatusText('<font color="green">Received '+originalNodes.length+' nodes</font>');
 		});
 		
 		
