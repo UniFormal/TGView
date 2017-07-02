@@ -25,6 +25,7 @@ function Optimizer(nodes, edges)
 	
 	function identifySubgraphs()
 	{
+		setStatusText("Identify Subgraphs...");
 		for(var i=0;i< myAllNodes.length;i++ )
 		{
 			myAllNodes[i].graphNumber=-1;
@@ -64,6 +65,7 @@ function Optimizer(nodes, edges)
 	
 	function mapEdgesIntoNodes(edges)
 	{
+		setStatusText("Mapping Edges to Nodes...");
 		var mappedNodes=[];
 		for(var i=0;i< myAllNodes.length;i++ )
 		{
@@ -99,7 +101,6 @@ function Optimizer(nodes, edges)
 	
 	this.GenerateRandomSolution = function()
 	{
-		setStatusText("Calculating initial layout...");
 		lines = [];
 		var i = 0;
 		
@@ -274,22 +275,18 @@ function Optimizer(nodes, edges)
 		return colision;
 	}
 
-	this.SolveUsingForces = function(iterations, usingMinMax = false, currTemperature = 0.9, initialStep = 30.0 )
+	this.SolveUsingForces = function(iterations, spacingValue, usingMinMax = false, currTemperature = 0.9, initialStep = 30.0 )
 	{
 		var energy = 1000000;
 		var step = initialStep;
 		var success = 0;
 
 		var area = myWidth * myHeight;
-		var kVal =  Math.max(Math.min((myAllNodes.length*4+edgesCount/2.5)/2 * 0.5,280),100);
+		var kVal =  Math.max(Math.min((myAllNodes.length*4+edgesCount/2.5)/2 * 0.5*spacingValue/7.0,300),70);
 		var kSquared = kVal * kVal;
 
 		for( var i = 0; i < iterations; i++ )
 		{
-			if(i%100==0)
-			{
-				setStatusText("Beautify Layout: Iteration "+i+" of "+iterations+"...");
-			}
 			var energyBefore = energy;
 			energy = 0;
 			for( var j = 0; j < myAllNodes.length; j++ )
