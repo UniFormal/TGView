@@ -13,6 +13,20 @@ function TheoryGraph()
 	var clusterPositions=[];
 	var BASE_QUERY_URL="http://mathhub.info/mh/mmt";
 
+	this.hideEdges=function(type, hideEdge)
+	{
+		var edgesToHide=[];
+		for(var i=0;i<originalEdges.length;i++)
+		{
+			console.log(type+""+originalEdges[i]["style"]);
+			if(type==originalEdges[i]["style"] || ("graph"+type)==originalEdges[i]["style"] )
+			{
+				edgesToHide.push({id: originalEdges[i]["id"], hidden: hideEdge});
+			}
+		}
+		edges.update(edgesToHide);
+	}
+	
 	this.downloadCanvasAsImage = function(button)
 	{
 		var minX=111110;

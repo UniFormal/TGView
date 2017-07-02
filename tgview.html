@@ -37,6 +37,10 @@
 			
 			<div class="toolSelector">
 				<div id="generalMenu" name="generalMenu">
+				
+					<input type="checkbox" id="metaEdgesCheckbox" checked onChange="hideEdges('meta', !this.checked)">
+					<label for="metaEdgesCheckbox">Show Meta-Edges</label>
+			
 					<select name="nodeSpacingBox" id="nodeSpacingBox" onChange="changeMethod(0);" >
 						<option value="0.66">Tiny Node-Spacing</option>
 						<option value="1.5">Small Node-Spacing</option>
@@ -111,6 +115,10 @@
                 $("#helpDialog").dialog("open");
             });
 
+			function hideEdges(type, hide)
+			{
+				theoryGraph.hideEdges(type, hide);
+			}
 
             function addColors() {
                 var colorArray = ["#CCCCFF", "#FFFFCC", "#FFCC99", "#CCFFCC", "#DDDDDD", "#FFCCCC"];
