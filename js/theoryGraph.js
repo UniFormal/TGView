@@ -41,6 +41,7 @@ function TheoryGraph()
 		
 		network.once("afterDrawing",function () 
 		{
+			
 			//button.href = network.canvas.frame.canvas.toDataURL();
 			//button.download = "graph.png";
 			var image=network.canvas.frame.canvas.toDataURL("image/png")
@@ -48,6 +49,7 @@ function TheoryGraph()
 			network.setSize(originalWidth,originalHeight);
 			network.redraw();
 			network.fit();
+			setStatusText("");
 		});
 	}
 	
@@ -199,12 +201,19 @@ function TheoryGraph()
 	
 	this.getGraph= function(jsonURL)
 	{
+		setStatusText("Downloading graph...");
 		document.body.style.cursor = 'wait';
 		$.get(jsonURL, drawGraph);
 	}
 
 	function drawGraph(data, status)
 	{
+		if(status!=200 && status!="success")
+		{
+			setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+status+')</font>');
+			document.body.style.cursor = 'auto';
+			return;
+		}
 		originalNodes=data["nodes"];
 		originalEdges=data["edges"];
 		
@@ -343,6 +352,7 @@ function TheoryGraph()
 	
 	function startConstruction()
 	{
+		setStatusText("Constructing graph...");
 		var processedNodes=0;
 		var nodesCount=0;
 		
@@ -388,11 +398,23 @@ function TheoryGraph()
 	// Called when the Visualization API is loaded.
 	function startRendering() 
 	{
+		setStatusText("Rendering graph...");
 		if(THEORY_GRAPH_OPTIONS.layout==undefined)
 		{
 			var opti=new Optimizer(originalNodes,originalEdges);
 			opti.GenerateRandomSolution();
-			opti.SolveUsingForces(1000);
+			if(originalNodes.length+originalEdges.length>3000)
+			{
+				opti.SolveUsingForces(500);
+			}
+			else if(originalNodes.length+originalEdges.length>1500)
+			{
+				opti.SolveUsingForces(700);
+			}
+			else
+			{
+				opti.SolveUsingForces(1000);
+			}
 		}
 		
 		nodes = new vis.DataSet(originalNodes);
@@ -537,6 +559,7 @@ function TheoryGraph()
 			};
 			network.setOptions(options);
 			document.body.style.cursor = 'auto';
+			setStatusText("");
 		});
 		
 		

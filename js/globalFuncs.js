@@ -3,6 +3,12 @@ var lazyParent="#";
 var lastGraphTypeUsed;
 var lastGraphDataUsed;
 
+function setStatusText(text)
+{
+	statusbar = document.getElementById('statusBar');
+	statusBar.innerHTML=text;
+}
+
 function createNewGraph(type,graphdata) 
 {
 	var type=(typeof type =="undefined") ? lastGraphTypeUsed : type;

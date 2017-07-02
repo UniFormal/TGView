@@ -58,6 +58,9 @@
 					
 				</div>
 				<canvas id="toolCanvas" style="display:none;z-index:1000;top:0px;left:0px;position: absolute;" width="1200" height="600"></canvas>
+				<div id="statusBar" style="z-index:1001;top:8px;left:8px;position: absolute;">	
+					...
+				</div>
 			</div>
 		</div>
 		
@@ -113,6 +116,7 @@
             }
 
             function downloadGraph() {
+				setStatusText("Downloading Image...");
                 theoryGraph.downloadCanvasAsImage(document.getElementById('downloadButton'));
             }
 
@@ -129,6 +133,7 @@
             }
 
             function clusterSelectedNodes() {
+				setStatusText("Clustering Nodes...");
                 theoryGraph.cluster(undefined, prompt("Please choose a name for the cluster", ""));
             }
 
@@ -137,6 +142,7 @@
             }
 
             function changeMethod(idx) {
+				setStatusText("Relayouting graph...");
                 if (idx == 0) {
                     THEORY_GRAPH_OPTIONS.layout = undefined;
                 } else if (idx == 1) {

@@ -99,6 +99,7 @@ function Optimizer(nodes, edges)
 	
 	this.GenerateRandomSolution = function()
 	{
+		setStatusText("Calculating initial layout...");
 		lines = [];
 		var i = 0;
 		
@@ -285,6 +286,10 @@ function Optimizer(nodes, edges)
 
 		for( var i = 0; i < iterations; i++ )
 		{
+			if(i%100==0)
+			{
+				setStatusText("Beautify Layout: Iteration "+i+" of "+iterations+"...");
+			}
 			var energyBefore = energy;
 			energy = 0;
 			for( var j = 0; j < myAllNodes.length; j++ )
