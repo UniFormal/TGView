@@ -441,7 +441,7 @@ function TheoryGraph()
 			opti.GenerateRandomSolution();
 			if(originalNodes.length+originalEdges.length>3000)
 			{
-				opti.SolveUsingForces(175,document.getElementById('nodeSpacingBox').value);
+				opti.SolveUsingForces(150,document.getElementById('nodeSpacingBox').value);
 			}
 			else if(originalNodes.length+originalEdges.length>2000)
 			{
@@ -453,7 +453,7 @@ function TheoryGraph()
 			}
 			else
 			{
-				opti.SolveUsingForces(1000,document.getElementById('nodeSpacingBox').value);
+				opti.SolveUsingForces(700,document.getElementById('nodeSpacingBox').value);
 			}
 		}
 		
