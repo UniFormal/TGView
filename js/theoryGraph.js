@@ -203,6 +203,34 @@ function TheoryGraph()
 	{
 		setStatusText("Downloading graph...");
 		document.body.style.cursor = 'wait';
+		
+		$.ajaxSetup(
+		{
+            error: function(x, e) 
+			{
+                if (x.status == 0) 
+				{
+					setStatusText('<font color="red">Downloading graph failed (Check Your Network)</font>');
+					document.body.style.cursor = 'auto';
+                } 
+                else if (x.status == 404) 
+				{
+					setStatusText('<font color="red">Downloading graph failed (Requested URL not found)</font>');
+					document.body.style.cursor = 'auto';
+                } 
+				else if (x.status == 500) 
+				{
+					setStatusText('<font color="red">Downloading graph failed (Internel Server Error)</font>');
+                    document.body.style.cursor = 'auto';
+                }  
+				else 
+				{
+					setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+x.status+')</font>');
+					document.body.style.cursor = 'auto';
+                }
+            }
+        });
+		
 		$.get(jsonURL, drawGraph);
 	}
 
@@ -214,9 +242,17 @@ function TheoryGraph()
 			document.body.style.cursor = 'auto';
 			return;
 		}
+	
+		if(typeof data["nodes"] == 'undefined' || data.length<20)
+		{
+			setStatusText('<font color="red">Graph-File is empty</font>');
+			document.body.style.cursor = 'auto';
+			return;
+		}
+		
 		originalNodes=data["nodes"];
 		originalEdges=data["edges"];
-		
+
 		ensureUniqueIds(originalNodes);
 		ensureUniqueIds(originalEdges);
 		
