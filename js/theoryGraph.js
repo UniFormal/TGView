@@ -449,25 +449,37 @@ function TheoryGraph()
 	function startRendering() 
 	{
 		setStatusText("Rendering graph...");
-		if(THEORY_GRAPH_OPTIONS.layout==undefined)
+		if(typeof THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
+		{
+			var opti=new Optimizer(originalNodes,originalEdges);
+			if(originalNodes.length+originalEdges.length>3000)
+			{
+				opti.weaklyHierarchicalLayout(500,document.getElementById('nodeSpacingBox').value);
+			}
+			else if(originalNodes.length+originalEdges.length>2000)
+			{
+				opti.weaklyHierarchicalLayout(700,document.getElementById('nodeSpacingBox').value);
+			}
+			else
+			{
+				opti.weaklyHierarchicalLayout(1000,document.getElementById('nodeSpacingBox').value);
+			}
+		}
+		else if(THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==2)
 		{
 			var opti=new Optimizer(originalNodes,originalEdges);
 			opti.GenerateRandomSolution();
 			if(originalNodes.length+originalEdges.length>3000)
 			{
-				opti.SolveUsingForces(150,document.getElementById('nodeSpacingBox').value);
+				opti.SolveUsingForces(200,document.getElementById('nodeSpacingBox').value);
 			}
 			else if(originalNodes.length+originalEdges.length>2000)
 			{
-				opti.SolveUsingForces(300,document.getElementById('nodeSpacingBox').value);
-			}
-			else if(originalNodes.length+originalEdges.length>1000)
-			{
-				opti.SolveUsingForces(500,document.getElementById('nodeSpacingBox').value);
+				opti.SolveUsingForces(400,document.getElementById('nodeSpacingBox').value);
 			}
 			else
 			{
-				opti.SolveUsingForces(700,document.getElementById('nodeSpacingBox').value);
+				opti.SolveUsingForces(600,document.getElementById('nodeSpacingBox').value);
 			}
 		}
 		

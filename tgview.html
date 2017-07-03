@@ -40,19 +40,22 @@
 				
 					<input type="checkbox" id="metaEdgesCheckbox" checked onChange="hideEdges('meta', !this.checked)">
 					<label for="metaEdgesCheckbox">Show Meta-Edges</label>
-			
-					<select name="nodeSpacingBox" id="nodeSpacingBox" onChange="changeMethod(0);" >
+					
+					<select name="nodeSpacingBox" id="nodeSpacingBox" onChange="changeMethod();" >
 						<option value="0.66">Tiny Node-Spacing</option>
 						<option value="1.5">Small Node-Spacing</option>
 						<option value="3">Smaller Node-Spacing</option>
-						<option value="4">Normal Node-Spacing</option>
-						<option value="5" selected>Bigger Node-Spacing</option>
+						<option value="4" selected>Normal Node-Spacing</option>
+						<option value="5">Bigger Node-Spacing</option>
 						<option value="7">Big Node-Spacing</option>
 						<option value="10">Huge Node-Spacing</option>
 					</select>
 					
-					<button onClick="changeMethod(0);" title="Standard Layout" class="myButton" style="width:32px;height:26px"><div style="margin-top:2px" class="standardIcon"></div></button>
-					<button onClick="changeMethod(1);" title="Hierarchical Layout"  class="myButton" style="width:32px;height:26px"><div style="margin-top:2px" class="hierarchicalIcon"></div></button>
+					<select name="layoutBox" id="layoutBox" onChange="changeMethod(this.value);" >
+						<option value="0">Strictly Hierarchical Layout</option>
+						<option value="1" selected>Semi Hierarchical Layout</option>
+						<option value="2">Forces Driven Layout</option>
+					</select>
 					
 					<button id="selectionModeButton" onClick="switchSelectionMode();" title="Switch Selection Mode" class="myButton" style="width:32px;height:26px"><div style="margin-top:2px" class="crosshairIcon"></div></button>
 					
@@ -159,18 +162,20 @@
                 theoryGraph.colorizeNodes(undefined, color);
             }
 
-            function changeMethod(idx) {
+            function changeMethod(idx) 
+			{
 				setStatusText("Relayouting graph...");
-                if (idx == 0) {
-                    THEORY_GRAPH_OPTIONS.layout = undefined;
-                } else if (idx == 1) {
-                    THEORY_GRAPH_OPTIONS.layout = {
-                        hierarchical: {
-                            sortMethod: "directed",
-                            direction: "LR"
-                        }
-                    };
-                }
+				if(typeof idx !=='undefined')
+				{
+					if(idx==1 || idx==2)
+					{
+						THEORY_GRAPH_OPTIONS.layout={ownLayoutIdx:idx};
+					}
+					else if(idx==0)
+					{
+						THEORY_GRAPH_OPTIONS.layout={ownLayoutIdx:0, hierarchical: {sortMethod: "directed",direction: "LR"}};
+					}
+				}
                 createNewGraph();
             }
 
