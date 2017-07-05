@@ -19,6 +19,7 @@ function Optimizer(nodes, edges)
 	var myHeight=12000;
 	var countNodesInGraph;
 	var edgesCount=edges.length;
+	var that=this;
 	
 	mapEdgesIntoNodes(edges);
 	identifySubgraphs();
