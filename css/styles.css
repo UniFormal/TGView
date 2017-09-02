@@ -199,10 +199,10 @@ html, body {
 	background-repeat:no-repeat
 }
 
-.hierarchicalIcon
+.downloadIcon
 {
 	cursor:pointer;
-	background-image: url("../img/hierarch.png");
+	background-image: url("../img/download.png");
 	width:24px;
 	height:24px;
 	background-size: 18px 18px;
