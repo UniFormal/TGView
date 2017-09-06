@@ -2,6 +2,7 @@
 GraphViewer for TheoryGraphs
 
 *Technical*
+
 Menu-Entry for Side-Menu
 - menuText (text shown in side-menu)
 - id (internal id)
