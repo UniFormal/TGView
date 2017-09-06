@@ -44,3 +44,40 @@ Entity-Options:
 -- dashes (dashed line; true/false)
 -- circle (line ends with circle; true/false)
 -- directed (line ends with arrow; true/false)
+
+
+Example JSON for Nodes+Edges (Random example without any deeper meaning):
+```javascript
+{
+  "nodes" : 
+  [
+    {
+      "id" : "http:\/\/mathhub.info\/Teaching\/KRMT?AbelianGroup",
+      "style" : "theory",
+      "label" : "AbelianGroup",
+      "url" : "\/?http:\/\/mathhub.info\/Teaching\/KRMT?AbelianGroup"
+    }, 
+    {
+      "id" : "http:\/\/mathhub.info\/Teaching\/KRMT?Abelian",
+      "style" : "theory",
+      "label" : "Abelian",
+      "url" : "\/?http:\/\/mathhub.info\/Teaching\/KRMT?Abelian",
+      "mathml" : "[Optional] <math><mi>&pi;</mi><mo>&InvisibleTimes;</mo><msup><mi>r</mi><mn>2</mn></msup></math>"
+    },
+    ...
+  ],
+  "edges" : 
+  [
+    {
+      "id" : "http:\/\/mathhub.info\/Teaching\/KRMT?AbelianEdge",
+      "style" : "view",
+      "from" : "http:\/\/mathhub.info\/Teaching\/KRMT?Abelian",
+      "to" : "\/?http:\/\/mathhub.info\/Teaching\/KRMT?AbelianGroup",
+      "label" : "Abelian Edge",
+      "url" : "\/?http:\/\/mathhub.info\/Teaching\/KRMT?AbelianEdge",
+      "clickText": "Some Text when clicked"
+    }, 
+    ...
+  ]
+}
+```
