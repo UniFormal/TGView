@@ -100,3 +100,34 @@ Example JSON for Menu-Entries:
   ...
 ]
 ```
+
+
+Example JSON for ARROW_STYLES (see globalOptions.js for details):
+```javascript
+var ARROW_STYLES=
+{
+	"include":
+	{
+		color:"#cccccc",
+		colorHighlight:"#cccccc",
+		colorHover:"#cccccc",
+		dashes: false,
+		circle:false,
+		directed: true
+	},
+  ...
+}
+```
+
+
+Example JSON for NODE_STYLES (see globalOptions.js for details):
+```javascript
+var NODE_STYLES =
+{
+  "model":
+	{
+		shape: "square"
+	},
+  ...
+}
+```
