@@ -31,7 +31,7 @@ Available Entities (see globalOptions.js for details):
 - model
 - theory
 - Entity-Options:
-- - shape (circle, square)
+  - shape (circle, square)
 
 ARROW_STYLES
 Available Entities (see globalOptions.js for details):
@@ -41,12 +41,12 @@ Available Entities (see globalOptions.js for details):
 - view 
 - structure
 - Entity-Options:
---color (default color)
-- - colorHighlight (color on click)
-- - colorHover (color on mouse hover)
-- - dashes (dashed line; true/false)
-- - circle (line ends with circle; true/false)
-- - directed (line ends with arrow; true/false)
+  - color (default color)
+  - colorHighlight (color on click)
+  - colorHover (color on mouse hover)
+  - dashes (dashed line; true/false)
+  - circle (line ends with circle; true/false)
+  - directed (line ends with arrow; true/false)
 
 ### Example JSONs
 
