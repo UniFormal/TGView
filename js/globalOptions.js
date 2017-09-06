@@ -94,3 +94,29 @@ var NODE_STYLES =
 		shape: "circle"
 	}
 };
+
+
+var GRAPH_TYPES =
+[
+	{
+		id: "thgraph",
+		menuText: "Th. Graph",
+		tooltip: "Some explanations"
+	},
+	{
+		id: "pgraph",
+		menuText: "",
+		tooltip: ""
+	},
+	{
+		id: "docgraph",
+		menuText: "",
+		tooltip: ""
+	},
+	{
+		id: "archivegraph",
+		menuText: "Archive Graph",
+		tooltip: ""
+	}
+];
+
