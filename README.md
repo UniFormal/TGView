@@ -80,28 +80,6 @@ Example JSON for Nodes+Edges (Random example without any deeper meaning):
 }
 ```
 
-Example JSON for Menu-Entries:
-```javascript
-[
-  {
-    "menuText" : "HOLLight",
-    "id" : "HOLLight",
-    "uri" : "HOLLight",
-    "type" : "archivegraph",
-    "hasChildren" : true
-  }, 
-  {
-    "menuText" : "HelloWorld",
-    "id" : "HelloWorld",
-    "uri" : "HelloWorld",
-    "type" : "archivegraph",
-    "hasChildren" : true
-  }, 
-  ...
-]
-```
-
-
 Example JSON for ARROW_STYLES (see globalOptions.js for details):
 ```javascript
 var ARROW_STYLES=
@@ -130,4 +108,25 @@ var NODE_STYLES =
 	},
 	...
 }
+```
+
+Example JSON for Menu-Entries:
+```javascript
+[
+  {
+    "menuText" : "HOLLight",
+    "id" : "HOLLight",
+    "uri" : "HOLLight",
+    "type" : "archivegraph",
+    "hasChildren" : true
+  }, 
+  {
+    "menuText" : "HelloWorld",
+    "id" : "HelloWorld",
+    "uri" : "HelloWorld",
+    "type" : "archivegraph",
+    "hasChildren" : true
+  }, 
+  ...
+]
 ```
