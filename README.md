@@ -2,6 +2,9 @@
 GraphViewer for TheoryGraphs
 
 ## Technical
+Overview over some technical details needed for Backend-Frontened-Communication. The whole communication between backend and frontend is encoded in JSON.
+
+### General Structure
 
 Menu-Entry for Side-Menu
 - menuText (text shown in side-menu)
@@ -45,6 +48,7 @@ Entity-Options:
 -- circle (line ends with circle; true/false)
 -- directed (line ends with arrow; true/false)
 
+### Example JSONs
 
 Example JSON for Nodes+Edges (Random example without any deeper meaning):
 ```javascript
@@ -80,4 +84,31 @@ Example JSON for Nodes+Edges (Random example without any deeper meaning):
     ...
   ]
 }
+```
+
+Example JSON for Menu-Entries:
+```javascript
+[
+  {
+    "menuText" : "HOLLight",
+    "id" : "HOLLight",
+    "uri" : "HOLLight",
+    "type" : "archivegraph",
+    "hasChildren" : true
+  }, 
+  {
+    "menuText" : "HelloWorld",
+    "id" : "HelloWorld",
+    "uri" : "HelloWorld",
+    "type" : "archivegraph",
+    "hasChildren" : true
+  }, 
+  {
+    "menuText" : "MMT",
+    "id" : "MMT",
+    "uri" : "MMT",
+    "type" : "archivegraph",
+    "hasChildren" : true
+  }
+]
 ```
