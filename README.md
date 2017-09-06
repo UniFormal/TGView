@@ -41,7 +41,7 @@ Available Entities (see globalOptions.js for details):
 - view 
 - structure
 - Entity-Options:
-- - color (default color)
+--color (default color)
 - - colorHighlight (color on click)
 - - colorHover (color on mouse hover)
 - - dashes (dashed line; true/false)
