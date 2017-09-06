@@ -1,7 +1,7 @@
 # TGView
 GraphViewer for TheoryGraphs
 
-*Technical*
+##Technical
 
 Menu-Entry for Side-Menu
 - menuText (text shown in side-menu)
