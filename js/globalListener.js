@@ -32,8 +32,8 @@ $(function ()
 		]
 	}); 
 	 
-	var jsonURL="http://neuralocean.de/graph/test/menu.json";
-	//var jsonURL=mmtUrl+":jgraph/menu?id=";
+	//var jsonURL="http://neuralocean.de/graph/test/menu.json";
+	var jsonURL=mmtUrl+":jgraph/menu?id=";
 	lazyParent="#";
 	$.get(jsonURL, addTreeNodes);
 
