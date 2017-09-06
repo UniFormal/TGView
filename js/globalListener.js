@@ -32,23 +32,46 @@ $(function ()
 		]
 	}); 
 	 
-	//var jsonURL="http://neuralocean.de/graph/test/menu.json";
-	var jsonURL=mmtUrl+":jgraph/menu?id=";
+	var jsonURL="http://neuralocean.de/graph/test/menu.json";
+	//var jsonURL=mmtUrl+":jgraph/menu?id=";
 	lazyParent="#";
 	$.get(jsonURL, addTreeNodes);
 
 	$("#theory_tree").on("select_node.jstree",
 		function(evt, data)
 		{
-			console.log(data.node);
-			createNewGraph(data.node.original.typeGraph,data.node.original.graphdata);
+			var $node = $("#" + data.node.id);
+			var y = $node.position().top + 30;
+            var x = $node.position().left+96;
+
+			$(".custom-menu-side").finish().show(10).
+			// In the right position (the mouse)
+			css({
+				top: y + "px",
+				left: x + "px",
+			});
 		}
 	);
 	
+	// If the menu element is clicked
+	$(".custom-menu-side li").click(function()
+	{
+		var type=$(this).attr("data-action");
+		
+		if(type!="close")
+		{
+			createNewGraph(type,data.node.original.graphdata);
+		}
+			
+		// Hide it AFTER the action was triggered
+		$(".custom-menu-side").hide(10);
+	});
+
 	
 	$("#theory_tree").on("open_node.jstree",
 		function(evt, data)
 		{
+			$(".custom-menu-side").hide(10);
 			lazyParent=data.node.id;
 			data.node.children=[];
 			if(alreadyAdded[lazyParent]!=true)
@@ -133,6 +156,9 @@ $(document).ready(function()
         }
     });
 
+	
+	
+	
 });
 
 // Resize Section //
@@ -145,7 +171,6 @@ jQuery(document).ready(function()
 function checkResize()
 {
 	var w = jQuery("#theory_tree_div").width();
-	console.log("resize check: "+w+" "+divW);
 	if (w != divW) 
 	{
 		divW = w;
@@ -171,6 +196,6 @@ function checkResize()
 	}
 }
 jQuery(window).resize(checkResize);
-var timer = setInterval(checkResize, 200);
+var timer = setInterval(checkResize, 250);
 
 
