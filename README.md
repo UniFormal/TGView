@@ -2,7 +2,7 @@
 GraphViewer for TheoryGraphs
 
 ## Technical
-Overview over some technical details needed for Backend-Frontened-Communication. The whole communication between backend and frontend is encoded in JSON.
+Overview over some technical details needed for Backend-Frontened-Communication and different options, which allow to change the Look & Feel of graph and UI. The whole communication between backend and frontend is encoded in JSON.
 
 ### General Structure
 
