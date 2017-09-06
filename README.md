@@ -124,10 +124,10 @@ Example JSON for NODE_STYLES (see globalOptions.js for details):
 ```javascript
 var NODE_STYLES =
 {
-  "model":
+	"model":
 	{
 		shape: "square"
 	},
-  ...
+	...
 }
 ```
