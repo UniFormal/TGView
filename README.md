@@ -56,12 +56,6 @@ Example JSON for Nodes+Edges (Random example without any deeper meaning):
   "nodes" : 
   [
     {
-      "id" : "http:\/\/mathhub.info\/Teaching\/KRMT?AbelianGroup",
-      "style" : "theory",
-      "label" : "AbelianGroup",
-      "url" : "\/?http:\/\/mathhub.info\/Teaching\/KRMT?AbelianGroup"
-    }, 
-    {
       "id" : "http:\/\/mathhub.info\/Teaching\/KRMT?Abelian",
       "style" : "theory",
       "label" : "Abelian",
@@ -103,12 +97,6 @@ Example JSON for Menu-Entries:
     "type" : "archivegraph",
     "hasChildren" : true
   }, 
-  {
-    "menuText" : "MMT",
-    "id" : "MMT",
-    "uri" : "MMT",
-    "type" : "archivegraph",
-    "hasChildren" : true
-  }
+  ...
 ]
 ```
