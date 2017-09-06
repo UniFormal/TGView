@@ -6,34 +6,34 @@ Overview over some technical details needed for Backend-Frontened-Communication 
 
 ### General Structure
 
-Menu-Entry for Side-Menu
+#### Menu-Entry for Side-Menu
 - menuText (text shown in side-menu)
 - id (internal id)
 - uri (Location of achieve on server)
 - type (Default graph type to open)
 - hasChildren (true when achieve has children)
 
-Node in graph
+#### Node in graph
 - style (any NODE_STYLE, e.g. "model")
 - shape (circle, ellipse, square)
 - mathml (MathML code/script for MPD viewer)
 - id (internal id)
 - label (text shown)
 
-Edge in graph
+#### Edge in graph
 - from (Node id of from-Node)
 - to (Node id of to-Node)
 - style (any EDGE_STYLE, e.g. "include")
 - clickText (Text shown when edge is clicked)
 
-NODE_STYLES
+#### NODE_STYLES
 Available Entities (see globalOptions.js for details):
 - model
 - theory
 - Entity-Options:
   - shape (circle, square)
 
-ARROW_STYLES
+#### ARROW_STYLES
 Available Entities (see globalOptions.js for details):
 - include
 - meta
