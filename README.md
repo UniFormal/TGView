@@ -1,5 +1,15 @@
 # TGView
-GraphViewer for TheoryGraphs
+The TGView System is a browser-based theory graph viewer developed at the [KWARC group](http://kwarc.info) at [FAU Erlangen-Nürnberg](http://www.fau.de) by Marcel Rupprecht (with help/supervision by Dennis Müller and Michael Kohlhase).  
+
+We value your feedback, please consult the [GitHub issues](issues/) for planned extensions and feel free to [open  a new issue](issues/new) if you have comments. 
+
+## Documentation
+There is a [paper](https://kwarc.info/kohlhase/submit/mathui17-tgview.pdf) that describes the system. 
+
+## find help
+[[Help Pages]]
+
+
 
 ## Technical
 Overview over some technical details needed for Backend-Frontened-Communication and different options, which allow to change the Look & Feel of graph and UI. The whole communication between backend and frontend is encoded in JSON.
