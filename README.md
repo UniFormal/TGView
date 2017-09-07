@@ -8,7 +8,7 @@ There is a [paper](https://kwarc.info/kohlhase/submit/mathui17-tgview.pdf) that 
 the system at a conceptual level. Technical information can be found in the [TGView Wiki](/wiki)
 
 ## find help
-[Help Pages](wiki/Help-Pages)
+[Help Pages](https://github.com/UniFormal/TGView/wiki/Help-Pages)
 
 
 
