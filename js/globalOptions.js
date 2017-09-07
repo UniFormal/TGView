@@ -1,3 +1,21 @@
+var serverBaseURL = undefined;
+var serverUrl = (typeof serverBaseURL == "undefined" || serverBaseURL==undefined) ? ((window.location.protocol=='file:')? "/" : "/mh/mmt/") : serverBaseURL;
+if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === "")
+	serverUrl="/";
+
+// URL for getting menu-entries in side-menu
+var menuEntriesURL=serverUrl+":jgraph/menu?id=";
+
+// URL parts for getting graphdata, construction looks like:
+// graphDataURL + graphDataURLTypeParameterName + concreteTypeValue + "&" + graphDataURLDataParameterName + concreteGraphdataValue
+var graphDataURL=serverUrl+":jgraph/json?";
+var graphDataURLTypeParameterName = "key=";
+var graphDataURLDataParameterName = "uri=";
+
+// Colors to select for colorizing nodes in graph 
+var colorizingNodesArray = ["#CCCCFF", "#FFFFCC", "#FFCC99", "#CCFFCC", "#DDDDDD", "#FFCCCC"];
+
+
 var THEORY_GRAPH_OPTIONS = 
 {
 	physics: 
