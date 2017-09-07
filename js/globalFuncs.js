@@ -3,6 +3,17 @@ var lazyParent="#";
 var lastGraphTypeUsed;
 var lastGraphDataUsed;
 
+function generateCustomSideMenu()
+{
+	html="";
+	for(var i=0;i<GRAPH_TYPES.length;i++)
+	{
+		html+='<li data-action="'+GRAPH_TYPES[i].id+'" title="'+GRAPH_TYPES[i].tooltip+'">'+GRAPH_TYPES[i].menuText+'</li>';
+	}
+	html+='<li data-action="close" title="Hides this menu">Hide</li>';
+	document.getElementById('side-menu').innerHTML = html;
+}	
+
 function setStatusText(text)
 {
 	statusbar = document.getElementById('statusBar');
