@@ -5,7 +5,7 @@ We value your feedback, please consult the [GitHub issues](issues/) for planned 
 
 ## Documentation
 There is a [paper](https://kwarc.info/kohlhase/submit/mathui17-tgview.pdf) that describes
-the system at a conceptual level. Technical information can be found in the [TGView Wiki](/wiki)
+the system at a conceptual level. Technical information can be found in the [TGView Wiki](https://github.com/UniFormal/TGView/wiki)
 
 ## find help
 [Help Pages](https://github.com/UniFormal/TGView/wiki/Help-Pages)
