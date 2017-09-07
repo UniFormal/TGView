@@ -105,11 +105,8 @@
 		<div id="tooltip-container" class="custom-tooltip" style="z-index:101"></div>
 
         <script type="text/javascript">
-            lastGraphTypeUsed=getParameterByName("type");
-		lastGraphDataUsed=getParameterByName("graphdata");
-		var mmtUrl = (typeof MMT_base_url=="undefined") ? ((window.location.protocol=='file:')? "/" : "/mh/mmt/") : MMT_base_url;
-			if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === "")
-				mmtUrl="/";
+			lastGraphTypeUsed=getParameterByName("type");
+			lastGraphDataUsed=getParameterByName("graphdata");
 				
             var selectionMode = false;
             var theoryGraph = new TheoryGraph();
@@ -127,11 +124,11 @@
 				theoryGraph.hideEdges(type, hide);
 			}
 
-            function addColors() {
-                var colorArray = ["#CCCCFF", "#FFFFCC", "#FFCC99", "#CCFFCC", "#DDDDDD", "#FFCCCC"];
+            function addColors() 
+			{
                 var html = "";
-                for (var i = 0; i < colorArray.length; i++) {
-                    html += '<div title="Colorize all selected nodes" class="colorRect" onClick="colorizeSelectedNodes(\'' + colorArray[i] + '\')" style="background-color:' + colorArray[i] + '">  </div>';
+                for (var i = 0; i < colorizingNodesArray.length; i++) {
+                    html += '<div title="Colorize all selected nodes" class="colorRect" onClick="colorizeSelectedNodes(\'' + colorizingNodesArray[i] + '\')" style="background-color:' + colorizingNodesArray[i] + '">  </div>';
                 }
                 document.getElementById("colorPicker").innerHTML = html;
             }
@@ -201,7 +198,7 @@
             htmlCanvas.style.height = htmlCanvas.height + "px";
 
             addColors();
-		generateCustomSideMenu();	
+			generateCustomSideMenu();	
 		
             createNewGraph(getParameterByName("type"),getParameterByName("graphdata"));
         </script>

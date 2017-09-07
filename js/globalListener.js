@@ -3,10 +3,6 @@ var ctxTools;
 var rectTools;
 var dragTools=false;
 var containerTools;
-var mmtUrl = (typeof MMT_base_url=="undefined") ? ((window.location.protocol=='file:')? "/" : "/mh/mmt/") : MMT_base_url;
-if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === "")
-	mmtUrl="/";
-
 
 $(function () 
 { 
@@ -33,7 +29,7 @@ $(function ()
 	}); 
 	 
 	//var jsonURL="http://neuralocean.de/graph/test/menu.json";
-	var jsonURL=mmtUrl+":jgraph/menu?id=";
+	var jsonURL=menuEntriesURL;
 	lazyParent="#";
 	$.get(jsonURL, addTreeNodes);
 
@@ -77,8 +73,7 @@ $(function ()
 			if(alreadyAdded[lazyParent]!=true)
 			{
 				console.log(lazyParent+" added: "+alreadyAdded[lazyParent]);
-				var jsonURL=mmtUrl+":jgraph/menu?id="+data.node.id;
-				//var jsonURL="http://neuralocean.de/graph/test/menu.json";
+				var jsonURL=menuEntriesURL+data.node.id;
 				alreadyAdded[lazyParent]=true;
 				$.get(jsonURL, addTreeNodes);
 			}
@@ -155,10 +150,6 @@ $(document).ready(function()
 			switchSelectionMode();
         }
     });
-
-	
-	
-	
 });
 
 // Resize Section //

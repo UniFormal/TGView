@@ -27,7 +27,7 @@ function createNewGraph(type,graphdata)
 	
 	lastGraphTypeUsed=type;
 	lastGraphDataUsed=graphdata;
-	theoryGraph.getGraph(mmtUrl+":jgraph/json?key=" + type + "&uri=" + graphdata);
+	theoryGraph.getGraph( graphDataURL+graphDataURLTypeParameterName+ type + "&" + graphDataURLDataParameterName + graphdata);
 }	
 
 function addTreeNodes(data)
@@ -45,7 +45,7 @@ function addTreeNodes(data)
 			"children": child,
 			"state" : {"opened": !childNodes[i].hasChildren}
 		};
-		$('#theory_tree').jstree().create_node(lazyParent, node, 'last',function() {console.log("Child created");});
+		$('#theory_tree').jstree().create_node(lazyParent, node, 'last',function() {});
 	}
 }		
 
