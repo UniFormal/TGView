@@ -101,22 +101,27 @@ var GRAPH_TYPES =
 	{
 		id: "thgraph",
 		menuText: "Th. Graph",
-		tooltip: "Some explanations"
+		tooltip: ""
 	},
 	{
 		id: "pgraph",
-		menuText: "",
+		menuText: "P Graph",
 		tooltip: ""
 	},
 	{
 		id: "docgraph",
-		menuText: "",
+		menuText: "Doc Graph",
 		tooltip: ""
 	},
 	{
 		id: "archivegraph",
 		menuText: "Archive Graph",
 		tooltip: ""
+	},
+	{
+		id: "mpd",
+		menuText: "MPD Graph",
+		tooltip: "MPD Graph-Viewer"
 	}
 ];
 
