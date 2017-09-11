@@ -3,6 +3,20 @@ var lazyParent="#";
 var lastGraphTypeUsed;
 var lastGraphDataUsed;
 
+function setLocation(curLoc)
+{
+    try 
+	{
+        history.pushState(null, null, curLoc);
+        return false;
+    } 
+	catch(e) 
+	{
+		
+	}
+    location.hash = '#' + curLoc;
+}
+
 function generateCustomSideMenu()
 {
 	html="";
