@@ -42,6 +42,8 @@ function createNewGraph(type,graphdata)
 	lastGraphTypeUsed=type;
 	lastGraphDataUsed=graphdata;
 	theoryGraph.getGraph( graphDataURL+graphDataURLTypeParameterName+ type + "&" + graphDataURLDataParameterName + graphdata);
+	var newURL=location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLTypeParameterName+ type + "&" + graphDataURLDataParameterName + graphdata;
+	setLocation(newURL);
 }	
 
 function addTreeNodes(data)
