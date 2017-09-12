@@ -9,8 +9,12 @@ var menuEntriesURL=serverUrl+":jgraph/menu?id=";
 // URL parts for getting graphdata, construction looks like:
 // graphDataURL + graphDataURLTypeParameterName + concreteTypeValue + "&" + graphDataURLDataParameterName + concreteGraphdataValue
 var graphDataURL=serverUrl+":jgraph/json?";
-var graphDataURLTypeParameterName = "type=";
-var graphDataURLDataParameterName = "graphdata=";
+// For Backend
+var graphDataURLTypeParameterName = "key=";
+var graphDataURLDataParameterName = "uri=";
+// For TGView
+var graphDataURLTypeParameterNameTGView = "type=";
+var graphDataURLDataParameterNameTGView = "graphdata=";
 
 // Colors to select for colorizing nodes in graph 
 var colorizingNodesArray = ["#CCCCFF", "#FFFFCC", "#FFCC99", "#CCFFCC", "#DDDDDD", "#FFCCCC"];
