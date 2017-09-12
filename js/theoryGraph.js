@@ -313,7 +313,7 @@ function TheoryGraph()
 				else if(styleInfos.shape=="square")
 				{
 					if(originalNodes[i].mathml!=undefined && originalNodes[i].mathml!="" && originalNodes[i].mathml.length>10)
-						originalNodes[i].shape="Image";
+						originalNodes[i].shape="image";
 					else
 						originalNodes[i].shape="square";
 				}
