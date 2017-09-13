@@ -52,7 +52,15 @@ var THEORY_GRAPH_OPTIONS =
 			useBorderWithImage: true  // only for image shape
 		}
 	},
-	edges: {smooth: true}
+	edges: 
+	{
+		smooth: 
+		{
+			enabled: true,
+			type: "straightCross",
+			roundness: 0.3
+		}
+	}
 	/*layout: 
 	{
 		hierarchical: 
@@ -83,7 +91,7 @@ var ARROW_STYLES=
 		dashes: false,
 		circle:false,
 		directed: false,
-		smoothEdge: false
+		smoothEdge: true
 	},
 	"meta":
 	{
