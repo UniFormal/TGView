@@ -85,9 +85,9 @@ var ARROW_STYLES=
 	},
 	"modelinclude":
 	{
-		color:"#cccccc",
-		colorHighlight:"#cccccc",
-		colorHover:"#cccccc",
+		color:"black",
+		colorHighlight:"black",
+		colorHover:"black",
 		dashes: false,
 		circle:false,
 		directed: false,
@@ -142,10 +142,10 @@ var NODE_STYLES =
 	"model":
 	{
 		shape: "square",
-		color: "#D2E5FF",
-		colorBorder: "#2B7CE9",
-		colorHighlightBorder: "#2B7CE9",
-		colorHighlight: "#D5E8FF",
+		color: "#DDDDDD",
+		colorBorder: "#222222",
+		colorHighlightBorder: "#444444",
+		colorHighlight: "#EEEEEE",
 		dashes: false
 	},
 	"theory":
