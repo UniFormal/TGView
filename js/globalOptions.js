@@ -91,7 +91,7 @@ var ARROW_STYLES=
 		dashes: false,
 		circle:false,
 		directed: false,
-		smoothEdge: true
+		smoothEdge: false
 	},
 	"meta":
 	{
