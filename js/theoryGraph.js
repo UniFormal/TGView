@@ -292,6 +292,11 @@ function TheoryGraph()
 					originalEdges[i].arrows.to.type="arrow";
 				}
 
+				if(styleInfos.smoothEdge==false)
+				{
+					originalEdges[i].smooth={enabled: false};
+				}
+				
 				originalEdges[i].dashes=styleInfos.dashes;
 				originalEdges[i].color={color:styleInfos.color, highlight:styleInfos.colorHighlight, hover:styleInfos.colorHover};
 			}
@@ -321,6 +326,38 @@ function TheoryGraph()
 				{
 					originalNodes[i].shape=styleInfos.shape;
 				}
+				
+				if(typeof originalNodes[i].color=="undefined")
+				{
+					originalNodes[i].color={highlight:{}};
+				}
+				
+				if(typeof originalNodes[i].shapeProperties=="undefined")
+				{
+					originalNodes[i].shapeProperties={};
+				}
+				
+				if (typeof styleInfos.color!="undefined" && styleInfos.color!="") 
+				{
+					originalNodes[i].color.background=styleInfos.color;
+				}
+				if (typeof styleInfos.colorBorder!="undefined" && styleInfos.colorBorder!="") 
+				{
+					originalNodes[i].color.border=styleInfos.colorBorder;
+				}
+				if (typeof styleInfos.colorHighlightBorder!="undefined" && styleInfos.colorHighlightBorder!="") 
+				{
+					originalNodes[i].color.highlight.border=styleInfos.colorHighlightBorder;
+				}
+				if (typeof styleInfos.colorHighlight!="undefined" && styleInfos.colorHighlight!="") 
+				{
+					originalNodes[i].color.highlight.background=styleInfos.colorHighlight;
+				}
+				if (typeof styleInfos.dashes!="undefined" && styleInfos.dashes==true) 
+				{
+					originalNodes[i].shapeProperties.borderDashes=[5,5];
+				}
+
 			}
 		}
 	}

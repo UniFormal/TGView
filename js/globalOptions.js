@@ -72,7 +72,8 @@ var ARROW_STYLES=
 		colorHover:"#cccccc",
 		dashes: false,
 		circle:false,
-		directed: true
+		directed: true,
+		smoothEdge: true
 	},
 	"modelinclude":
 	{
@@ -81,7 +82,8 @@ var ARROW_STYLES=
 		colorHover:"#cccccc",
 		dashes: false,
 		circle:false,
-		directed: false
+		directed: false,
+		smoothEdge: false
 	},
 	"meta":
 	{
@@ -90,7 +92,8 @@ var ARROW_STYLES=
 		colorHover:"green",
 		dashes: true,
 		circle: true,
-		directed: true
+		directed: true,
+		smoothEdge: true
 	},
 	"alignment":
 	{
@@ -99,7 +102,8 @@ var ARROW_STYLES=
 		colorHover:"red",
 		dashes: true,
 		circle: false,
-		directed: false
+		directed: false,
+		smoothEdge: true
 	},
 	"view":
 	{
@@ -108,7 +112,8 @@ var ARROW_STYLES=
 		colorHover:"black",
 		dashes: false,
 		circle:false,
-		directed: true
+		directed: true,
+		smoothEdge: true
 	},
 	"structure":
 	{
@@ -117,7 +122,8 @@ var ARROW_STYLES=
 		colorHover:"#cccccc",
 		dashes: true,
 		circle:false,
-		directed: true
+		directed: true,
+		smoothEdge: true
 	}
 };
 
@@ -131,7 +137,7 @@ var NODE_STYLES =
 		color: "#D2E5FF",
 		colorBorder: "#2B7CE9",
 		colorHighlightBorder: "#2B7CE9",
-		colorHighlight: "#D2E5FF",
+		colorHighlight: "#D5E8FF",
 		dashes: false
 	},
 	"theory":
