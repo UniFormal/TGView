@@ -380,9 +380,10 @@ function TheoryGraph()
 		
 		if(node["shape"]=="image")
 		{
-			svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+(30*1+width)+'px" height="'+(30*1+height+estimateExtraSVGHeight(node["mathml"]))+'px" preserveAspectRatio="none">' +
-			'<rect x="0" y="0" width="90%" height="90%" fill="#97C2FC"></rect>' +
-			'<foreignObject x="15" y="15" width="100%" height="100%">' +
+			var overallheight=height+estimateExtraSVGHeight(node["mathml"]);
+			svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(width+45*1)+' '+(30*1+overallheight)+'" width="'+(width+45*1)+'px" height="'+(30*1+height+estimateExtraSVGHeight(node["mathml"]))+'px" preserveAspectRatio="none">' +
+			//svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMinYMin">' +
+			'<foreignObject x="18" y="15" width="'+(width+15)+'" height="'+overallheight+'">' +
 			node["mathml"] +
 			'</foreignObject>' +
 			'</svg>';
@@ -390,7 +391,6 @@ function TheoryGraph()
 		else
 		{
 			svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+(30*1+width)+'px" height="'+(30*1+height+estimateExtraSVGHeight(node["mathml"]))+'px" preserveAspectRatio="none">' +
-			//' <circle cx="0" cy="0" r="40" fill="light-gray" />' +
 			'<foreignObject x="15" y="13" width="100%" height="100%">' +
 			node["mathml"] +
 			'</foreignObject>' +

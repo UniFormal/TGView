@@ -20,6 +20,8 @@ var graphDataURLDataParameterNameTGView = "graphdata=";
 var colorizingNodesArray = ["#CCCCFF", "#FFFFCC", "#FFCC99", "#CCFFCC", "#DDDDDD", "#FFCCCC"];
 
 
+// shapeProperties.useImageSize true
+// shapeProperties.useBorderWithImage true
 var THEORY_GRAPH_OPTIONS = 
 {
 	physics: 
@@ -43,7 +45,12 @@ var THEORY_GRAPH_OPTIONS =
 	},
 	nodes: 
 	{
-		physics:false
+		physics:false,
+		shapeProperties: 
+		{
+			useImageSize: true,  // only for image and circularImage shapes
+			useBorderWithImage: true  // only for image shape
+		}
 	},
 	edges: {smooth: true}
 	/*layout: 
@@ -114,15 +121,27 @@ var ARROW_STYLES=
 	}
 };
 
+
+
 var NODE_STYLES =
 {
 	"model":
 	{
-		shape: "square"
+		shape: "square",
+		color: "#D2E5FF",
+		colorBorder: "#2B7CE9",
+		colorHighlightBorder: "#2B7CE9",
+		colorHighlight: "#D2E5FF",
+		dashes: false
 	},
 	"theory":
 	{
-		shape: "circle"
+		shape: "circle",
+		color: "#D2E5FF",
+		colorBorder: "#2B7CE9",
+		colorHighlightBorder: "#2B7CE9",
+		colorHighlight: "#D2E5FF",
+		dashes: false
 	}
 };
 
