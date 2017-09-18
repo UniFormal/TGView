@@ -86,6 +86,12 @@ function TheoryGraph()
         zoomClusters = newClusters;
     }
 	
+	this.selectNodes = function(nodeIds)
+	{
+		network.selectNodes(nodeIds);
+		addToStateHistory("select", {"nodes": nodeIds});
+	}
+	
 	this.selectNodesWithIdLike=function(searchId)
 	{
 		var nodeIds = [];
@@ -98,6 +104,7 @@ function TheoryGraph()
 			}
 			
 		}
+		addToStateHistory("select", {"nodes": nodeIds});
 		network.selectNodes(nodeIds);
 	}
 	
@@ -145,6 +152,7 @@ function TheoryGraph()
 				nodesIdInDrawing.push(curNode.id);
 			}
 		}
+		addToStateHistory("select", {"nodes": nodesIdInDrawing});
 		network.selectNodes(nodesIdInDrawing);
 	}
 	
@@ -172,8 +180,13 @@ function TheoryGraph()
 		}
 	}
 	
-	this.cluster = function(nodeIds,name)
+	this.cluster = function(nodeIds,name,givenClusterId)
 	{
+		if(typeof givenClusterId ==="undefined")
+		{
+			givenClusterId=clusterId;
+		}
+		
 		if(nodeIds==undefined)
 		{
 			nodeIds=network.getSelectedNodes();
@@ -181,14 +194,14 @@ function TheoryGraph()
 		
 		if(name==undefined)
 		{
-			name='cluster_' +clusterId;
+			name='cluster_' +givenClusterId;
 		}
 		
 		if(network!=null)
 		{
-			clusterPositions['cluster_' +clusterId]=[];
-			clusterPositions['cluster_' +clusterId][0]=nodeIds;
-			clusterPositions['cluster_' +clusterId][1]=network.getPositions(nodeIds);
+			clusterPositions['cluster_' +givenClusterId]=[];
+			clusterPositions['cluster_' +givenClusterId][0]=nodeIds;
+			clusterPositions['cluster_' +givenClusterId][1]=network.getPositions(nodeIds);
 			var options = 
 			{
 				joinCondition:function(nodeOptions) 
@@ -205,9 +218,10 @@ function TheoryGraph()
                   clusterOptions.mass = totalMass;
                   return clusterOptions;
               },
-              clusterNodeProperties: {id: 'cluster_' +clusterId , borderWidth: 2, shape: 'database', color:"orange", label:name}
+              clusterNodeProperties: {id: 'cluster_' +givenClusterId , borderWidth: 2, shape: 'database', color:"orange", label:name}
 			}
 			network.clustering.cluster(options);
+			addToStateHistory("cluster", {"clusterId": 'cluster_' +givenClusterId, "name": name, "nodes": nodeIds});
 			clusterId++;
 		}
 	}
@@ -379,7 +393,7 @@ function TheoryGraph()
 		}
 	}
 	
-	function openCluster(nodeId)
+	this.openCluster = function(nodeId)
 	{
 		if (network.isCluster(nodeId) == true) 
 		{
@@ -390,6 +404,7 @@ function TheoryGraph()
 				  var id=clusterPositions[nodeId][0][i];
 				  toUpdate.push({id: id, x:clusterPositions[nodeId][1][id].x, y:clusterPositions[nodeId][1][id].y});
 			  }
+			  addToStateHistory("uncluster", {"clusterId": nodeId, "nodes": toUpdate});
 			  nodes.update(toUpdate);
 			  network.redraw();
         }
@@ -608,7 +623,7 @@ function TheoryGraph()
 					// A case for each action
 					case "openWindow": window.open(serverUrl+selected["url"]); break;
 					case "showURL": alert(serverUrl+selected["url"]); break;
-					case "openCluster": openCluster(selected["id"]); break;
+					case "openCluster": that.openCluster(selected["id"]); break;
 					case "inferType": alert("Not implemented yet!"); break;
 					case "showDecl": alert("Not implemented yet!"); break;
 				}

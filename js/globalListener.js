@@ -3,9 +3,39 @@ var ctxTools;
 var rectTools;
 var dragTools=false;
 var containerTools;
+var currentMenuNodeId=1;
+var currentMouseX=0;
+var currentMouseY=0;
 
 $(function () 
 { 
+    document.onmousemove = handleMouseMove;
+    function handleMouseMove(event) 
+	{
+		var dot, eventDoc, doc, body, pageX, pageY;
+        event = event || window.event; // IE-ism
+
+        // If pageX/Y aren't available and clientX/Y are,
+        // calculate pageX/Y - logic taken from jQuery.
+        // (This is to support old IE)
+        if (event.pageX == null && event.clientX != null) 
+		{
+            eventDoc = (event.target && event.target.ownerDocument) || document;
+            doc = eventDoc.documentElement;
+            body = eventDoc.body;
+
+            event.pageX = event.clientX +
+              (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+              (doc && doc.clientLeft || body && body.clientLeft || 0);
+            event.pageY = event.clientY +
+              (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+              (doc && doc.clientTop  || body && body.clientTop  || 0 );
+        }
+
+		currentMouseX = event.pageX;
+		currentMouseY = event.pageY;
+    }
+	
 	$('#theory_tree').jstree(
 	{
 		'core' : 
@@ -36,10 +66,8 @@ $(function ()
 	$("#theory_tree").on("select_node.jstree",
 		function(evt, data)
 		{
-			lastGraphDataUsed=data.node.original.graphdata;
-			var $node = $("#" + data.node.id);
-			var y = $node.position().top + 30;
-            var x = $node.position().left+96;
+			var y = currentMouseY - 16;
+            var x = currentMouseX + 4;
 
 			$(".custom-menu-side").finish().show(10).
 			// In the right position (the mouse)
@@ -47,6 +75,7 @@ $(function ()
 				top: y + "px",
 				left: x + "px",
 			});
+			evt.preventDefault();
 		}
 	);
 	
@@ -74,7 +103,7 @@ $(function ()
 			if(alreadyAdded[lazyParent]!=true)
 			{
 				console.log(lazyParent+" added: "+alreadyAdded[lazyParent]);
-				var jsonURL=menuEntriesURL+data.node.id;
+				var jsonURL=menuEntriesURL+data.node.serverId;
 				alreadyAdded[lazyParent]=true;
 				$.get(jsonURL, addTreeNodes);
 			}
@@ -126,7 +155,6 @@ $(document).ready(function()
             ctxTools.fillRect(rectTools.startX, rectTools.startY, rectTools.w, rectTools.h);
 			console.log(rectTools.startX,rectTools.startY, rectTools.w, rectTools.h);
         }
-		
     });
 
     containerTools.on("mousedown", function(e) 
