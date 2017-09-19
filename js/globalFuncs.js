@@ -113,4 +113,23 @@ function undoLastAction()
 		theoryGraph.selectNodes(lastState.param.nodes);
 	}
 	historyStates.pop();
+	doLastAction();
+}
+
+function doLastAction()
+{
+	if(historyStates.length==0)
+		return;
+	
+	var lastState = historyStates[historyStates.length-1];
+	if(lastState.func=="unselect")
+	{
+		theoryGraph.selectNodes([]);
+		historyStates.pop();
+	}
+	else if(lastState.func=="select")
+	{
+		theoryGraph.selectNodes(lastState.param.nodes);
+		historyStates.pop();
+	}
 }
