@@ -98,11 +98,10 @@ $(function ()
 		function(evt, data)
 		{
 			$(".custom-menu-side").hide(10);
-			lazyParent=data.node.id;
+			lazyParent=data.node.serverId;
 			data.node.children=[];
 			if(alreadyAdded[lazyParent]!=true)
 			{
-				console.log(lazyParent+" added: "+alreadyAdded[lazyParent]);
 				var jsonURL=menuEntriesURL+data.node.serverId;
 				alreadyAdded[lazyParent]=true;
 				$.get(jsonURL, addTreeNodes);
@@ -153,7 +152,6 @@ $(document).ready(function()
             ctxTools.setLineDash([]);
             ctxTools.fillStyle = "rgba(0, 255, 0, 0.2)";
             ctxTools.fillRect(rectTools.startX, rectTools.startY, rectTools.w, rectTools.h);
-			console.log(rectTools.startX,rectTools.startY, rectTools.w, rectTools.h);
         }
     });
 

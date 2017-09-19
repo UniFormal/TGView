@@ -64,6 +64,7 @@ function addTreeNodes(data)
 			"state" : {"opened": !childNodes[i].hasChildren}
 		};
 		$('#theory_tree').jstree().create_node(lazyParent, node, 'last',function() {});
+		currentMenuNodeId++;
 	}
 }		
 
