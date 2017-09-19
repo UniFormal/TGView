@@ -99,12 +99,13 @@ $(function ()
 		function(evt, data)
 		{
 			$(".custom-menu-side").hide(10);
-			lazyParent=data.node.original.serverId;
+			lazyParent=data.node.original.id;
+			var nodeServerId=data.node.original.serverId;
 			data.node.children=[];
-			if(alreadyAdded[lazyParent]!=true)
+			if(alreadyAdded[nodeServerId]!=true)
 			{
 				var jsonURL=menuEntriesURL+data.node.original.serverId;
-				alreadyAdded[lazyParent]=true;
+				alreadyAdded[nodeServerId]=true;
 				$.get(jsonURL, addTreeNodes);
 			}
 		}
