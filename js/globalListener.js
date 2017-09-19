@@ -98,11 +98,11 @@ $(function ()
 		function(evt, data)
 		{
 			$(".custom-menu-side").hide(10);
-			lazyParent=data.node.serverId;
+			lazyParent=data.node.original.serverId;
 			data.node.children=[];
 			if(alreadyAdded[lazyParent]!=true)
 			{
-				var jsonURL=menuEntriesURL+data.node.serverId;
+				var jsonURL=menuEntriesURL+data.node.original.serverId;
 				alreadyAdded[lazyParent]=true;
 				$.get(jsonURL, addTreeNodes);
 			}
