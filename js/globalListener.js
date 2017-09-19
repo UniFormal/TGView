@@ -66,6 +66,7 @@ $(function ()
 	$("#theory_tree").on("select_node.jstree",
 		function(evt, data)
 		{
+			lastGraphDataUsed=data.node.original.graphdata;
 			var y = currentMouseY - 16;
             var x = currentMouseX + 4;
 
