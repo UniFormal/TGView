@@ -280,12 +280,70 @@ function TheoryGraph()
 		originalNodes=data["nodes"];
 		originalEdges=data["edges"];
 
+		addUsedButNotDefinedNodes();
+		
 		ensureUniqueIds(originalNodes);
 		ensureUniqueIds(originalEdges);
 		
 		postprocessEdges();
 		
 		startConstruction();
+	}
+	
+	function addUsedButNotDefinedNodes()
+	{
+		setStatusText("Adding used but not defined nodes...");
+		var mappedNodes=[];
+		for(var i=0;i< originalNodes.length;i++ )
+		{
+			mappedNodes[originalNodes[i].id]=originalNodes[i];
+		}
+		
+		for(var i=0;i< originalEdges.length;i++ )
+		{
+			if(originalEdges[i].from != undefined && mappedNodes[originalEdges[i].from]==undefined)
+			{
+				var nodeLabel=originalEdges[i].from;
+				var exploded=originalEdges[i].from.split("?");
+				if(exploded[1]!=undefined)
+				{
+					nodeLabel=exploded[1];
+				}
+				
+				var addNode=
+				{
+					"id" : originalEdges[i].from,
+					"style" : "border",
+					"label" : nodeLabel,
+					"url" : originalEdges[i].from
+				};
+				
+				originalNodes.push(addNode);
+				mappedNodes[originalEdges[i].from]=addNode;
+				console.log("Border-Node: "+nodeLabel+" ("+originalEdges[i].from+")");
+			}
+			if(originalEdges[i].to!=undefined && mappedNodes[originalEdges[i].to]==undefined)
+			{
+				var nodeLabel=originalEdges[i].to;
+				var exploded=originalEdges[i].to.split("?");
+				if(exploded[1]!=undefined)
+				{
+					nodeLabel=exploded[1];
+				}
+				
+				var addNode=
+				{
+					"id" : originalEdges[i].to,
+					"style" : "border",
+					"label" : nodeLabel,
+					"url" : originalEdges[i].to
+				};
+				
+				originalNodes.push(addNode);
+				mappedNodes[originalEdges[i].to]=addNode;
+				console.log("Border-Node: "+nodeLabel+" ("+originalEdges[i].to+")");
+			}
+		}
 	}
 	
 	function postprocessEdges()
@@ -534,8 +592,6 @@ function TheoryGraph()
 			}
 		}
 		
-		console.log(originalNodes);
-		
 		nodes = new vis.DataSet(originalNodes);
 		edges = new vis.DataSet(originalEdges);
 		
@@ -716,7 +772,7 @@ function TheoryGraph()
 			else 
 			{
 				openOutlierClusters(params.scale);
-			}
+			} 
 		});*/
 		
 		network.once('initRedraw', function() 

@@ -148,6 +148,15 @@ var NODE_STYLES =
 		colorHighlight: "#EEEEEE",
 		dashes: false
 	},
+	"border":
+	{
+		shape: "circle",
+		color: "#E8E8E8",
+		colorBorder: "#D8D8D8",
+		colorHighlightBorder: "#A8A8A8",
+		colorHighlight: "#D8D8D8",
+		dashes: false
+	},
 	"theory":
 	{
 		shape: "circle",
