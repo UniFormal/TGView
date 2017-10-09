@@ -291,8 +291,13 @@ function Optimizer(nodes, edges)
 			currentPath.push(n);
 			var nextNode=Math.floor(Math.random() * n.connectedNodes.length);
 			
-			var maxNode=undefined;
-			if(Math.floor(Math.random() * 100)>20)
+			if(n.connectedNodes.length==0)
+			{
+				return currentPath;
+			}
+			
+			var maxNode=n.connectedNodes[0];
+			if(Math.floor(Math.random() * 100)>66)
 			{
 				for(var i=0;i<n.connectedNodes.length;i++)
 				{
@@ -305,11 +310,6 @@ function Optimizer(nodes, edges)
 			}
 			
 			var i=0;
-			if(n.connectedNodes.length==0)
-			{
-				return currentPath;
-			}
-			
 			while(n.connectedNodes[nextNode].visited==true || n.connectedNodes[nextNode].connectedNodes==undefined || n.connectedNodes[nextNode].connectedNodes.length==0)
 			{
 				nextNode=i;
@@ -369,7 +369,7 @@ function Optimizer(nodes, edges)
 		}
 		
 		var longPath=[];
-		for(var i=0;i<iterations*10;i++)
+		for(var i=0;i<iterations*16;i++)
 		{
 			if(i%50==0)
 			{
