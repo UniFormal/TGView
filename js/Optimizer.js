@@ -362,7 +362,7 @@ function Optimizer(nodes, edges)
 				maxEdgesDif=edgesDif;
 			}
 			
-			if(maxNode.toConnected < n.toConnected)
+			if(maxNode.toConnected.length < n.toConnected.length)
 			{
 				maxNode=n;
 			}
