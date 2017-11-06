@@ -20,8 +20,7 @@ var graphDataURLDataParameterNameTGView = "graphdata=";
 var colorizingNodesArray = ["#CCCCFF", "#FFFFCC", "#FFCC99", "#CCFFCC", "#DDDDDD", "#FFCCCC"];
 
 
-// shapeProperties.useImageSize true
-// shapeProperties.useBorderWithImage true
+// Options for theory-graph in general
 var THEORY_GRAPH_OPTIONS = 
 {
 	physics: 
@@ -71,6 +70,7 @@ var THEORY_GRAPH_OPTIONS =
 	}*/
 };
 
+// All available arrow styles
 var ARROW_STYLES=
 {
 	"include":
@@ -136,7 +136,7 @@ var ARROW_STYLES=
 };
 
 
-
+// All available node styles
 var NODE_STYLES =
 {
 	"model":
@@ -168,7 +168,7 @@ var NODE_STYLES =
 	}
 };
 
-
+// All available graph types (for MMT menu)
 var GRAPH_TYPES =
 [
 	{
