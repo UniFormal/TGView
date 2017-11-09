@@ -1,17 +1,29 @@
 function TheoryGraph()
 {
+	// Array holding original nodes
 	var originalNodes = null;
+	// Array holding original edges
 	var originalEdges = null;
+	// Object of vis.Network class
 	var network = null;
+	// Next unique Id to use for cluster
 	var clusterId=0;
+	// Array holding (parsed) nodes
 	var nodes;
+	// Array holding (parsed) edges
 	var edges;
+	// Last used zoom level for clustering
 	var lastClusterZoomLevel = 0;
+	// Cluster factor when zooming
     var clusterFactor = 1;
-	var that=this;
+	// Clustered points when zooming
 	var zoomClusters=[];
+	// Positions of nodes before clustering
 	var clusterPositions=[];
 
+	var that=this;
+	
+	// Hides all edges with given type
 	this.hideEdges=function(type, hideEdge)
 	{
 		var edgesToHide=[];
@@ -26,6 +38,7 @@ function TheoryGraph()
 		edges.update(edgesToHide);
 	}
 	
+	// Downloads canvas as image
 	this.downloadCanvasAsImage = function(button)
 	{
 		var minX=111110;
@@ -66,6 +79,7 @@ function TheoryGraph()
 		});
 	}
 	
+	// Opens all clusters which were clustered "clusterOutliers"
     function openOutlierClusters(scale) 
 	{
         var newClusters = [];
@@ -86,12 +100,14 @@ function TheoryGraph()
         zoomClusters = newClusters;
     }
 	
+	// Select all nodes with nodeid
 	this.selectNodes = function(nodeIds)
 	{
 		network.selectNodes(nodeIds);
 		addToStateHistory("select", {"nodes": nodeIds});
 	}
 	
+	// Select nodes which has an Id similar to searchId
 	this.selectNodesWithIdLike=function(searchId)
 	{
 		var nodeIds = [];
@@ -108,6 +124,7 @@ function TheoryGraph()
 		network.selectNodes(nodeIds);
 	}
 	
+	// Clusters all outliers
 	this.clusterOutliers=function(scale)
 	{
 		var clusterOptionsByData = 
@@ -132,6 +149,7 @@ function TheoryGraph()
 		network.clusterOutliers(clusterOptionsByData);
 	}
 	
+	// Selects all nodes in area of given rect
 	this.selectNodesInRect = function(rect) 
 	{
 		var fromX;
@@ -156,6 +174,7 @@ function TheoryGraph()
 		network.selectNodes(nodesIdInDrawing);
 	}
 	
+	// Colorizes nodes by id
 	this.colorizeNodes = function(nodeIds,color)
 	{
 		if(nodeIds==undefined)
@@ -180,6 +199,7 @@ function TheoryGraph()
 		}
 	}
 	
+	// Cluster given nodes 
 	this.cluster = function(nodeIds,name,givenClusterId)
 	{
 		if(typeof givenClusterId ==="undefined")
@@ -226,6 +246,7 @@ function TheoryGraph()
 		}
 	}
 	
+	// Get graph located at jsonURL, downlaod it and render it
 	this.getGraph= function(jsonURL)
 	{
 		setStatusText("Downloading graph...");
@@ -261,6 +282,7 @@ function TheoryGraph()
 		$.get(jsonURL, drawGraph);
 	}
 
+	// Draws given data as graph
 	function drawGraph(data, status)
 	{
 		if(status!=200 && status!="success")
@@ -290,6 +312,7 @@ function TheoryGraph()
 		startConstruction();
 	}
 	
+	// Adds nodes to node-array, which were referenced by edges but not specified in nodes-array
 	function addUsedButNotDefinedNodes()
 	{
 		setStatusText("Adding used but not defined nodes...");
@@ -346,6 +369,7 @@ function TheoryGraph()
 		}
 	}
 	
+	// Apply styles to nodes/edges
 	function postprocessEdges()
 	{
 		for(var i=0;i<originalEdges.length;i++)
@@ -434,6 +458,7 @@ function TheoryGraph()
 		}
 	}
 	
+	// Make sure every node and edge has unique ids 
 	function ensureUniqueIds(arrays)
 	{
 		var idArray=[];
@@ -451,6 +476,7 @@ function TheoryGraph()
 		}
 	}
 	
+	// Opens given cluster by id
 	this.openCluster = function(nodeId)
 	{
 		if (network.isCluster(nodeId) == true) 
@@ -468,6 +494,7 @@ function TheoryGraph()
         }
 	}
 	
+	// Estimates extra height of MathML as SVG
 	function estimateExtraSVGHeight(expression)
 	{
 		if(expression.indexOf("frac") == -1 && expression.indexOf("under") == -1  && expression.indexOf("over") == -1)
@@ -480,6 +507,7 @@ function TheoryGraph()
 		}
 	}
 	
+	// Converts MathML node to SVG node
 	function nodeToSVGMath(node)
 	{
 		$('#string_span').html(node["mathml"]);
@@ -509,6 +537,7 @@ function TheoryGraph()
 		node["image"]="data:image/svg+xml;charset=utf-8,"+ encodeURIComponent(svg);
 	}
 	
+	// Start construction of graph
 	function startConstruction()
 	{
 		setStatusText("Constructing graph...");
