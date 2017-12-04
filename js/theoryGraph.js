@@ -394,6 +394,7 @@ function TheoryGraph()
 				}
 				
 				originalEdges[i].dashes=styleInfos.dashes;
+				originalEdges[i].width=styleInfos.width;
 				originalEdges[i].color={color:styleInfos.color, highlight:styleInfos.colorHighlight, hover:styleInfos.colorHover};
 			}
 		}
