@@ -70,8 +70,31 @@ function TheoryGraph()
 			
 			//button.href = network.canvas.frame.canvas.toDataURL();
 			//button.download = "graph.png";
-			var image=network.canvas.frame.canvas.toDataURL("image/png")
-			window.open(image);
+
+			var downloadLink      = document.createElement('a');
+			downloadLink.target   = '_blank';
+			downloadLink.download = 'graph.png';
+
+			var image=network.canvas.frame.canvas.toDataURL("image/png");
+
+			var URL = window.URL || window.webkitURL;
+			var downloadUrl = image;
+
+			// set object URL as the anchor's href
+			downloadLink.href = downloadUrl;
+
+			// append the anchor to document body
+			document.body.appendChild(downloadLink);
+
+			// fire a click event on the anchor
+			downloadLink.click();
+
+			// cleanup: remove element and revoke object URL
+			document.body.removeChild(downloadLink);
+			URL.revokeObjectURL(downloadUrl);
+						
+			
+			//window.open(image);
 			network.setSize(originalWidth,originalHeight);
 			network.redraw();
 			network.fit();
