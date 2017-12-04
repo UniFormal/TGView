@@ -503,7 +503,7 @@ function TheoryGraph()
 		}
 		else
 		{
-			return 16;
+			return 0;
 		}
 	}
 	
