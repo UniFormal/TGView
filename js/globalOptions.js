@@ -81,7 +81,8 @@ var ARROW_STYLES=
 		dashes: false,
 		circle:false,
 		directed: true,
-		smoothEdge: true
+		smoothEdge: true,
+		width: 1
 	},
 	"modelinclude":
 	{
@@ -91,7 +92,8 @@ var ARROW_STYLES=
 		dashes: false,
 		circle:false,
 		directed: false,
-		smoothEdge: false
+		smoothEdge: false,
+		width: 1
 	},
 	"meta":
 	{
@@ -101,7 +103,8 @@ var ARROW_STYLES=
 		dashes: true,
 		circle: true,
 		directed: true,
-		smoothEdge: true
+		smoothEdge: true,
+		width: 1
 	},
 	"alignment":
 	{
@@ -111,7 +114,8 @@ var ARROW_STYLES=
 		dashes: true,
 		circle: false,
 		directed: false,
-		smoothEdge: true
+		smoothEdge: true,
+		width: 1
 	},
 	"view":
 	{
@@ -121,7 +125,8 @@ var ARROW_STYLES=
 		dashes: false,
 		circle:false,
 		directed: true,
-		smoothEdge: true
+		smoothEdge: true,
+		width: 1
 	},
 	"structure":
 	{
@@ -131,7 +136,8 @@ var ARROW_STYLES=
 		dashes: true,
 		circle:false,
 		directed: true,
-		smoothEdge: true
+		smoothEdge: true,
+		width: 1
 	}
 };
 
