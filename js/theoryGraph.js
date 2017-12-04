@@ -519,9 +519,9 @@ function TheoryGraph()
 		if(node["shape"]=="image")
 		{
 			var overallheight=height+estimateExtraSVGHeight(node["mathml"]);
-			svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(width+45*1)+' '+(30*1+overallheight)+'" width="'+(width+45*1)+'px" height="'+(30*1+height+estimateExtraSVGHeight(node["mathml"]))+'px" preserveAspectRatio="none">' +
+			svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(width+16*1)+' '+(16*1+overallheight)+'" width="'+(width+16*1)+'px" height="'+(16*1+overallheight)+'px" preserveAspectRatio="none">' +
 			//svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMinYMin">' +
-			'<foreignObject x="18" y="15" width="'+(width+15)+'" height="'+overallheight+'">' +
+			'<foreignObject x="8" y="8" width="'+(width+15)+'" height="'+overallheight+'">' +
 			node["mathml"] +
 			'</foreignObject>' +
 			'</svg>';
