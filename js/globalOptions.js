@@ -1,4 +1,4 @@
-var serverBaseURL = undefined;
+var serverBaseURL = "/";
 var serverUrl = (typeof serverBaseURL == "undefined" || serverBaseURL==undefined) ? ((window.location.protocol=='file:')? "/" : "/mh/mmt/") : serverBaseURL;
 if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === "")
 	serverUrl="/";
