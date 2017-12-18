@@ -305,8 +305,14 @@ function TheoryGraph()
 		$.get(jsonURL, drawGraph);
 	}
 
+	// Loads graph using JSON
+	this.loadJSONGraph=function(data)
+	{
+		drawGraph(data);
+	}
+	
 	// Draws given data as graph
-	function drawGraph(data, status)
+	function drawGraph(data, status=200)
 	{
 		if(status!=200 && status!="success")
 		{
