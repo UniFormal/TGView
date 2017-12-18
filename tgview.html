@@ -38,10 +38,11 @@
 </div>
 		
 		<div id="mainbox" style="float:left;height:100%;width:99%; padding-left:10px; ">
-			<button style="font-size:24px;cursor:pointer;margin:0px;" class="myButton" onclick="openNav()">&gt;</button>
-<button style="font-size:24px;cursor:pointer;right:16px;margin:0px;position:absolute" class="myButton" onclick="openNav2()">&lt;</button>
+			<div id="menuButtonsDiv">
+<button style="font-size:24px;cursor:pointer;margin:0px;" id="leftMenuButton" class="myButton" onclick="openNav()">&gt;</button>
+<button style="font-size:24px;cursor:pointer;right:16px;margin:0px;position:absolute" id="rightMenuButton" class="myButton" onclick="openNav2()">&lt;</button>
 
-<br /><br />
+<br /><br /> </div>
 <div id="mySidenav2" class="sidenav2">
 		<a href="javascript:void(0)" class="closebtn" onclick="closeNav2()">&times;</a>
 			<div class="toolSelector">
@@ -120,8 +121,31 @@
 		<div id="tooltip-container" class="custom-tooltip" style="z-index:101"></div>
 
 		<script type="text/javascript">
+			var selectionMode=false;
+			var theoryGraph=new TheoryGraph();
+			
 			lastGraphTypeUsed=getParameterByName("type");
 			lastGraphDataUsed=getParameterByName("graphdata");
+			
+			var jsonLoader = document.getElementById('jsonLoader');
+			jsonLoader.addEventListener('change', handleJson, false);
+
+			var viewOnlyMode=getParameterByName("viewOnlyMode");
+			if(typeof viewOnlyMode != "undefined" && viewOnlyMode=="true")
+			{
+				var menuButtonsDiv = document.getElementById('menuButtonsDiv');
+				menuButtonsDiv.style.display='none';
+			}
+
+			function handleJson(e)
+			{
+				var reader = new FileReader();
+				reader.onload = function(event)
+				{
+					theoryGraph.loadJSONGraph(JSON.parse(event.target.result));
+				}
+				reader.readAsText(e.target.files[0]);   		
+			}
 			
 			// Opens left menu
 			function openNav() 
@@ -147,9 +171,6 @@
 				document.getElementById("mySidenav2").style.width = "0";
 			}
 	
-			var selectionMode = false;
-			var theoryGraph = new TheoryGraph();
-			
 			$("#helpDialog").dialog({
 				autoOpen: false
 			});
