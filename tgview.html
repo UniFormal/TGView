@@ -48,7 +48,7 @@
 			<div class="toolSelector">
 				<div id="generalMenu" name="generalMenu">
 				
-					<input type="checkbox" id="metaEdgesCheckbox" checked onChange="hideEdges('meta', !this.checked)">
+					<input type="checkbox" id="metaEdgesCheckbox" onChange="hideEdges('meta', !this.checked)">
 					<label for="metaEdgesCheckbox">Show Meta-Edges</label>
 					<br /><br />
 
@@ -127,6 +127,8 @@
 		<script type="text/javascript">
 			var selectionMode=false;
 			var theoryGraph=new TheoryGraph();
+			
+			theoryGraph.setEdgesHidden("meta",true);
 			
 			lastGraphTypeUsed=getParameterByName("type");
 			lastGraphDataUsed=getParameterByName("graphdata");

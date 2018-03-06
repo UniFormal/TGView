@@ -21,11 +21,13 @@ function TheoryGraph()
 	// Positions of nodes before clustering
 	var clusterPositions=[];
 
+	var edgesNameToHide=[];
 	var that=this;
 	
 	// Hides all edges with given type
 	this.hideEdges=function(type, hideEdge)
 	{
+		that.setEdgesHidden(type, hideEdge);
 		var edgesToHide=[];
 		for(var i=0;i<originalEdges.length;i++)
 		{
@@ -36,6 +38,20 @@ function TheoryGraph()
 			}
 		}
 		edges.update(edgesToHide);
+	}
+
+	this.setEdgesHidden=function(type, hideEdge)
+	{
+		for(var i=0;i<edgesNameToHide.length;i++)
+		{
+			if(type==edgesNameToHide.type)
+			{
+				edgesNameToHide.hidden=hideEdge;
+				return;
+			}
+		}
+
+		edgesNameToHide.push({"hidden": hideEdge,"type": type});
 	}
 	
 	// Downloads canvas as image
@@ -648,6 +664,23 @@ function TheoryGraph()
 			else
 			{
 				opti.SolveUsingForces(600,document.getElementById('nodeSpacingBox').value);
+			}
+		}
+		
+		for(var i=0;i<originalEdges.length;i++)
+		{
+			originalEdges[i].hidden=false;
+		}
+		
+		for(var j=0;j<edgesNameToHide.length;j++)
+		{
+			for(var i=0;i<originalEdges.length;i++)
+			{
+				var type=edgesNameToHide[j].type;
+				if(type==originalEdges[i]["style"] || ("graph"+type)==originalEdges[i]["style"] )
+				{
+					originalEdges[i].hidden=edgesNameToHide[j].hidden;
+				}
 			}
 		}
 		
