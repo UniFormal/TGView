@@ -210,22 +210,19 @@ function checkResize()
 		
 		var treeDiv = jQuery('#theory_tree_div');
 		
-		
 		var htmlCanvas = document.getElementById('toolCanvas');
-		htmlCanvas.width = (window.innerWidth*0.96)|0;
-		htmlCanvas.height = (window.innerHeight*0.85)|0;
+		htmlCanvas.width = (window.innerWidth-36)|0;
+		htmlCanvas.height = (window.innerHeight-74)|0;
 		htmlCanvas.style.width=htmlCanvas.width+"px";
 		htmlCanvas.style.height=htmlCanvas.height+"px";
-		
-		
-		
+
 		htmlCanvas = document.getElementById('mainbox');
-		htmlCanvas.width = (window.innerWidth*0.96)|0;
+		htmlCanvas.width = (window.innerWidth-36)|0;
 		htmlCanvas.style.width=htmlCanvas.width+"px";
 		
 		htmlCanvas = document.getElementById('wholeNetwork');
-		htmlCanvas.width = (window.innerWidth*0.96)|0;
-		htmlCanvas.height = (window.innerHeight*0.85)|0;
+		htmlCanvas.width = (window.innerWidth-36)|0;
+		htmlCanvas.height = (window.innerHeight-74)|0;
 		htmlCanvas.style.width=htmlCanvas.width+"px";
 		htmlCanvas.style.height=htmlCanvas.height+"px";
 	}
