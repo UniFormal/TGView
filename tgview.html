@@ -256,7 +256,7 @@
 				}
 				createNewGraph();
 			}
-
+			
 			$(document).bind("contextmenu", function(event) {
 				// Avoid the real menu
 				event.preventDefault();
@@ -279,7 +279,7 @@
 			generateCustomSideMenu();	
 		
 			// Starts downloading, creating and rendering graph
-			createNewGraph(getParameterByName("type"),getParameterByName("graphdata"));
+			createNewGraph(getParameterByName(graphDataURLTypeParameterNameTGView),getParameterByName(graphDataURLDataParameterNameTGView), getParameterByName(graphDataURLHighlightParameterNameTGView));
 		</script>
 	</body>
 </html>

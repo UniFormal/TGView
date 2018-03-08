@@ -13,12 +13,16 @@ var graphDataURL=serverUrl+":jgraph/json?";
 var graphDataURLTypeParameterName = "key=";
 var graphDataURLDataParameterName = "uri=";
 // For TGView
-var graphDataURLTypeParameterNameTGView = "type=";
-var graphDataURLDataParameterNameTGView = "graphdata=";
+var graphDataURLTypeParameterNameTGView = "type";
+var graphDataURLDataParameterNameTGView = "graphdata";
+var graphDataURLHighlightParameterNameTGView = "highlight";
+
 
 // Colors to select for colorizing nodes in graph 
 var colorizingNodesArray = ["#CCCCFF", "#FFFFCC", "#FFCC99", "#CCFFCC", "#DDDDDD", "#FFCCCC"];
 
+// Color to used for highlighting nodes given by URI parameter
+var highlightColorByURI = "#ff8080";
 
 // Options for theory-graph in general
 var THEORY_GRAPH_OPTIONS = 

@@ -22,6 +22,7 @@ function TheoryGraph()
 	var clusterPositions=[];
 
 	var edgesNameToHide=[];
+	this.onConstructionDone=undefined;
 	var that=this;
 	
 	// Hides all edges with given type
@@ -211,6 +212,42 @@ function TheoryGraph()
 		}
 		addToStateHistory("select", {"nodes": nodesIdInDrawing});
 		network.selectNodes(nodesIdInDrawing);
+	}
+	
+	// Colorizes nodes by name (* used as wildcard, e.g. "identity*" will colorize "identity" and "identity_probs")
+	// nodeNames can be an array of names or list of names joined with "," e.g: name1,name2,name3
+	this.colorizeNodesByName = function(nodeNames, color)
+	{
+		if(typeof nodeNames == "undefined" || nodeNames==null || nodeNames==undefined)
+		{
+			return;
+		}
+		
+		var colorizingIds=[];
+		var nodeNamesArray=[];
+		if( typeof nodeNames == 'string' ) 
+		{
+			var nodeNamesArray = nodeNames.replace(" ", "").split(",");
+			
+		}
+		else
+		{
+			nodeNamesArray=nodeNames;
+		}
+		
+		for(var i=0;i<nodeNamesArray.length;i++)
+		{
+			console.log("^"+nodeNamesArray[i].replace("*", "(.*)")+"$");
+			var re = new RegExp("^"+nodeNamesArray[i].split("*").join("(.*)")+"$");
+			for (var j = 0; j < originalNodes.length; j++) 
+			{
+				if (re.test(originalNodes[j].label)) 
+				{
+					colorizingIds.push(originalNodes[j].id);
+				}
+			}
+		}
+		that.colorizeNodes(colorizingIds,color);
 	}
 	
 	// Colorizes nodes by id
@@ -703,6 +740,17 @@ function TheoryGraph()
 			document.body.style.cursor = 'auto';
 			setStatusText('<font color="green">Received '+originalNodes.length+' nodes</font>');
 		}
+		
+		network.on('afterDrawing', function() 
+		{	
+			if(that.onConstructionDone!=undefined)
+			{
+				var tmp=that.onConstructionDone;
+				that.onConstructionDone=undefined;;
+				tmp();
+				
+			}
+		});
 		
 		// If the document is clicked somewhere
 		network.on("click", function (e) 
