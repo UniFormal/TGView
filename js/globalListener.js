@@ -12,8 +12,28 @@ var containerTools;
 var currentMenuNodeId=1;
 // Current mouse x
 var currentMouseX=0;
-// CUrrent mouse y
+// Current mouse y
 var currentMouseY=0;
+// Variable holding data sent by parent frame
+var recievedDataJSON="";
+
+// addEventListener support for IE8
+function bindEvent(element, eventName, eventHandler) 
+{
+	if (element.addEventListener)
+	{
+		element.addEventListener(eventName, eventHandler, false);
+	} 
+	else if (element.attachEvent) 
+	{
+		element.attachEvent('on' + eventName, eventHandler);
+	}
+}
+
+bindEvent(window, 'message', function (e) 
+{
+    recievedDataJSON = e.data;
+});
 
 $(function () 
 { 

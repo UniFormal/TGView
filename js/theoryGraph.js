@@ -25,6 +25,182 @@ function TheoryGraph()
 	this.onConstructionDone=undefined;
 	var that=this;
 	
+this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
+	{
+		if (typeof parameterName == "undefined")
+		{
+			parameterName="tgviewGraphData_"+Math.floor(new Date() / 1000)+"_"+Math.floor(Math.random() * 1000);
+		}
+		
+		if (typeof onlySelected == "undefined")
+		{
+			onlySelected=false;
+		}
+
+		if (typeof compressionRate == "undefined")
+		{
+			compressionRate=1;
+		}
+		
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=iframe&"+graphDataURLDataSourceParameterNameTGView+"="+parameterName, "id":parameterName};
+	}
+	
+	this.graphToLocalStorageString=function(parameterName, onlySelected, compressionRate)
+	{
+		if (typeof parameterName == "undefined")
+		{
+			parameterName="tgviewGraphData_"+Math.floor(new Date() / 1000)+"_"+Math.floor(Math.random() * 1000);
+		}
+		
+		if (typeof onlySelected == "undefined")
+		{
+			onlySelected=false;
+		}
+
+		if (typeof compressionRate == "undefined")
+		{
+			compressionRate=1;
+		}
+		
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=param&"+graphDataURLDataSourceParameterNameTGView+"="+parameterName, "name":parameterName};
+	}
+	
+	this.graphToURIParameterString=function(onlySelected, compressionRate)
+	{
+		if (typeof onlySelected == "undefined")
+		{
+			onlySelected=false;
+		}
+
+		if (typeof compressionRate == "undefined")
+		{
+			compressionRate=2;
+		}
+		
+		return location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=param&"+graphDataURLDataSourceParameterNameTGView+"="+encodeURI(generateCompressedJSON(onlySelected, compressionRate));
+	}
+	
+	function generateCompressedJSON(onlySelected, compressionRate)
+	{	
+		var json="{\"nodes\":[";
+		if (typeof onlySelected == "undefined")
+		{
+			onlySelected=false;
+		}
+		
+		if (typeof compressionRate == "undefined")
+		{
+			compressionRate=1;
+		}
+		
+		var nodeIds=undefined;
+		var nodeIdMapping=[];
+		
+		if(onlySelected==true)
+		{
+			nodeIds=network.getSelectedNodes();
+			
+			for (var i = 0; i < nodeIds.length; i++) 
+			{
+				nodeIdMapping[nodeIds[i]]=1;
+			}
+		}
+		
+		var mapping=[];
+		var counter=0;
+		for (var i = 0; i < originalNodes.length; i++) 
+		{
+			var currentNodeJson="{";
+			var curNode = originalNodes[i];
+			
+			if(onlySelected==true && typeof nodeIdMapping[curNode.id] == "undefined")
+			{
+				continue;
+			}
+			
+			if(typeof mapping[curNode.id] == "undefined")
+			{
+				mapping[curNode.id]=counter;
+				counter++;
+			}
+			
+			currentNodeJson+='"id":"'+mapping[curNode.id]+'",';
+			currentNodeJson+='"label":"'+curNode.label+'",';
+			currentNodeJson+='"style":"'+curNode.style+'"';
+			
+			if(typeof curNode.shape != "undefined" && curNode.shape!="")
+			{
+				currentNodeJson+=',"shape":"'+curNode.shape+'"';
+			}
+			
+			if(typeof curNode.mathml != "undefined" && curNode.mathml!="")
+			{
+				currentNodeJson+=',"mathml":"'+curNode.mathml.split('"').join("'")+'"';
+			}
+			
+			if(typeof curNode.url != "undefined" && curNode.url!="" && compressionRate<2)
+			{
+				currentNodeJson+=',"url":"'+curNode.url+'"';
+			}
+			
+			currentNodeJson+="},";
+			json+=currentNodeJson;
+		}
+		
+		json=json.substring(0, json.length - 1)+"],\"edges\":[";
+		
+		for (var i = 0; i < originalEdges.length; i++) 
+		{				
+			var currEdge = originalEdges[i];
+			if(typeof mapping[currEdge.to] != "undefined" && mapping[currEdge.from] != "undefined" )
+			{
+				var currentEdgeJson="{";
+				
+				currentEdgeJson+='"to":"'+mapping[currEdge.to]+'",';
+				currentEdgeJson+='"from":"'+mapping[currEdge.from]+'",';
+				currentEdgeJson+='"style":"'+currEdge.style+'"';
+				
+				if(typeof currEdge.label != "undefined" && currEdge.label!="" && compressionRate<2)
+				{
+					currentEdgeJson+=',"label":"'+currEdge.label+'"';
+				}
+				
+				if(typeof currEdge.weight != "undefined" && currEdge.weight!="" && compressionRate<2)
+				{
+					currentEdgeJson+=',"weight":"'+currEdge.weight+'"';
+				}
+				
+				if(typeof currEdge.url != "undefined" && currEdge.url!="" && compressionRate<2)
+				{
+					currentEdgeJson+=',"url":"'+currEdge.url+'"';
+				}
+				
+				currentEdgeJson+="},";
+				json+=currentEdgeJson;
+			}
+		}
+		
+		json=json.substring(0, json.length - 1)+"]}";
+		return json;
+	}
+	
+	this.loadGraphByLocalStorage=function(parameterName)
+	{
+		if (typeof parameterName == "undefined")
+		{
+			parameterName="tgviewGraphData";
+		}
+
+		var graphData=localStorage.getItem(parameterName);
+		drawGraph(JSON.parse(graphData));
+	}
+	
+	this.loadGraphByURIParameter=function()
+	{
+		var graphData=getParameterByName(graphDataURLDataSourceParameterNameTGView);
+		drawGraph(JSON.parse(graphData));
+	}
+
 	// Hides all edges with given type
 	this.hideEdges=function(type, hideEdge)
 	{

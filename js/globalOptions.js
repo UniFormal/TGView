@@ -16,7 +16,8 @@ var graphDataURLDataParameterName = "uri=";
 var graphDataURLTypeParameterNameTGView = "type";
 var graphDataURLDataParameterNameTGView = "graphdata";
 var graphDataURLHighlightParameterNameTGView = "highlight";
-
+var graphDataURLSourceParameterNameTGView = "source";
+var graphDataURLDataSourceParameterNameTGView = "uri";
 
 // Colors to select for colorizing nodes in graph 
 var colorizingNodesArray = ["#CCCCFF", "#FFFFCC", "#FFCC99", "#CCFFCC", "#DDDDDD", "#FFCCCC"];

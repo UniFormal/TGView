@@ -86,6 +86,21 @@
 					<br />
 					Upload own JSON:
 					<input type="file" id="jsonLoader" name="jsonLoader"/>
+					<br />
+					<br />
+				<form action="">
+					<input type="radio" name="embedding" onClick="generateIFrameGraph()" value="iframe"> Embed graph in HTML using IFrame (recommended)<br>
+				  <input type="radio" name="embedding" onClick="generateHTMLGraph()" value="html"> Embed graph in HTML using JS<br>
+				  <input type="radio" name="embedding" onClick="generateParameterGraph()" value="parameter"> Embed graph in URI<br>
+				  <input type="radio" name="embedding" onClick="generateURIGraph()" value="uri"> Download graph from server (default)
+				  <br />
+				  <br />
+				  <textarea rows="2" id="uriTextarea" cols="44" readonly></textarea>
+				  <br />
+				  <textarea rows="4" id="informationTextarea" cols="44" readonly > </textarea>
+				  
+				  
+				</form>
 					</div>
 
 			</div>
@@ -153,6 +168,50 @@
 				reader.readAsText(e.target.files[0]);   		
 			}
 			
+		function generateIFrameGraph()
+		{
+			var generatedJson=theoryGraph.graphToIFrameString();
+			
+			var embeddingCode="<script>";
+			embeddingCode+="function sendMessageToIFrameFromLocalStorage"+generatedJson.id+"(param){ var tmp=localStorage.getItem(param); document.getElementById('"+generatedJson.id+"').contentWindow.postMessage(tmp, '*'); }\r\n"+generatedJson.storage;
+			embeddingCode+="<\/script>\r\n";
+			embeddingCode+="<iframe style='width:100%;min-height:550px;' src='"+generatedJson.uri+"' onLoad=\"sendMessageToIFrameFromLocalStorage"+generatedJson.id+"('"+generatedJson.id+"')\" id='"+generatedJson.id+"'><\/iframe>";
+			
+			document.getElementById("uriTextarea").value="";
+			document.getElementById("informationTextarea").value=embeddingCode;
+		}
+		
+		function generateHTMLGraph()
+		{
+			var generatedJson=theoryGraph.graphToLocalStorageString();
+			
+			document.getElementById("uriTextarea").value=generatedJson.uri;
+			document.getElementById("informationTextarea").value=generatedJson.storage;
+		}
+		
+		function generateParameterGraph()
+		{
+			var generatedJson=theoryGraph.graphToURIParameterString();
+			
+			if(generatedJson.length > 220)
+			{
+				document.getElementById("uriTextarea").value="";
+				document.getElementById("informationTextarea").value="";
+				alert("Graph is too big to be embedded in URI. Select HTML-Embedding or IFrame-Embedding instead!");
+			}
+			else
+			{
+				document.getElementById("uriTextarea").value=generatedJson;
+				document.getElementById("informationTextarea").value="";
+			}
+		}
+		
+		function generateURIGraph()
+		{
+			document.getElementById("uriTextarea").value=window.location.href;
+			document.getElementById("informationTextarea").value="";
+		}
+
 			// Opens left menu
 			function openNav() 
 			{
@@ -278,8 +337,41 @@
 			addColors();
 			generateCustomSideMenu();	
 		
-			// Starts downloading, creating and rendering graph
-			createNewGraph(getParameterByName(graphDataURLTypeParameterNameTGView),getParameterByName(graphDataURLDataParameterNameTGView), getParameterByName(graphDataURLHighlightParameterNameTGView));
+
+			var source=getParameterByName(graphDataURLSourceParameterNameTGView);
+		
+			function waitForJSONMessage()
+			{
+				if(recievedDataJSON == "")
+				{
+					setTimeout(waitForJSONMessage, 500);
+				}
+				else
+				{
+					theoryGraph.loadJSONGraph(JSON.parse(recievedDataJSON));
+					recievedDataJSON="";
+				}
+			}
+			
+			if(source == "html")
+			{
+				theoryGraph.loadGraphByLocalStorage(getParameterByName(graphDataURLDataSourceParameterNameTGView));
+			}
+			else if(source == "param")
+			{
+				theoryGraph.loadGraphByURIParameter(getParameterByName(graphDataURLDataSourceParameterNameTGView));
+			}
+			else if(source == "iframe")
+			{
+				waitForJSONMessage();
+			}
+			else
+			{
+				// Starts downloading, creating and rendering graph
+				createNewGraph(getParameterByName(graphDataURLTypeParameterNameTGView),getParameterByName(graphDataURLDataParameterNameTGView), getParameterByName(graphDataURLHighlightParameterNameTGView));
+			}
+
+			
 		</script>
 	</body>
 </html>
