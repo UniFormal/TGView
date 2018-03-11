@@ -176,6 +176,15 @@ var NODE_STYLES =
 		colorHighlightBorder: "#2B7CE9",
 		colorHighlight: "#D2E5FF",
 		dashes: false
+	},
+	"bordercondition":
+	{
+		shape: "box",
+		color: "#D2E5FF",
+		colorBorder: "#2B7CE9",
+		colorHighlightBorder: "#2B7CE9",
+		colorHighlight: "#D2E5FF",
+		dashes: false
 	}
 };
 
