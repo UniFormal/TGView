@@ -9,12 +9,15 @@
 		<link href="https://code.jquery.com/ui/1.12.1/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css">
 		<link href="css/styles.css" rel="stylesheet" type="text/css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
-		
+		<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.css" />
+		<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials-theme-flat.css" />
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.18.1/vis.js"></script>
 		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.4/jstree.min.js"></script>
-		
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.min.js"></script>
 		<!-- Load the magic path -->
 		<!-- Something does not work this way: <script type="text/javascript" src="?MMT_base_url.js"> </script> -->
 		
@@ -38,6 +41,8 @@
 </div>
 		
 		<div id="mainbox" style="float:left;height:100%;width:99%; padding-left:10px; ">
+		<div id="shareIcons" class="jssocials" style="position: absolute;top; text-align: center;width:100%">
+</div>
 			<div id="menuButtonsDiv">
 <button style="font-size:24px;cursor:pointer;margin:0px;" id="leftMenuButton" class="myButton" onclick="openNav()">&gt;</button>
 <button style="font-size:24px;cursor:pointer;right:16px;margin:0px;position:absolute" id="rightMenuButton" class="myButton" onclick="openNav2()">&lt;</button>
@@ -371,7 +376,12 @@
 				createNewGraph(getParameterByName(graphDataURLTypeParameterNameTGView),getParameterByName(graphDataURLDataParameterNameTGView), getParameterByName(graphDataURLHighlightParameterNameTGView));
 			}
 
-			
+			$("#shareIcons").jsSocials(
+			{
+			    showLabel: false,
+			    showCount: false,
+			    shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "stumbleupon", "whatsapp"]
+			});
 		</script>
 	</body>
 </html>
