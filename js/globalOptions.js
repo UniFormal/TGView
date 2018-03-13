@@ -10,8 +10,8 @@ var menuEntriesURL=serverUrl+":jgraph/menu?id=";
 // graphDataURL + graphDataURLTypeParameterName + concreteTypeValue + "&" + graphDataURLDataParameterName + concreteGraphdataValue
 var graphDataURL=serverUrl+":jgraph/json?";
 // For Backend
-var graphDataURLTypeParameterName = "key=";
-var graphDataURLDataParameterName = "uri=";
+var graphDataURLTypeParameterName = "key";
+var graphDataURLDataParameterName = "uri";
 // For TGView
 var graphDataURLTypeParameterNameTGView = "type";
 var graphDataURLDataParameterNameTGView = "graphdata";
