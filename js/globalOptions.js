@@ -177,7 +177,7 @@ var NODE_STYLES =
 		colorHighlight: "#D2E5FF",
 		dashes: false
 	},
-	"bordercondition":
+	"boundarycondition":
 	{
 		shape: "box",
 		color: "#D2E5FF",
