@@ -90,7 +90,7 @@
 					<button id="helpButton"  class="myButton">Help</button>
 					<br />
 					<br />
-					Upload own JSON:
+					Upload JSON:
 					<input type="file" id="jsonLoader" name="jsonLoader"/>
 					<br />
 					<br />
@@ -98,7 +98,8 @@
 					<input type="radio" name="embedding" onClick="generateIFrameGraph()" value="iframe"> Embed graph in HTML using IFrame (recommended)<br>
 				  <input type="radio" name="embedding" onClick="generateHTMLGraph()" value="html"> Embed graph in HTML using JS<br>
 				  <input type="radio" name="embedding" onClick="generateParameterGraph()" value="parameter"> Embed graph in URI<br>
-				  <input type="radio" name="embedding" onClick="generateURIGraph()" value="uri"> Download graph from server (default)
+				  <input type="radio" name="embedding" onClick="generateURIGraph()" value="uri"> Download graph from server (default)<br>
+				  <input type="radio" name="embedding" onClick="alert('Not implemented yet')" value="harddisk"> Save graph to harddisk using JSON
 				  <br />
 				  <br />
 				  <textarea rows="2" id="uriTextarea" cols="42" readonly></textarea>

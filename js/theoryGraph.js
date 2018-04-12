@@ -20,12 +20,14 @@ function TheoryGraph()
 	var zoomClusters=[];
 	// Positions of nodes before clustering
 	var clusterPositions=[];
-
+	var allClusters=[];
+	
+	
 	var edgesNameToHide=[];
 	this.onConstructionDone=undefined;
 	var that=this;
 	
-this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
+	this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 	{
 		if (typeof parameterName == "undefined")
 		{
@@ -39,10 +41,10 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 
 		if (typeof compressionRate == "undefined")
 		{
-			compressionRate=1;
+			compressionRate=0;
 		}
 		
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=iframe&"+graphDataURLDataSourceParameterNameTGView+"="+parameterName, "id":parameterName};
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=iframe&uri="+parameterName, "id":parameterName};
 	}
 	
 	this.graphToLocalStorageString=function(parameterName, onlySelected, compressionRate)
@@ -59,10 +61,10 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 
 		if (typeof compressionRate == "undefined")
 		{
-			compressionRate=1;
+			compressionRate=0;
 		}
 		
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=param&"+graphDataURLDataSourceParameterNameTGView+"="+parameterName, "name":parameterName};
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+parameterName, "name":parameterName};
 	}
 	
 	this.graphToURIParameterString=function(onlySelected, compressionRate)
@@ -82,6 +84,8 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 	
 	function generateCompressedJSON(onlySelected, compressionRate)
 	{	
+		var allNodePositions=[];
+		
 		var json="{\"nodes\":[";
 		if (typeof onlySelected == "undefined")
 		{
@@ -90,7 +94,12 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 		
 		if (typeof compressionRate == "undefined")
 		{
-			compressionRate=1;
+			compressionRate=0;
+		}
+
+		if(compressionRate==0)
+		{
+			allNodePositions=network.getPositions();
 		}
 		
 		var nodeIds=undefined;
@@ -124,7 +133,7 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 				counter++;
 			}
 			
-			currentNodeJson+='"id":"'+mapping[curNode.id]+'",';
+			currentNodeJson+='"id":"'+curNode.id+'",';
 			currentNodeJson+='"label":"'+curNode.label+'",';
 			currentNodeJson+='"style":"'+curNode.style+'"';
 			
@@ -143,6 +152,12 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 				currentNodeJson+=',"url":"'+curNode.url+'"';
 			}
 			
+			if(compressionRate==0)
+			{
+				currentNodeJson+=',"x":"'+allNodePositions[curNode.id].x+'"';
+				currentNodeJson+=',"y":"'+allNodePositions[curNode.id].y+'"';
+			}
+			
 			currentNodeJson+="},";
 			json+=currentNodeJson;
 		}
@@ -156,8 +171,8 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 			{
 				var currentEdgeJson="{";
 				
-				currentEdgeJson+='"to":"'+mapping[currEdge.to]+'",';
-				currentEdgeJson+='"from":"'+mapping[currEdge.from]+'",';
+				currentEdgeJson+='"to":"'+currEdge.to+'",';
+				currentEdgeJson+='"from":"'+currEdge.from+'",';
 				currentEdgeJson+='"style":"'+currEdge.style+'"';
 				
 				if(typeof currEdge.label != "undefined" && currEdge.label!="" && compressionRate<2)
@@ -180,6 +195,25 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 			}
 		}
 		
+		if(allClusters.length>0)
+		{
+			json=json.substring(0, json.length - 1)+"],\"cluster\":[";
+			
+			for (var i = 0; i < allClusters.length; i++) 
+			{		
+				var currentClusterJson="{\"nodeIds\":";
+				currentClusterJson+=JSON.stringify(clusterPositions[allClusters[i]][0]);
+				currentClusterJson+=",";
+				
+				currentClusterJson+="\"nodePositions\":";
+				currentClusterJson+=JSON.stringify(clusterPositions[allClusters[i]][1]);
+				currentClusterJson+="";
+				
+				currentClusterJson+="},";
+				json+=currentClusterJson;
+			}
+		}
+
 		json=json.substring(0, json.length - 1)+"]}";
 		return json;
 	}
@@ -474,6 +508,7 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 			clusterPositions['cluster_' +givenClusterId]=[];
 			clusterPositions['cluster_' +givenClusterId][0]=nodeIds;
 			clusterPositions['cluster_' +givenClusterId][1]=network.getPositions(nodeIds);
+			allClusters.push('cluster_' +givenClusterId);
 			var options = 
 			{
 				joinCondition:function(nodeOptions) 
@@ -748,6 +783,12 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 				  var id=clusterPositions[nodeId][0][i];
 				  toUpdate.push({id: id, x:clusterPositions[nodeId][1][id].x, y:clusterPositions[nodeId][1][id].y});
 			  }
+			  
+			var index = allClusters.indexOf(nodeId);
+			if (index > -1) 
+			{
+				allClusters.splice(index, 1);
+			}
 			  
 			  addToStateHistory("uncluster", {"clusterId": nodeId, "nodes": toUpdate, "name":node.label});
 			  nodes.update(toUpdate);
