@@ -9,6 +9,10 @@ var lastGraphTypeUsed;
 var lastGraphDataUsed;
 // Array of history actions (used for undo button)
 var historyStates=[];
+// Array of undone history actions (used for redo button)
+var undoneHistoryStates=[];
+
+var lastActionWasUndoRedo=0;
 
 // Sets the URL to given location (without reloading page)
 function setLocation(curLoc)
@@ -115,12 +119,24 @@ function getStartToEnd(start, theLen)
 function addToStateHistory(func, parameterArray)
 {
 	historyStates.push({"func":func, "param": parameterArray});
+	if(lastActionWasUndoRedo==0)
+	{
+		undoneHistoryStates=[];
+	}
+	lastActionWasUndoRedo=0;
 }
+
 
 // Undos the last action
 function undoLastAction()
 {
+	if(historyStates.length==0)
+		return;
+	
+	lastActionWasUndoRedo=1;
+	
 	var lastState = historyStates.pop();
+	undoneHistoryStates.push(lastState);
 	
 	if(lastState.func=="cluster")
 	{
@@ -138,15 +154,50 @@ function undoLastAction()
 	{
 		theoryGraph.selectNodes(lastState.param.nodes);
 	}
+	
 	historyStates.pop();
 	doLastAction();
+	lastActionWasUndoRedo=0;
 }
 
-// Redos the last action
+// Redos last undone action
+function redoLastAction()
+{
+	if(undoneHistoryStates.length==0)
+		return;
+	
+	lastActionWasUndoRedo=1;
+	
+	var lastState = undoneHistoryStates.pop();
+	
+	if(lastState.func=="cluster")
+	{
+		theoryGraph.cluster(lastState.param.nodes,lastState.param.name,lastState.param.clusterId);
+	}
+	else if(lastState.func=="uncluster")
+	{
+		theoryGraph.openCluster(lastState.param.clusterId);
+	}
+	else if(lastState.func=="select")
+	{
+		theoryGraph.selectNodes(lastState.param.nodes);
+	}
+	else if(lastState.func=="unselect")
+	{
+		theoryGraph.selectNodes([]);
+	}
+	//undoneHistoryStates.pop();
+	//doLastAction();
+	lastActionWasUndoRedo=0;
+}
+
+// Dos the last action
 function doLastAction()
 {
 	if(historyStates.length==0)
 		return;
+
+	lastActionWasUndoRedo=1;
 	
 	var lastState = historyStates[historyStates.length-1];
 	if(lastState.func=="unselect")
@@ -159,4 +210,6 @@ function doLastAction()
 		theoryGraph.selectNodes(lastState.param.nodes);
 		historyStates.pop();
 	}
+	
+	lastActionWasUndoRedo=0;
 }

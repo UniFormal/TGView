@@ -740,6 +740,7 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 	{
 		if (network.isCluster(nodeId) == true) 
 		{
+			var node = network.body.nodes[nodeId].options;
               network.openCluster(nodeId);
 			  var toUpdate=[];
 			  for (var i=0;i<clusterPositions[nodeId][0].length;i++) 
@@ -747,7 +748,8 @@ this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 				  var id=clusterPositions[nodeId][0][i];
 				  toUpdate.push({id: id, x:clusterPositions[nodeId][1][id].x, y:clusterPositions[nodeId][1][id].y});
 			  }
-			  addToStateHistory("uncluster", {"clusterId": nodeId, "nodes": toUpdate});
+			  
+			  addToStateHistory("uncluster", {"clusterId": nodeId, "nodes": toUpdate, "name":node.label});
 			  nodes.update(toUpdate);
 			  network.redraw();
         }
