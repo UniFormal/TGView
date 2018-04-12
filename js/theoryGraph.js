@@ -572,7 +572,31 @@ function TheoryGraph()
 	// Loads graph using JSON
 	this.loadJSONGraph=function(data)
 	{
-		drawGraph(data);
+		if(data.length<20)
+		{
+			setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
+			document.body.style.cursor = 'auto';
+			return;
+		}
+		
+		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
+		{
+			setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
+			document.body.style.cursor = 'auto';
+			return;
+		}
+
+		originalNodes=data["nodes"];
+		originalEdges=data["edges"];
+
+		addUsedButNotDefinedNodes();
+		
+		ensureUniqueIds(originalNodes);
+		ensureUniqueIds(originalEdges);
+		
+		postprocessEdges();
+		
+		startConstruction(true);
 	}
 	
 	// Draws given data as graph
@@ -840,7 +864,7 @@ function TheoryGraph()
 	}
 	
 	// Start construction of graph
-	function startConstruction()
+	function startConstruction(fixedPositions=false)
 	{
 		setStatusText("Constructing graph...");
 		var processedNodes=0;
@@ -881,45 +905,48 @@ function TheoryGraph()
 		
 		if(nodesCount==0)
 		{
-			startRendering();
+			startRendering(fixedPositions);
 		}
 	}
 	
 	// Called when the Visualization API is loaded.
-	function startRendering() 
+	function startRendering(fixedPositions=false) 
 	{
 		setStatusText("Rendering graph...");
-		if(typeof THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
+		if(fixedPositions==false)
 		{
-			var opti=new Optimizer(originalNodes,originalEdges);
-			if(originalNodes.length+originalEdges.length>3000)
+			if(typeof THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
 			{
-				opti.weaklyHierarchicalLayout(500,document.getElementById('nodeSpacingBox').value);
+				var opti=new Optimizer(originalNodes,originalEdges);
+				if(originalNodes.length+originalEdges.length>3000)
+				{
+					opti.weaklyHierarchicalLayout(500,document.getElementById('nodeSpacingBox').value);
+				}
+				else if(originalNodes.length+originalEdges.length>2000)
+				{
+					opti.weaklyHierarchicalLayout(700,document.getElementById('nodeSpacingBox').value);
+				}
+				else
+				{
+					opti.weaklyHierarchicalLayout(1000,document.getElementById('nodeSpacingBox').value);
+				}
 			}
-			else if(originalNodes.length+originalEdges.length>2000)
+			else if(THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==2)
 			{
-				opti.weaklyHierarchicalLayout(700,document.getElementById('nodeSpacingBox').value);
-			}
-			else
-			{
-				opti.weaklyHierarchicalLayout(1000,document.getElementById('nodeSpacingBox').value);
-			}
-		}
-		else if(THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==2)
-		{
-			var opti=new Optimizer(originalNodes,originalEdges);
-			opti.GenerateRandomSolution();
-			if(originalNodes.length+originalEdges.length>3000)
-			{
-				opti.SolveUsingForces(200,document.getElementById('nodeSpacingBox').value);
-			}
-			else if(originalNodes.length+originalEdges.length>2000)
-			{
-				opti.SolveUsingForces(400,document.getElementById('nodeSpacingBox').value);
-			}
-			else
-			{
-				opti.SolveUsingForces(600,document.getElementById('nodeSpacingBox').value);
+				var opti=new Optimizer(originalNodes,originalEdges);
+				opti.GenerateRandomSolution();
+				if(originalNodes.length+originalEdges.length>3000)
+				{
+					opti.SolveUsingForces(200,document.getElementById('nodeSpacingBox').value);
+				}
+				else if(originalNodes.length+originalEdges.length>2000)
+				{
+					opti.SolveUsingForces(400,document.getElementById('nodeSpacingBox').value);
+				}
+				else
+				{
+					opti.SolveUsingForces(600,document.getElementById('nodeSpacingBox').value);
+				}
 			}
 		}
 		
