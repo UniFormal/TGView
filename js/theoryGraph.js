@@ -44,7 +44,7 @@ function TheoryGraph()
 			compressionRate=0;
 		}
 		
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=iframe&uri="+parameterName, "id":parameterName};
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=iframe&"+graphDataURLDataSourceParameterNameTGView+"="+parameterName, "id":parameterName};
 	}
 	
 	this.graphToLocalStorageString=function(parameterName, onlySelected, compressionRate)
@@ -64,7 +64,7 @@ function TheoryGraph()
 			compressionRate=0;
 		}
 		
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+parameterName, "name":parameterName};
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=param&"+graphDataURLDataSourceParameterNameTGView+"="+parameterName, "name":parameterName};
 	}
 	
 	this.graphToURIParameterString=function(onlySelected, compressionRate)
