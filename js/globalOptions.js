@@ -179,12 +179,12 @@ var NODE_STYLES =
 	},
 	"boundarycondition":
 	{
-		shape: "box",
-		color: "#D2E5FF",
-		colorBorder: "#2B7CE9",
-		colorHighlightBorder: "#2B7CE9",
-		colorHighlight: "#D2E5FF",
-		dashes: false
+		shape: "square",
+		color: "#EEEEEE",
+		colorBorder: "#DDDDDD",
+		colorHighlightBorder: "#CCCCCC",
+		colorHighlight: "#DDDDDD",
+		dashes: true
 	}
 };
 
