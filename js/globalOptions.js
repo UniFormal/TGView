@@ -87,7 +87,8 @@ var ARROW_STYLES=
 		circle:false,
 		directed: true,
 		smoothEdge: true,
-		width: 1
+		width: 1,
+		alias: "Include-Edges"
 	},
 	"modelinclude":
 	{
@@ -98,7 +99,8 @@ var ARROW_STYLES=
 		circle:false,
 		directed: false,
 		smoothEdge: false,
-		width: 1
+		width: 1,
+		alias: "Model Includes-Edges"
 	},
 	"meta":
 	{
@@ -109,7 +111,8 @@ var ARROW_STYLES=
 		circle: true,
 		directed: true,
 		smoothEdge: true,
-		width: 1
+		width: 1,
+		alias: "Meta-Edges"
 	},
 	"alignment":
 	{
@@ -120,7 +123,8 @@ var ARROW_STYLES=
 		circle: false,
 		directed: false,
 		smoothEdge: true,
-		width: 1
+		width: 1,
+		alias: "Alignment-Edges"
 	},
 	"view":
 	{
@@ -131,7 +135,8 @@ var ARROW_STYLES=
 		circle:false,
 		directed: true,
 		smoothEdge: true,
-		width: 1
+		width: 1,
+		alias: "View-Edges"
 	},
 	"structure":
 	{
@@ -142,7 +147,8 @@ var ARROW_STYLES=
 		circle:false,
 		directed: true,
 		smoothEdge: true,
-		width: 1
+		width: 1,
+		alias: "Structure-Edges"
 	}
 };
 

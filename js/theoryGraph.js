@@ -27,6 +27,32 @@ function TheoryGraph()
 	this.onConstructionDone=undefined;
 	var that=this;
 	
+	this.getUsedNodeTypes=function()
+	{
+		var usedNodeTypes=[];
+		for (var i = 0; i < originalNodes.length; i++) 
+		{
+			if(usedNodeTypes.indexOf(originalNodes[i]["style"])==-1)
+			{
+				usedNodeTypes.push(originalNodes[i]["style"]);
+			}
+		}
+		return usedNodeTypes;
+	}
+	
+	this.getUsedEdgeTypes=function()
+	{
+		var usedEdgeTypes=[];
+		for (var i = 0; i < originalEdges.length; i++) 
+		{
+			if(usedEdgeTypes.indexOf(originalEdges[i]["style"])==-1)
+			{
+				usedEdgeTypes.push(originalEdges[i]["style"]);
+			}
+		}
+		return usedEdgeTypes;
+	}
+	
 	this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
 	{
 		if (typeof parameterName == "undefined")

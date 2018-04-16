@@ -29,10 +29,30 @@ function setLocation(curLoc)
     location.hash = '#' + curLoc;
 }
 
+
+
+function generateEdgesHideDiv()
+{
+	var usedEdgeTypes = theoryGraph.getUsedEdgeTypes();
+	var html="<strong>Hide/Show Edges</strong><br>";
+	for(var i=0;i<usedEdgeTypes.length;i++)
+	{
+		var alias=(typeof ARROW_STYLES[usedEdgeTypes[i]] === "undefined" ? ARROW_STYLES[usedEdgeTypes[i].replace("graph","")].alias : ARROW_STYLES[usedEdgeTypes[i]].alias);
+		html+='<input type="checkbox" '+(usedEdgeTypes[i]=="meta" || usedEdgeTypes[i]=="graphmeta" ? "" : "checked")+' id="edgesCheckbox_'+i+'" value="'+usedEdgeTypes[i]+'" onChange="hideEdges(this.value, !this.checked)"><label for="edgesCheckbox_'+i+'">Show '+alias+'</label>';
+		if(i!=usedEdgeTypes.length-1)
+		{
+			html+="<br>";
+		}
+	}
+	
+	document.getElementById("edgesShowHideDiv").innerHTML=html;
+}
+
 // Executed after first drawing of graph finished
 function updateNetworkOnFirstCall()
 {
 	theoryGraph.colorizeNodesByName(getParameterByName(graphDataURLHighlightParameterNameTGView),highlightColorByURI);
+	generateEdgesHideDiv();
 }
 
 // Creates right-click menu for MMT menu (left side)
