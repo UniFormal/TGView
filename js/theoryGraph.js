@@ -57,7 +57,7 @@ function TheoryGraph()
 			
 		}
 		addToStateHistory("select", {"nodes": edgeIds});
-		network.selectNodes(edgeIds);
+		network.selectEdges(edgeIds);
 	}
 	
 	this.getUsedNodeTypes=function()
