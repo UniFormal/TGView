@@ -31,7 +31,7 @@ function setLocation(curLoc)
 
 
 
-function generateEdgesHideDiv()
+function generateEdgesNodesHideDiv()
 {
 	var usedEdgeTypes = theoryGraph.getUsedEdgeTypes();
 	var html="<strong>Hide/Show Edges</strong><br>";
@@ -39,7 +39,16 @@ function generateEdgesHideDiv()
 	{
 		var alias=(typeof ARROW_STYLES[usedEdgeTypes[i]] === "undefined" ? ARROW_STYLES[usedEdgeTypes[i].replace("graph","")].alias : ARROW_STYLES[usedEdgeTypes[i]].alias);
 		html+='<input type="checkbox" '+(usedEdgeTypes[i]=="meta" || usedEdgeTypes[i]=="graphmeta" ? "" : "checked")+' id="edgesCheckbox_'+i+'" value="'+usedEdgeTypes[i]+'" onChange="hideEdges(this.value, !this.checked)"><label for="edgesCheckbox_'+i+'">Show '+alias+'</label>';
-		if(i!=usedEdgeTypes.length-1)
+		html+="<br>";
+	}
+	
+	var usedNodeTypes = theoryGraph.getUsedNodeTypes();
+	html+="<br><strong>Hide/Show Nodes</strong><br>";
+	for(var i=0;i<usedNodeTypes.length;i++)
+	{
+		var alias=(typeof NODE_STYLES[usedNodeTypes[i]] === "undefined" ? NODE_STYLES[usedNodeTypes[i].replace("graph","")].alias : NODE_STYLES[usedNodeTypes[i]].alias);
+		html+='<input type="checkbox" '+"checked"+' id="nodesCheckbox_'+i+'" value="'+usedNodeTypes[i]+'" onChange="hideNodes(this.value, !this.checked)"><label for="nodesCheckbox_'+i+'">Show '+alias+'</label>';
+		if(i!=usedNodeTypes.length-1)
 		{
 			html+="<br>";
 		}
@@ -52,7 +61,8 @@ function generateEdgesHideDiv()
 function updateNetworkOnFirstCall()
 {
 	theoryGraph.colorizeNodesByName(getParameterByName(graphDataURLHighlightParameterNameTGView),highlightColorByURI);
-	generateEdgesHideDiv();
+	generateEdgesNodesHideDiv();
+	theoryGraph.hideEdges("graphmeta",true);
 }
 
 // Creates right-click menu for MMT menu (left side)

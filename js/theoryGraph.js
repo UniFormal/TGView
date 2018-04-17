@@ -21,6 +21,7 @@ function TheoryGraph()
 	// Positions of nodes before clustering
 	var clusterPositions=[];
 	var allClusters=[];
+	var hiddenNodes={};
 	
 	
 	var edgesNameToHide=[];
@@ -268,22 +269,73 @@ function TheoryGraph()
 		var edgesToHide=[];
 		for(var i=0;i<originalEdges.length;i++)
 		{
-			console.log(type+""+originalEdges[i]["style"]);
+			//console.log(type+""+originalEdges[i]["style"]);
 			if(type==originalEdges[i]["style"] || ("graph"+type)==originalEdges[i]["style"] )
+			{
+				if(hideEdge==true)
+				{
+					edgesToHide.push({id: originalEdges[i]["id"], hidden: hideEdge});
+				}
+				else if(hideEdge==false && (hiddenNodes[originalEdges[i].to]==false && hiddenNodes[originalEdges[i].from]==false))
+				{
+					edgesToHide.push({id: originalEdges[i]["id"], hidden: hideEdge});
+				}
+			}
+		}
+		edges.update(edgesToHide);
+	}
+
+	this.hideNodes=function(type, hideEdge)
+	{
+		//that.setEdgesHidden(type, hideEdge);
+		var nodesToHide=[];
+		
+		for(var i=0;i<originalNodes.length;i++)
+		{
+			//console.log(type+""+originalEdges[i]["style"]);
+			if(type==originalNodes[i]["style"] || ("graph"+type)==originalNodes[i]["style"] )
+			{
+				nodesToHide.push({id: originalNodes[i]["id"], hidden: hideEdge});
+				hiddenNodes[originalNodes[i]["id"]]=hideEdge;
+			}
+		}
+		nodes.update(nodesToHide);
+		
+		var mappedEdges={};
+		for(var i=0;i<edgesNameToHide.length;i++)
+		{
+			mappedEdges[edgesNameToHide[i].type]=edgesNameToHide[i].hidden;
+		}
+		
+		var edgesToHide=[];
+		for(var i=0;i<originalEdges.length;i++)
+		{
+			if(hideEdge==true && (hiddenNodes[originalEdges[i].to] == true || hiddenNodes[originalEdges[i].from] == true))
+			{
+				edgesToHide.push({id: originalEdges[i]["id"], hidden: hideEdge});
+			}
+			
+			if(typeof mappedEdges[originalEdges[i]["style"]] != "undefined" && mappedEdges[originalEdges[i]["style"]]!=hideEdge)
+			{
+				continue;
+			}
+			
+			
+			if(hideEdge==false && (hiddenNodes[originalEdges[i].to]==false && hiddenNodes[originalEdges[i].from]==false))
 			{
 				edgesToHide.push({id: originalEdges[i]["id"], hidden: hideEdge});
 			}
 		}
 		edges.update(edgesToHide);
 	}
-
+	
 	this.setEdgesHidden=function(type, hideEdge)
 	{
 		for(var i=0;i<edgesNameToHide.length;i++)
 		{
-			if(type==edgesNameToHide.type)
+			if(type==edgesNameToHide[i].type)
 			{
-				edgesNameToHide.hidden=hideEdge;
+				edgesNameToHide[i].hidden=hideEdge;
 				return;
 			}
 		}
@@ -906,6 +958,7 @@ function TheoryGraph()
 
 		for(var i=0;i<originalNodes.length;i++)
 		{
+			hiddenNodes[originalNodes[i]["id"]]=false;
 			if(originalNodes[i]["image"]!="" && originalNodes[i]["image"]!=undefined)
 			{
 				function callback(node,data, status)

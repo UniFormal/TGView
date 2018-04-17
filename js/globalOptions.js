@@ -163,7 +163,8 @@ var NODE_STYLES =
 		colorBorder: "#222222",
 		colorHighlightBorder: "#444444",
 		colorHighlight: "#EEEEEE",
-		dashes: false
+		dashes: false,
+		alias: "Model-Nodes"
 	},
 	"border":
 	{
@@ -172,7 +173,8 @@ var NODE_STYLES =
 		colorBorder: "#D8D8D8",
 		colorHighlightBorder: "#A8A8A8",
 		colorHighlight: "#D8D8D8",
-		dashes: false
+		dashes: false,
+		alias: "Border-Nodes"
 	},
 	"theory":
 	{
@@ -181,7 +183,8 @@ var NODE_STYLES =
 		colorBorder: "#2B7CE9",
 		colorHighlightBorder: "#2B7CE9",
 		colorHighlight: "#D2E5FF",
-		dashes: false
+		dashes: false,
+		alias: "Theory-Nodes"
 	},
 	"boundarycondition":
 	{
@@ -190,7 +193,8 @@ var NODE_STYLES =
 		colorBorder: "#DDDDDD",
 		colorHighlightBorder: "#CCCCCC",
 		colorHighlight: "#DDDDDD",
-		dashes: true
+		dashes: true,
+		alias: "Boundary-Condition-Nodes"
 	}
 };
 
