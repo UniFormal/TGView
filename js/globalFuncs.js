@@ -38,6 +38,7 @@ function generateEdgesNodesHideDiv()
 	for(var i=0;i<usedEdgeTypes.length;i++)
 	{
 		var alias=(typeof ARROW_STYLES[usedEdgeTypes[i]] === "undefined" ? ARROW_STYLES[usedEdgeTypes[i].replace("graph","")].alias : ARROW_STYLES[usedEdgeTypes[i]].alias);
+		html+="<img onClick='selectEdgesByType(\""+usedEdgeTypes[i]+"\")' src='img/select.png' width='14' style='width:14px;' title='Select all "+alias+"'> </img>";
 		html+='<input type="checkbox" '+(usedEdgeTypes[i]=="meta" || usedEdgeTypes[i]=="graphmeta" ? "" : "checked")+' id="edgesCheckbox_'+i+'" value="'+usedEdgeTypes[i]+'" onChange="hideEdges(this.value, !this.checked)"><label for="edgesCheckbox_'+i+'">Show '+alias+'</label>';
 		html+="<br>";
 	}
@@ -47,6 +48,7 @@ function generateEdgesNodesHideDiv()
 	for(var i=0;i<usedNodeTypes.length;i++)
 	{
 		var alias=(typeof NODE_STYLES[usedNodeTypes[i]] === "undefined" ? NODE_STYLES[usedNodeTypes[i].replace("graph","")].alias : NODE_STYLES[usedNodeTypes[i]].alias);
+		html+="<img onClick='selectNodesByType(\""+usedNodeTypes[i]+"\")' src='img/select.png' width='14' style='width:14px;' title='Select all "+alias+"'> </img>";
 		html+='<input type="checkbox" '+"checked"+' id="nodesCheckbox_'+i+'" value="'+usedNodeTypes[i]+'" onChange="hideNodes(this.value, !this.checked)"><label for="nodesCheckbox_'+i+'">Show '+alias+'</label>';
 		if(i!=usedNodeTypes.length-1)
 		{

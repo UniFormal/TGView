@@ -28,6 +28,38 @@ function TheoryGraph()
 	this.onConstructionDone=undefined;
 	var that=this;
 	
+	this.selectNodesByType=function(type)
+	{
+		var nodeIds = network.getSelectedNodes();;
+		for (var i = 0; i < originalNodes.length; i++) 
+		{
+			var curNode = originalNodes[i];
+			if(curNode["style"]==type)
+			{
+				nodeIds.push(curNode.id);
+			}
+			
+		}
+		addToStateHistory("select", {"nodes": nodeIds});
+		network.selectNodes(nodeIds);
+	}
+	
+	this.selectEdgesByType=function(type)
+	{
+		var edgeIds = [];
+		for (var i = 0; i < originalEdges.length; i++) 
+		{
+			var currEdge = originalEdges[i];
+			if(currEdge["style"]==type)
+			{
+				edgeIds.push(currEdge.id);
+			}
+			
+		}
+		addToStateHistory("select", {"nodes": edgeIds});
+		network.selectNodes(edgeIds);
+	}
+	
 	this.getUsedNodeTypes=function()
 	{
 		var usedNodeTypes=[];

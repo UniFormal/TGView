@@ -348,6 +348,16 @@
 
 			var source=getParameterByName(graphDataURLSourceParameterNameTGView);
 		
+			function selectNodesByType(type)
+			{
+				theoryGraph.selectNodesByType(type);
+			}
+			
+			function selectEdgesByType(type)
+			{
+				theoryGraph.selectEdgesByType(type);
+			}
+		
 			function downloadGraphJSON()
 			{
 				download("graph_data.json", theoryGraph.graphToStringJSON());
