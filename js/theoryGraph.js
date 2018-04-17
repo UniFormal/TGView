@@ -33,7 +33,7 @@ function TheoryGraph()
 		var usedNodeTypes=[];
 		for (var i = 0; i < originalNodes.length; i++) 
 		{
-			if(usedNodeTypes.indexOf(originalNodes[i]["style"])==-1)
+			if(typeof originalNodes[i]["style"]!="undefined" && usedNodeTypes.indexOf(originalNodes[i]["style"])==-1)
 			{
 				usedNodeTypes.push(originalNodes[i]["style"]);
 			}
@@ -46,7 +46,7 @@ function TheoryGraph()
 		var usedEdgeTypes=[];
 		for (var i = 0; i < originalEdges.length; i++) 
 		{
-			if(usedEdgeTypes.indexOf(originalEdges[i]["style"])==-1)
+			if(typeof originalEdges[i]["style"]!="undefined" && usedEdgeTypes.indexOf(originalEdges[i]["style"])==-1)
 			{
 				usedEdgeTypes.push(originalEdges[i]["style"]);
 			}
