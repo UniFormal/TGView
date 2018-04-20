@@ -929,12 +929,17 @@ function TheoryGraph()
 		
 		edges.update(edgesJSON);
 		nodes.update(nodesJSON);
-		setStatusText("Successfully recieved "+nodesJSON.length+" nodes and "+edgesJSON.length+" edges!");
+		setStatusText("<font color=\"green\">Successfully recieved "+nodesJSON.length+" node(s) and "+edgesJSON.length+" edge(s)!</font>");
 		document.body.style.cursor = 'auto';
 	}
 	
 	this.lazyLoadNodes=function(jsonURL)
 	{
+		if(jsonURL==undefined || jsonURL.length<3)
+		{
+			return;
+		}
+		
 		setStatusText("Downloading nodes...");
 		document.body.style.cursor = 'wait';
 		
@@ -1261,6 +1266,7 @@ function TheoryGraph()
 					case "openCluster": that.openCluster(selected["id"]); break;
 					case "inferType": alert("Not implemented yet!"); break;
 					case "showDecl": alert("Not implemented yet!"); break;
+					case "childNodes": that.lazyLoadNodes(selectedNode.childsURL) ; break;
 				}
 			}
 			
