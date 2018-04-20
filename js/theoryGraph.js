@@ -1196,6 +1196,7 @@ function TheoryGraph()
 		{	
 			if(that.onConstructionDone!=undefined)
 			{
+				console.log("Execute onConstructionDone");
 				var tmp=that.onConstructionDone;
 				that.onConstructionDone=undefined;;
 				tmp();
