@@ -896,8 +896,29 @@ function TheoryGraph()
 		}
 	}
 	
-	this.addNodesAndEdges=function(data)
+	function addNodesAndEdges(data, status=200)
 	{
+		if(status!=200 && status!="success")
+		{
+			setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+status+')</font>');
+			document.body.style.cursor = 'auto';
+			return;
+		}
+	
+		if(data.length<20)
+		{
+			setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
+			document.body.style.cursor = 'auto';
+			return;
+		}
+		
+		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
+		{
+			setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
+			document.body.style.cursor = 'auto';
+			return;
+		}
+		
 		var nodesJSON=data["nodes"];
 		var edgesJSON=data["edges"];
 		
@@ -908,6 +929,42 @@ function TheoryGraph()
 		
 		edges.update(edgesJSON);
 		nodes.update(nodesJSON);
+		setStatusText("Successfully recieved "+nodesJSON.length+" nodes and "+edgesJSON.length+" edges!");
+	}
+	
+	this.lazyLoadNodes=function(jsonURL)
+	{
+		setStatusText("Downloading nodes...");
+		document.body.style.cursor = 'wait';
+		
+		$.ajaxSetup(
+		{
+            error: function(x, e) 
+			{
+                if (x.status == 0) 
+				{
+					setStatusText('<font color="red">Downloading nodes failed (Check Your Network)</font>');
+					document.body.style.cursor = 'auto';
+                } 
+                else if (x.status == 404) 
+				{
+					setStatusText('<font color="red">Downloading nodes failed (Requested URL not found)</font>');
+					document.body.style.cursor = 'auto';
+                } 
+				else if (x.status == 500) 
+				{
+					setStatusText('<font color="red">Downloading nodes failed (Internel Server Error)</font>');
+                    document.body.style.cursor = 'auto';
+                }  
+				else 
+				{
+					setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+x.status+')</font>');
+					document.body.style.cursor = 'auto';
+                }
+            }
+        });
+		
+		$.get(jsonURL, addNodesAndEdges);
 	}
 	
 	// Make sure every node and edge has unique ids 
