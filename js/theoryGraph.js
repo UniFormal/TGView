@@ -1118,8 +1118,10 @@ function TheoryGraph()
 	function startRendering(fixedPositions=false) 
 	{
 		setStatusText("Rendering graph...");
+		console.log("fixedPositions: "+fixedPositions);
 		if(fixedPositions==false)
 		{
+			
 			if(typeof THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
 			{
 				var opti=new Optimizer(originalNodes,originalEdges);
