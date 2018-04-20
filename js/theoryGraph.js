@@ -510,7 +510,7 @@ function TheoryGraph()
 	}
 	
 	// Selects all nodes in area of given rect
-	this.selectNodesInRect = function(rect) 
+		this.selectNodesInRect = function(rect) 
 	{
 		var fromX;
 		var toX;
@@ -524,10 +524,13 @@ function TheoryGraph()
 		{
 			var curNode = originalNodes[i];
 			var nodePosition = network.getPositions([curNode.id]);
-			var nodeXY = network.canvasToDOM({x: nodePosition[curNode.id].x, y: nodePosition[curNode.id].y});
-			if (xRange.start <= nodeXY.x && nodeXY.x <= xRange.end && yRange.start <= nodeXY.y && nodeXY.y <= yRange.end) 
+			if(typeof nodePosition!="undefined" && typeof network.body.nodes[curNode.id] !="undefined" && network.body.nodes[curNode.id].options.hidden!=true)
 			{
-				nodesIdInDrawing.push(curNode.id);
+				var nodeXY = network.canvasToDOM({x: nodePosition[curNode.id].x, y: nodePosition[curNode.id].y});
+				if (xRange.start <= nodeXY.x && nodeXY.x <= xRange.end && yRange.start <= nodeXY.y && nodeXY.y <= yRange.end) 
+				{
+					nodesIdInDrawing.push(curNode.id);
+				}
 			}
 		}
 		addToStateHistory("select", {"nodes": nodesIdInDrawing});
