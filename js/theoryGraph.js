@@ -930,6 +930,7 @@ function TheoryGraph()
 		edges.update(edgesJSON);
 		nodes.update(nodesJSON);
 		setStatusText("Successfully recieved "+nodesJSON.length+" nodes and "+edgesJSON.length+" edges!");
+		document.body.style.cursor = 'auto';
 	}
 	
 	this.lazyLoadNodes=function(jsonURL)
