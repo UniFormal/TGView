@@ -929,6 +929,10 @@ function TheoryGraph()
 		
 		edges.update(edgesJSON);
 		nodes.update(nodesJSON);
+		
+		originalEdges=originalEdges.concat(edgesJSON);
+		originalNodes=originalNodes.concat(nodesJSON);
+		
 		setStatusText("<font color=\"green\">Successfully recieved "+nodesJSON.length+" node(s) and "+edgesJSON.length+" edge(s)!</font>");
 		document.body.style.cursor = 'auto';
 	}
