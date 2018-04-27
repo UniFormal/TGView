@@ -74,6 +74,7 @@ function updateNetworkOnFirstCall()
 	theoryGraph.colorizeNodesByName(getParameterByName(graphDataURLHighlightParameterNameTGView),highlightColorByURI);
 	generateEdgesNodesHideDiv();
 	theoryGraph.hideEdges("graphmeta",true);
+	theoryGraph.hideEdges("meta",true);
 }
 
 // Creates right-click menu for MMT menu (left side)
