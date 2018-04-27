@@ -73,6 +73,9 @@
                      <div style="margin-top:2px" class="undoIcon">
                   <button id="undoButton" onClick="redoLastAction();" title="Redo last Action" class="myButton" style="width:32px;height:26px;margin-left:4px;margin-right:4px;"><div style="margin-top:2px" class="redoIcon"></div></div>
                   <button id="clusterButton" onClick="clusterSelectedNodes()" class="myButton">Cluster Nodes</button>
+		<button id="cageButton" onClick="cageSelectedNodes()" class="myButton">Cage Nodes</button>
+		<button id="manualHideButton" onClick="hideSelectedNodes(true)" class="myButton">Hide selected Nodes</button>
+		<button id="manualShowButton" onClick="showAllManuallyHiddenNodes()" class="myButton">Show all manual hidden Nodes</button>
                   <button id="selectNodes" onClick="selectNodes()" class="myButton">Select Nodes By Pathname</button>
                   <button id="helpButton"  class="myButton">Help</button>
                   <br />
@@ -217,7 +220,6 @@
 			
 		function cageSelectedNodes()
 		{
-			console.log("cageSelectedNodes");
 			theoryGraph.cageNodes();
 		}	
 			
