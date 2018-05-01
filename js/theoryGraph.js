@@ -135,37 +135,83 @@ function TheoryGraph()
 		for(var i=0;i<originalNodes.length;i++)
 		{
 			var box=network.getBoundingBox(originalNodes[i].id);
+			
+			var avgX=0;
+			var avgY=0;
+			var countAvg=0;
+			for(var j=0;j<allNodeRegions.length;j++)
+			{	
+				if(typeof allNodeRegions[j].mappedNodes[originalNodes[i].id]!="undefined")
+				{
+					avgX+=(allNodeRegions[j].left+allNodeRegions[j].right)/2;
+					avgY+=(allNodeRegions[j].top+allNodeRegions[j].bottom)/2;
+					countAvg++;
+				}
+			}
+			
+			avgX/=countAvg;
+			avgY/=countAvg;
+			
 			for(var j=0;j<allNodeRegions.length;j++)
 			{	
 				if(typeof allNodeRegions[j].mappedNodes[originalNodes[i].id]=="undefined" && intersectRect(box, allNodeRegions[j])==true)
 				{
 					var minDirection=0;
-					var minDistance=Math.abs(box.right-allNodeRegions[j].left); 
+					var minDistance; 
 					var tmp;
 					var width=box.right-box.left;
 					var height=box.bottom-box.top;
 					
-					tmp=Math.abs(box.left-allNodeRegions[j].right);
-					
-					if(tmp<minDistance)
+					if(countAvg==0)
 					{
-						minDirection=1;
-						minDistance=tmp;
+						minDistance=Math.abs(box.right-allNodeRegions[j].left); 
+						tmp=Math.abs(box.left-allNodeRegions[j].right);
+						
+						if(tmp<minDistance)
+						{
+							minDirection=1;
+							minDistance=tmp;
+						}
+						
+						tmp=Math.abs(box.bottom-allNodeRegions[j].top);
+						if(tmp<minDistance)
+						{
+							minDirection=2;
+							minDistance=tmp;
+						}
+						
+						tmp=Math.abs(box.top-allNodeRegions[j].bottom);
+						if(tmp<minDistance)
+						{
+							minDirection=3;
+							minDistance=tmp;
+						}	
 					}
-					
-					tmp=Math.abs(box.bottom-allNodeRegions[j].top);
-					if(tmp<minDistance)
+					else
 					{
-						minDirection=2;
-						minDistance=tmp;
+						minDistance=Math.abs(allNodeRegions[j].left-width/1.8-avgX)+Math.abs((box.bottom+box.top)/2-avgY); 
+						tmp=Math.abs(allNodeRegions[j].right+width/1.8-avgX)+Math.abs((box.bottom+box.top)/2-avgY);
+						
+						if(tmp<minDistance)
+						{
+							minDirection=1;
+							minDistance=tmp;
+						}
+						
+						tmp=Math.abs(allNodeRegions[j].top-height/1.8-avgY)+Math.abs((box.left+box.right)/2-avgX);
+						if(tmp<minDistance)
+						{
+							minDirection=2;
+							minDistance=tmp;
+						}
+						
+						tmp=Math.abs(allNodeRegions[j].bottom+height/1.8-avgY)+Math.abs((box.left+box.right)/2-avgX);
+						if(tmp<minDistance)
+						{
+							minDirection=3;
+							minDistance=tmp;
+						}
 					}
-					
-					tmp=Math.abs(box.top-allNodeRegions[j].bottom);
-					if(tmp<minDistance)
-					{
-						minDirection=3;
-						minDistance=tmp;
-					}	
 
 					
 					if(minDirection==0)
@@ -247,6 +293,13 @@ function TheoryGraph()
 				network.body.nodes[newPositions[i].id].y=newPositions[i].y;
 			}
 		}
+		
+		// Check for intersecting regions, which do not share nodes
+		// 1. Check region1 and region2 intersect
+		// 2. Extract all intersecting nodes
+		// 3. Remove intersecting nodes and calculate new bounding box
+		// 4. If still intersecting --> reposition nodes
+		// 5. Reposition nodes: move all nodes to region center and apply few iterations of forces driven layout
 	}
 	
 	this.selectNodesByType=function(type)
