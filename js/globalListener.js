@@ -17,6 +17,8 @@ var currentMouseY=0;
 // Variable holding data sent by parent frame
 var recievedDataJSON="";
 
+var widthTreeBefore=350;
+
 // addEventListener support for IE8
 function bindEvent(element, eventName, eventHandler) 
 {
@@ -251,3 +253,18 @@ jQuery(window).resize(checkResize);
 //var timer = setInterval(checkResize, 250);
 
 
+function resizeMenuDiv()
+{ 
+	var sideNav=document.getElementById("mySidenav");
+	var tree=document.getElementById("theory_tree_div");
+
+	var currWidth=tree.offsetWidth;
+
+	if(widthTreeBefore!=currWidth)
+	{
+		widthTreeBefore=currWidth;
+		sideNav.style.width=(widthTreeBefore+16)+"px";
+	}
+}
+
+window.setInterval(resizeMenuDiv, 200);
