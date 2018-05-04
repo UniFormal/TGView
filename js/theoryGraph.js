@@ -30,7 +30,106 @@ function TheoryGraph()
 	var edgesNameToHide=[];
 	var that=this;
 	
-		this.removeNodeRegion=function(index)
+	var removeRegionImg = new Image();
+	removeRegionImg.src = "img/delete_region.png";
+	
+	var moveRegionImg = new Image();
+	moveRegionImg.src = "img/move_region.png";
+	
+	var addNodeToRegionImg = new Image();
+	addNodeToRegionImg.src = "img/add_region.png";
+	
+	var moveRegionHold=false;
+	var moveRegionId=0;
+	var oldRegionPosition={};
+	
+	var addNodeToRegion=false;
+	var addNodeRegionId;
+	
+	this.manipulateSelectedRegion = function(coords)
+	{
+		var updateNodes=[];
+		var redraw=false;
+		var selectRegion=false;
+		if(moveRegionHold==true)
+		{
+			var newRegionPosition=coords;
+			var difX=newRegionPosition.x-oldRegionPosition.x;
+			var difY=newRegionPosition.y-oldRegionPosition.y;
+			var positions=network.getPositions(allNodeRegions[moveRegionId].nodeIds);
+			for(var i=0;i<allNodeRegions[moveRegionId].nodeIds.length;i++)
+			{
+				if(typeof allNodeRegions[moveRegionId].nodeIds[i] != "undefined")
+				{
+					updateNodes.push({"id":allNodeRegions[moveRegionId].nodeIds[i] ,"x":network.body.nodes[allNodeRegions[moveRegionId].nodeIds[i]].x+difX, "y":network.body.nodes[allNodeRegions[moveRegionId].nodeIds[i]].y+difY});
+				}
+			}
+			moveRegionHold=false;
+			document.body.style.cursor = 'auto';
+			oldRegionPosition=coords;
+			selectRegion=true;
+			redraw=true;
+			nodes.update(updateNodes);
+		}
+		else
+		{
+			for(var i=0;i<allNodeRegions.length;i++)
+			{
+				if(allNodeRegions[i].selected==true)
+				{
+					if(allNodeRegions[i].left-44<=coords.x && allNodeRegions[i].left>=coords.x && allNodeRegions[i].top-6<=coords.y && allNodeRegions[i].top+34>=coords.y)
+					{
+						that.removeNodeRegion(i);
+						redraw=true;
+						break;
+					}
+					else if(allNodeRegions[i].left-42<=coords.x && allNodeRegions[i].left>=coords.x && allNodeRegions[i].top+40<=coords.y && allNodeRegions[i].top+74>=coords.y)
+					{
+						moveRegionHold=true;
+						moveRegionId=i;
+						oldRegionPosition=coords;
+						document.body.style.cursor = 'pointer';
+						selectRegion=true;
+						break;
+					}
+					else if(allNodeRegions[i].left-74<=coords.x && allNodeRegions[i].left>=coords.x && allNodeRegions[i].top+86<=coords.y && allNodeRegions[i].top+122>=coords.y)
+					{
+						addNodeRegionId=i;
+						addNodeToRegion=true;
+						document.body.style.cursor = 'copy';
+						selectRegion=true;
+						break;
+					}
+				}
+			}
+		}
+		
+		if(redraw==true)
+		{
+			network.redraw();
+		}
+		return selectRegion;
+	}
+	
+	this.selectRegion =function(coords)
+	{
+		var redraw=false;
+		for(var i=0;i<allNodeRegions.length;i++)
+		{
+			allNodeRegions[i].selected=false;
+			if(allNodeRegions[i].left<=coords.x && allNodeRegions[i].right>=coords.x && allNodeRegions[i].top<=coords.y && allNodeRegions[i].bottom>=coords.y)
+			{
+				allNodeRegions[i].selected=true;
+				redraw=true;
+			}
+		}
+		if(redraw==true)
+		{
+			network.redraw();
+		}
+	}
+	
+	this.removeNodeRegion=function(index)
 	{
 		allNodeRegions.splice(index, 1);
 		network.redraw();
@@ -45,7 +144,18 @@ function TheoryGraph()
 			
 			ctx.setLineDash([10]);
 			var oldWidth=ctx.lineWidth;
-			ctx.lineWidth=10;
+			if(allNodeRegions[i].selected==true)
+			{
+				ctx.drawImage(removeRegionImg, allNodeRegions[i].left-46, allNodeRegions[i].top-8,38,38);
+				ctx.drawImage(moveRegionImg, allNodeRegions[i].left-46, allNodeRegions[i].top+38,38,38);
+				ctx.drawImage(addNodeToRegionImg, allNodeRegions[i].left-46, allNodeRegions[i].top+84,38,38);
+				
+				ctx.lineWidth=10;
+			}
+			else
+			{
+				ctx.lineWidth=6;
+			}	
 			ctx.strokeRect(allNodeRegions[i].left,allNodeRegions[i].top,allNodeRegions[i].right-allNodeRegions[i].left,allNodeRegions[i].bottom-allNodeRegions[i].top);
 			ctx.setLineDash([]);
 			ctx.lineWidth=oldWidth;
@@ -100,7 +210,14 @@ function TheoryGraph()
 			
 			ctx.fillStyle = allNodeRegions[i].color;
 			ctx.strokeStyle = allNodeRegions[i].color;
-			ctx.globalAlpha = 0.2;			
+			if(allNodeRegions[i].selected==true)
+			{
+				ctx.globalAlpha = 0.5;	
+			}
+			else
+			{
+				ctx.globalAlpha = 0.2;	
+			}		
 			ctx.fillRect(allNodeRegions[i].left,allNodeRegions[i].top,allNodeRegions[i].right-allNodeRegions[i].left,allNodeRegions[i].bottom-allNodeRegions[i].top);
 			ctx.globalAlpha = 1.0;
 		}
@@ -1758,7 +1875,6 @@ function TheoryGraph()
 		{	
 			if(that.onConstructionDone!=undefined)
 			{
-				console.log("Execute onConstructionDone");
 				var tmp=that.onConstructionDone;
 				that.onConstructionDone=undefined;
 				tmp();
@@ -1775,6 +1891,31 @@ function TheoryGraph()
 			{
 				// Hide it
 				$(".custom-menu").hide(10);
+			}
+			if(that.manipulateSelectedRegion(e.pointer.canvas)==false)
+			{
+				that.selectRegion(e.pointer.canvas);
+			}
+			
+			if(addNodeToRegion==true && allNodeRegions[addNodeRegionId].selected==false)
+			{
+				addNodeToRegion=false;
+				document.body.style.cursor = 'auto';
+			}
+		});
+		
+				
+		// If node is selected
+		network.on("selectNode", function (e) 
+		{
+			console.log(e);
+			if(addNodeToRegion==true && e.nodes.length>0 && allNodeRegions[addNodeRegionId].selected==true)
+			{
+				for(var i=0;i<e.nodes.length;i++)
+				{
+					allNodeRegions[addNodeRegionId].nodeIds.push(e.nodes[i]);
+				}
+				network.redraw();
 			}
 		});
 		
