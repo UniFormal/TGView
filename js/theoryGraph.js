@@ -46,6 +46,118 @@ function TheoryGraph()
 	var addNodeToRegion=false;
 	var addNodeRegionId;
 	
+	var internalOptimizer;
+	
+	this.focusOnNodes=function(nodeIds)
+	{
+		var nodesToShow=[];
+		if (typeof nodeIds == "undefined")
+		{
+			nodeIds = network.getSelectedNodes();
+		}
+		
+		if(nodeIds==undefined || nodeIds.length==0)
+		{
+			return;
+		}
+		
+		nodesToShow=nodesToShow.concat(nodeIds);
+		
+		var positions=network.getPositions();
+		var edgesToShow=[];
+
+		for(var i=0;i<nodeIds.length;i++)
+		{
+			var middleNodePos=network.body.nodes[nodeIds[i]];
+			
+			var connectedEdges=network.getConnectedEdges(nodeIds[i]);
+			
+			edgesToShow=edgesToShow.concat(connectedEdges);
+			var toNodes=network.getConnectedNodes(nodeIds[i],"to");
+			var fromNodes=network.getConnectedNodes(nodeIds[i],"from");
+			
+			if(nodeIds.length==1)
+			{
+				for(var j=0;j<fromNodes.length;j++)
+				{
+					if((middleNodePos.y-network.body.nodes[fromNodes[j]].y)<200)
+					{
+						network.body.nodes[fromNodes[j]].y=middleNodePos.y-(Math.random()*50+150);
+					}
+					if(Math.abs(middleNodePos.x-network.body.nodes[fromNodes[j]].x) > 200)
+					{
+						network.body.nodes[fromNodes[j]].x=middleNodePos.x+Math.random()*400-200;
+					}
+				}
+				
+				
+				for(var j=0;j<toNodes.length;j++)
+				{
+					if((middleNodePos.y-network.body.nodes[toNodes[j]].y)>200)
+					{
+						network.body.nodes[toNodes[j]].y=middleNodePos.y+(Math.random()*50+150);
+					}
+					if(Math.abs(middleNodePos.x-network.body.nodes[fromNodes[j]].x) > 200)
+					{
+						network.body.nodes[toNodes[j]].x=middleNodePos.x+Math.random()*400-200;
+					}
+				}
+			}
+			
+			nodesToShow = nodesToShow.concat(fromNodes);
+			nodesToShow = nodesToShow.concat(toNodes);
+		}
+
+		that.hideNodesById(nodesToShow, false);
+		
+		var nodesToHide=[];
+		for(var i=0;i<originalNodes.length;i++)
+		{
+
+			originalNodes[i].y=network.body.nodes[originalNodes[i].id].y;
+			originalNodes[i].x=network.body.nodes[originalNodes[i].id].x;
+			
+			if(nodesToShow.indexOf(originalNodes[i]["id"]) == -1)
+			{
+				nodesToHide.push(originalNodes[i]["id"]);
+				//originalNodes[i].hidden=true;
+			}
+			else
+			{
+				//originalNodes[i].hidden=false;
+			}
+			
+		}
+		
+		that.hideNodesById(nodesToHide, true);
+
+		
+		//internalOptimizer.SolveUsingForces(25, 50/originalNodes.length*nodesToShow.length, false);
+		if(nodeIds.length==1)
+		{
+			internalOptimizer.SolveUsingForces(30, 12, false);
+		}
+		
+		var newNodePositions=[];
+		for(var i=0;i<originalNodes.length;i++)
+		{
+			newNodePositions.push({"id": originalNodes[i].id, "x": originalNodes[i].x,"y": originalNodes[i].y})
+		}
+		nodes.update(newNodePositions);
+		
+		setStatusText("");
+		
+		var edgesToHide=[];
+		for(var i=0;i<originalEdges.length;i++)
+		{
+			edgesToHide.push(originalEdges[i].id)
+		}
+		
+		that.hideEdgesById(edgesToHide,true);
+		
+		that.hideEdgesById(edgesToShow,false);
+	}
+	
 	this.manipulateSelectedRegion = function(coords)
 	{
 		var updateNodes=[];
@@ -1742,6 +1854,7 @@ function TheoryGraph()
 	// Start construction of graph
 	function startConstruction(fixedPositions=false)
 	{
+		internalOptimizer = new Optimizer(originalNodes, originalEdges);
 		setStatusText("Constructing graph...");
 		var processedNodes=0;
 		var nodesCount=0;

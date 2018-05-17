@@ -560,7 +560,7 @@ function Optimizer(nodes, edges)
 			for( var j = 0; j < myAllNodes.length; j++ )
 			{
 				var n=myAllNodes[j];
-				if(n.forcesFixed===false)
+				if(n.forcesFixed===false && n.hidden!=true)
 				{
 					n.dispX = 0;
 					n.dispY = 0;
