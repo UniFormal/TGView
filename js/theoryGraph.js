@@ -93,7 +93,7 @@ function TheoryGraph()
 				
 				for(var j=0;j<toNodes.length;j++)
 				{
-					if((middleNodePos.y-network.body.nodes[toNodes[j]].y)>200)
+					if((middleNodePos.y-network.body.nodes[toNodes[j]].y)>-200)
 					{
 						network.body.nodes[toNodes[j]].y=middleNodePos.y+(Math.random()*50+150);
 					}
