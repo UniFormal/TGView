@@ -564,6 +564,7 @@ function Optimizer(nodes, edges)
 				{
 					n.dispX = 0;
 					n.dispY = 0;
+					// For 3D: n.dispZ = 0;
 					// calculate global (repulsive) forces
 					for( var k = 0; k < myAllNodes.length; k++ )
 					{
@@ -572,12 +573,16 @@ function Optimizer(nodes, edges)
 						{
 							var differenceNodesX = u.x - n.x;
 							var differenceNodesY = u.y - n.y;
+							// For 3D: var differenceNodesY = u.z - n.z;
 							
 							var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY ) + 0.001;
+							// for 3D: 
+							// var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY + differenceNodesZ * differenceNodesZ ) + 0.0001;
 							var repulsiveForce = - (kSquared / lengthDiff);
 
 							n.dispX += (differenceNodesX / lengthDiff) * repulsiveForce;
 							n.dispY += (differenceNodesY / lengthDiff) * repulsiveForce;
+							// For 3D: n.dispZ += (differenceNodesZ / lengthDiff) * repulsiveForce;
 						}
 					}
 					
@@ -587,25 +592,32 @@ function Optimizer(nodes, edges)
 						var u=n.connectedNodes[k];
 						var differenceNodesX = u.x - n.x;
 						var differenceNodesY = u.y - n.y;
+						// 3D: var differenceNodesZ = u.z - n.z;
 						
 						var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY ) + 0.001;
+						// For 3D:
+						// var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY + differenceNodesZ * differenceNodesZ ) + 0.0001;
 						var attractiveForce = (lengthDiff * lengthDiff / kVal);
 
 						n.dispX += (differenceNodesX / lengthDiff) * attractiveForce;
 						n.dispY += (differenceNodesY / lengthDiff) * attractiveForce;
+						// For 3D: n.dispZ += (differenceNodesZ / lengthDiff) * attractiveForce;
 					}
 
 					
 					// Limit max displacement to temperature currTemperature
 					var dispLength =  Math.sqrt( n.dispX * n.dispX + n.dispY * n.dispY ) + 0.001;
+					// For 3D: var dispLength =  Math.sqrt( n.dispX * n.dispX + n.dispY * n.dispY + n.dispZ * n.dispZ ) + 0.0001;
 					n.x=(  (n.x + (n.dispX / dispLength) * step) );
 					n.y=(  (n.y + (n.dispY / dispLength) * step) );
+					// For 3D: n.z=(  (n.z + (n.dispZ / dispLength) * step) );
 
 					// Prevent from displacement outside of frame
 					if( usingMinMax == true )
 					{
 						n.x=( Math.max( 48, Math.min( n.x, myWidth - 48 ) ) );
 						n.y=( Math.max( 8, Math.min( n.y, myHeight - 32 ) ) );
+						// For 3D: n.z=( Math.max( 8, Math.min( n.z, myDepth - 32 ) ) );
 					}
 					energy += dispLength * dispLength;
 				}
