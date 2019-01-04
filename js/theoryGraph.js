@@ -1,35 +1,29 @@
-function TheoryGraph()
+function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 {
-	// Array holding original nodes
+	var actionLogger=actionLoggerIn;
+	var options;
+	var statusLogger=statusLoggerIn;
+	var containerName=containerNameIn;
 	var originalNodes = null;
-	// Array holding original edges
 	var originalEdges = null;
-	// Object of vis.Network class
 	var network = null;
-	// Next unique Id to use for cluster
 	var clusterId=0;
-	// Array holding (parsed) nodes
 	var nodes;
-	// Array holding (parsed) edges
 	var edges;
-	// Last used zoom level for clustering
 	var lastClusterZoomLevel = 0;
-	// Cluster factor when zooming
     var clusterFactor = 1;
-	// Clustered points when zooming
+	var that=this;
 	var zoomClusters=[];
-	// Positions of nodes before clustering
 	var clusterPositions=[];
 	var allClusters=[];
 	var hiddenNodes={};
+	var edgesNameToHide=[];
 	this.onConstructionDone=undefined;
+	this.manualFocus=false; 
 	
 	var allManuallyHiddenNodes=[];
 	var allNodeRegions=[];
-	
-	var edgesNameToHide=[];
-	var that=this;
-	
+
 	var removeRegionImg = new Image();
 	removeRegionImg.src = "img/delete_region.png";
 	
@@ -45,8 +39,13 @@ function TheoryGraph()
 	
 	var addNodeToRegion=false;
 	var addNodeRegionId;
-	
+
 	var internalOptimizer;
+	
+	this.setOptions = function(optionsIn)
+	{
+		options=optionsIn;
+	}
 	
 	this.focusOnNodes=function(nodeIds)
 	{
@@ -93,7 +92,7 @@ function TheoryGraph()
 				
 				for(var j=0;j<toNodes.length;j++)
 				{
-					if((middleNodePos.y-network.body.nodes[toNodes[j]].y)>-200)
+					if((middleNodePos.y-network.body.nodes[toNodes[j]].y)>200)
 					{
 						network.body.nodes[toNodes[j]].y=middleNodePos.y+(Math.random()*50+150);
 					}
@@ -135,7 +134,7 @@ function TheoryGraph()
 		//internalOptimizer.SolveUsingForces(25, 50/originalNodes.length*nodesToShow.length, false);
 		if(nodeIds.length==1)
 		{
-			internalOptimizer.SolveUsingForces(30, 12, false);
+			internalOptimizer.SolveUsingForces(25, 12, false);
 		}
 		
 		var newNodePositions=[];
@@ -145,7 +144,7 @@ function TheoryGraph()
 		}
 		nodes.update(newNodePositions);
 		
-		setStatusText("");
+		statusLogger.setStatusText("");
 		
 		var edgesToHide=[];
 		for(var i=0;i<originalEdges.length;i++)
@@ -160,6 +159,8 @@ function TheoryGraph()
 	
 	this.manipulateSelectedRegion = function(coords)
 	{
+		// If the document is hold somewhere
+		
 		var updateNodes=[];
 		var redraw=false;
 		var selectRegion=false;
@@ -254,13 +255,15 @@ function TheoryGraph()
 			ctx.fillStyle = allNodeRegions[i].color;
 			ctx.strokeStyle = allNodeRegions[i].color;
 			
-			ctx.setLineDash([10]);
+			ctx.setLineDash([8]);
 			var oldWidth=ctx.lineWidth;
+			
 			if(allNodeRegions[i].selected==true)
 			{
 				ctx.drawImage(removeRegionImg, allNodeRegions[i].left-46, allNodeRegions[i].top-8,38,38);
 				ctx.drawImage(moveRegionImg, allNodeRegions[i].left-46, allNodeRegions[i].top+38,38,38);
 				ctx.drawImage(addNodeToRegionImg, allNodeRegions[i].left-46, allNodeRegions[i].top+84,38,38);
+				
 				
 				ctx.lineWidth=10;
 			}
@@ -320,8 +323,11 @@ function TheoryGraph()
 			allNodeRegions[i].top-=distance;
 			allNodeRegions[i].bottom+=distance;
 			
+			
+			
 			ctx.fillStyle = allNodeRegions[i].color;
 			ctx.strokeStyle = allNodeRegions[i].color;
+			
 			if(allNodeRegions[i].selected==true)
 			{
 				ctx.globalAlpha = 0.5;	
@@ -329,7 +335,7 @@ function TheoryGraph()
 			else
 			{
 				ctx.globalAlpha = 0.2;	
-			}		
+			}				
 			ctx.fillRect(allNodeRegions[i].left,allNodeRegions[i].top,allNodeRegions[i].right-allNodeRegions[i].left,allNodeRegions[i].bottom-allNodeRegions[i].top);
 			ctx.globalAlpha = 1.0;
 		}
@@ -533,7 +539,7 @@ function TheoryGraph()
 	
 	this.selectNodesByType=function(type)
 	{
-		var nodeIds = network.getSelectedNodes();;
+		var nodeIds = network.getSelectedNodes();
 		for (var i = 0; i < originalNodes.length; i++) 
 		{
 			var curNode = originalNodes[i];
@@ -543,8 +549,14 @@ function TheoryGraph()
 			}
 			
 		}
-		addToStateHistory("select", {"nodes": nodeIds});
+		actionLoggerIn.addToStateHistory("select", {"nodes": nodeIds});
 		network.selectNodes(nodeIds);
+	}
+	
+	this.selectEdgesById=function(edgeIds)
+	{
+		actionLoggerIn.addToStateHistory("selectEdges", {"edges": edgeIds});
+		network.selectEdges(edgeIds);
 	}
 	
 	this.selectEdgesByType=function(type)
@@ -559,7 +571,7 @@ function TheoryGraph()
 			}
 			
 		}
-		addToStateHistory("select", {"nodes": edgeIds});
+		actionLoggerIn.addToStateHistory("selectEdges", {"edges": edgeIds});
 		network.selectEdges(edgeIds);
 	}
 	
@@ -606,7 +618,7 @@ function TheoryGraph()
 			compressionRate=0;
 		}
 		
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=iframe&"+graphDataURLDataSourceParameterNameTGView+"="+parameterName, "id":parameterName};
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=iframe&uri="+parameterName, "id":parameterName};
 	}
 	
 	this.graphToLocalStorageString=function(parameterName, onlySelected, compressionRate)
@@ -626,7 +638,7 @@ function TheoryGraph()
 			compressionRate=0;
 		}
 		
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=param&"+graphDataURLDataSourceParameterNameTGView+"="+parameterName, "name":parameterName};
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+parameterName, "name":parameterName};
 	}
 	
 	this.graphToURIParameterString=function(onlySelected, compressionRate)
@@ -641,7 +653,22 @@ function TheoryGraph()
 			compressionRate=2;
 		}
 		
-		return location.protocol + '//' + location.host + location.pathname+"?"+graphDataURLSourceParameterNameTGView+"=param&"+graphDataURLDataSourceParameterNameTGView+"="+encodeURI(generateCompressedJSON(onlySelected, compressionRate));
+		return location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+encodeURI(generateCompressedJSON(onlySelected, compressionRate));
+	}
+
+	this.graphToStringJSON=function(onlySelected, compressionRate)
+	{
+		if (typeof onlySelected == "undefined")
+		{
+			onlySelected=false;
+		}
+
+		if (typeof compressionRate == "undefined")
+		{
+			compressionRate=0;
+		}
+		
+		return generateCompressedJSON(onlySelected, compressionRate);
 	}
 	
 	function generateCompressedJSON(onlySelected, compressionRate)
@@ -708,7 +735,7 @@ function TheoryGraph()
 			{
 				currentNodeJson+=',"mathml":"'+curNode.mathml.split('"').join("'")+'"';
 			}
-			
+
 			if(typeof curNode.previewhtml != "undefined" && curNode.previewhtml!="")
 			{
 				currentNodeJson+=',"previewhtml":"'+curNode.previewhtml.split('"').join("'")+'"';
@@ -798,11 +825,10 @@ function TheoryGraph()
 	
 	this.loadGraphByURIParameter=function()
 	{
-		var graphData=getParameterByName(graphDataURLDataSourceParameterNameTGView);
+		var graphData=getParameterByName("uri");
 		drawGraph(JSON.parse(graphData));
 	}
-
-	// Hides all edges with given type
+	
 	this.hideEdges=function(type, hideEdge)
 	{
 		that.setEdgesHidden(type, hideEdge);
@@ -823,7 +849,7 @@ function TheoryGraph()
 			}
 		}
 		edges.update(edgesToHide);
-		//addToStateHistory("hideEdges", {"hideEdges":edgesToHide,"hidden":hideEdge});
+		//actionLoggerIn.addToStateHistory("hideEdges", {"hideEdges":edgesToHide,"hidden":hideEdge});
 	}
 	
 	this.hideEdgesById=function(edgeIds, hideEdge)
@@ -837,8 +863,9 @@ function TheoryGraph()
 			edgesToHide.push({id: edgeIds[i], hidden: hideEdge});
 		}
 		edges.update(edgesToHide);
-		addToStateHistory("hideEdges", {"hideEdges":edgesToHide,"hidden":hideEdge});
+		actionLoggerIn.addToStateHistory("hideEdges", {"hideEdges":edgesToHide,"hidden":hideEdge});
 	}
+	
 	
 	this.showAllManuallyHiddenNodes=function()
 	{
@@ -863,7 +890,7 @@ function TheoryGraph()
 		}
 		allManuallyHiddenNodes=[];
 
-		addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":false});
+		actionLoggerIn.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":false});
 	}
 	
 	this.hideNodesById=function(nodeIds, hideNode)
@@ -898,7 +925,7 @@ function TheoryGraph()
 		edges.update(edgesToHide);
 		
 		allManuallyHiddenNodes.push({"nodes":nodesToHide, "edges":edgesToHide});
-		addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideNode});
+		actionLoggerIn.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideNode});
 	}
 	
 	this.hideNodes=function(type, hideEdge)
@@ -943,6 +970,8 @@ function TheoryGraph()
 			}
 		}
 		edges.update(edgesToHide);
+		
+		//actionLoggerIn.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideEdge});
 	}
 	
 	this.setEdgesHidden=function(type, hideEdge)
@@ -959,7 +988,6 @@ function TheoryGraph()
 		edgesNameToHide.push({"hidden": hideEdge,"type": type});
 	}
 	
-	// Downloads canvas as image
 	this.downloadCanvasAsImage = function(button)
 	{
 		var minX=111110;
@@ -1019,11 +1047,10 @@ function TheoryGraph()
 			network.setSize(originalWidth,originalHeight);
 			network.redraw();
 			network.fit();
-			setStatusText("");
+			statusLogger.setStatusText("");
 		});
 	}
 	
-	// Opens all clusters which were clustered "clusterOutliers"
     function openOutlierClusters(scale) 
 	{
         var newClusters = [];
@@ -1044,14 +1071,12 @@ function TheoryGraph()
         zoomClusters = newClusters;
     }
 	
-	// Select all nodes with nodeid
 	this.selectNodes = function(nodeIds)
 	{
 		network.selectNodes(nodeIds);
-		addToStateHistory("select", {"nodes": nodeIds});
+		actionLoggerIn.addToStateHistory("select", {"nodes": nodeIds});
 	}
 	
-	// Select nodes which has an Id similar to searchId
 	this.selectNodesWithIdLike=function(searchId)
 	{
 		var nodeIds = [];
@@ -1064,11 +1089,10 @@ function TheoryGraph()
 			}
 			
 		}
-		addToStateHistory("select", {"nodes": nodeIds});
+		actionLoggerIn.addToStateHistory("select", {"nodes": nodeIds});
 		network.selectNodes(nodeIds);
 	}
 	
-	// Clusters all outliers
 	this.clusterOutliers=function(scale)
 	{
 		var clusterOptionsByData = 
@@ -1107,12 +1131,16 @@ function TheoryGraph()
     		(4*Math.floor(Math.random()*4)).toString(16);
 		}
 		
-		allNodeRegions.push({"nodeIds":nodeIds,"color":color});
-		addToStateHistory("cageNodes", {"nodeIds":nodeIds,"color":color,"index":allNodeRegions.length-1});
+		for(var i=0;i<allNodeRegions.length;i++)
+		{
+			allNodeRegions[i].selected=false;
+		}
+		
+		allNodeRegions.push({"nodeIds":nodeIds,"color":color,"selected":true});
+		actionLoggerIn.addToStateHistory("cageNodes", {"nodeIds":nodeIds,"color":color,"index":allNodeRegions.length-1});
 		network.redraw();
 	}
 	
-	// Selects all nodes in area of given rect
 	this.selectNodesInRect = function(rect) 
 	{
 		var fromX;
@@ -1136,12 +1164,10 @@ function TheoryGraph()
 				}
 			}
 		}
-		addToStateHistory("select", {"nodes": nodesIdInDrawing});
+		actionLoggerIn.addToStateHistory("select", {"nodes": nodesIdInDrawing});
 		network.selectNodes(nodesIdInDrawing);
 	}
 	
-	// Colorizes nodes by name (* used as wildcard, e.g. "identity*" will colorize "identity" and "identity_probs")
-	// nodeNames can be an array of names or list of names joined with "," e.g: name1,name2,name3
 	this.colorizeNodesByName = function(nodeNames, color)
 	{
 		if(typeof nodeNames == "undefined" || nodeNames==null || nodeNames==undefined)
@@ -1176,8 +1202,42 @@ function TheoryGraph()
 		that.colorizeNodes(colorizingIds,color);
 	}
 	
-	// Colorizes nodes by id
-	this.colorizeNodes = function(nodeIds,color)
+	this.clusterUsingColor = function()
+	{
+		internalClusterer = new Clusterer(originalNodes, originalEdges, statusLogger);
+		var membership=internalClusterer.cluster();
+		
+		var clusteredNodes=[];
+		var usedClusters=[];
+		
+		for(var i=0;i<membership.length;i++)
+		{
+			if(typeof clusteredNodes[membership[i]] === "undefined")
+			{
+				clusteredNodes[membership[i]]=[];
+				usedClusters.push(membership[i]);
+			}
+			
+			clusteredNodes[membership[i]].push(originalNodes[i].id);
+		}
+		
+				
+		for(var i=0;i<membership.length;i++)
+		{
+			originalNodes[i].membership=membership[i];
+		}
+		
+		startRendering();
+		
+		for(var i=0;i<usedClusters.length;i++)
+		{
+			//that.cageNodes(clusteredNodes[usedClusters[i]],rainbow(usedClusters.length,i));
+			that.colorizeNodes(clusteredNodes[usedClusters[i]],rainbow(usedClusters.length,i),false);
+		}
+		network.redraw();
+	}
+	
+	this.colorizeNodes = function(nodeIds,color, doRedraw=true)
 	{
 		if(nodeIds==undefined)
 		{
@@ -1197,11 +1257,13 @@ function TheoryGraph()
 				toUpdate.push({id: nodeIds[i], color:{background:color,highlight:{background:color}}});
 			}
 			nodes.update(toUpdate);
-			network.redraw();
+			if(doRedraw==true)
+			{
+				network.redraw();
+			}
 		}
 	}
 	
-	// Cluster given nodes 
 	this.cluster = function(nodeIds,name,givenClusterId)
 	{
 		if(typeof givenClusterId ==="undefined")
@@ -1244,15 +1306,14 @@ function TheoryGraph()
               clusterNodeProperties: {id: 'cluster_' +givenClusterId , borderWidth: 2, shape: 'database', color:"orange", label:name}
 			}
 			network.clustering.cluster(options);
-			addToStateHistory("cluster", {"clusterId": 'cluster_' +givenClusterId, "name": name, "nodes": nodeIds});
+			actionLoggerIn.addToStateHistory("cluster", {"clusterId": 'cluster_' +givenClusterId, "name": name, "nodes": nodeIds});
 			clusterId++;
 		}
 	}
 	
-	// Get graph located at jsonURL, downlaod it and render it
-	this.getGraph= function(jsonURL)
+	this.getGraph = function(jsonURL)
 	{
-		setStatusText("Downloading graph...");
+		statusLogger.setStatusText("Downloading graph...");
 		document.body.style.cursor = 'wait';
 		
 		$.ajaxSetup(
@@ -1261,23 +1322,24 @@ function TheoryGraph()
 			{
                 if (x.status == 0) 
 				{
-					setStatusText('<font color="red">Downloading graph failed (Check Your Network)</font>');
+					statusLogger.setStatusText('<font color="red">Downloading graph failed (Check Your Network)</font>');
 					document.body.style.cursor = 'auto';
                 } 
                 else if (x.status == 404) 
 				{
-					setStatusText('<font color="red">Downloading graph failed (Requested URL not found)</font>');
+					statusLogger.setStatusText('<font color="red">Downloading graph failed (Requested URL not found)</font>');
 					document.body.style.cursor = 'auto';
                 } 
 				else if (x.status == 500) 
 				{
-					setStatusText('<font color="red">Downloading graph failed (Internel Server Error)</font>');
+					statusLogger.setStatusText('<font color="red">Downloading graph failed (Internel Server Error)</font>');
                     document.body.style.cursor = 'auto';
                 }  
 				else 
 				{
-					setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+x.status+')</font>');
+					statusLogger.setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+x.status+')</font>');
 					document.body.style.cursor = 'auto';
+					console.log(x);
                 }
             }
         });
@@ -1285,19 +1347,18 @@ function TheoryGraph()
 		$.get(jsonURL, drawGraph);
 	}
 
-	// Loads graph using JSON
 	this.loadJSONGraph=function(data)
 	{
 		if(data.length<20)
 		{
-			setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
+			statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 		
 		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
 		{
-			setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
+			statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
@@ -1316,19 +1377,25 @@ function TheoryGraph()
 		startConstruction(true);
 	}
 	
-	// Draws given data as graph
 	function drawGraph(data, status=200)
 	{
 		if(status!=200 && status!="success")
 		{
-			setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+status+')</font>');
+			statusLogger.setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+status+')</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 	
-		if(typeof data["nodes"] == 'undefined' || data.length<20)
+		if(data.length<20)
 		{
-			setStatusText('<font color="red">Graph-File is empty</font>');
+			statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
+			document.body.style.cursor = 'auto';
+			return;
+		}
+		
+		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
+		{
+			statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
@@ -1347,10 +1414,9 @@ function TheoryGraph()
 		startConstruction();
 	}
 	
-	// Adds nodes to node-array, which were referenced by edges but not specified in nodes-array
 	function addUsedButNotDefinedNodes()
 	{
-		setStatusText("Adding used but not defined nodes...");
+		statusLogger.setStatusText("Adding used but not defined nodes...");
 		var mappedNodes=[];
 		for(var i=0;i< originalNodes.length;i++ )
 		{
@@ -1404,7 +1470,6 @@ function TheoryGraph()
 		}
 	}
 	
-	// Apply styles to nodes/edges
 	function postprocessNodes(nodesIn)
 	{	
 		if(typeof nodesIn =="undefined" )
@@ -1414,9 +1479,9 @@ function TheoryGraph()
 		
 		for(var i=0;i<nodesIn.length;i++)
 		{
-			if(nodesIn[i].style!=undefined && NODE_STYLES[nodesIn[i].style]!=undefined)
+			if(nodesIn[i].style!=undefined && options.NODE_STYLES[nodesIn[i].style]!=undefined)
 			{
-				var styleInfos=NODE_STYLES[nodesIn[i].style];
+				var styleInfos=options.NODE_STYLES[nodesIn[i].style];
 
 				if(styleInfos.shape=="ellipse" || styleInfos.shape=="circle")
 				{
@@ -1484,9 +1549,9 @@ function TheoryGraph()
 		
 		for(var i=0;i<edgesIn.length;i++)
 		{
-			if(edgesIn[i].style!=undefined && ARROW_STYLES[edgesIn[i].style]!=undefined)
+			if(edgesIn[i].style!=undefined && options.ARROW_STYLES[edgesIn[i].style]!=undefined)
 			{
-				var styleInfos=ARROW_STYLES[edgesIn[i].style];
+				var styleInfos=options.ARROW_STYLES[edgesIn[i].style];
 				edgesIn[i].arrows = {to:{enabled:styleInfos.directed}};
 				
 				if(styleInfos.circle==true)
@@ -1514,21 +1579,21 @@ function TheoryGraph()
 	{
 		if(status!=200 && status!="success")
 		{
-			setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+status+')</font>');
+			statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+status+')</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 	
 		if(data.length<20)
 		{
-			setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
+			statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 		
 		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
 		{
-			setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
+			statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
@@ -1541,15 +1606,33 @@ function TheoryGraph()
 		
 		postprocessEdges(edgesJSON);
 		postprocessNodes(nodesJSON);
-		
+
 		edges.update(edgesJSON);
 		nodes.update(nodesJSON);
 		
 		originalEdges=originalEdges.concat(edgesJSON);
 		originalNodes=originalNodes.concat(nodesJSON);
 		
-		setStatusText("<font color=\"green\">Successfully recieved "+nodesJSON.length+" node(s) and "+edgesJSON.length+" edge(s)!</font>");
+		statusLogger.setStatusText("<font color=\"green\">Successfully recieved "+nodesJSON.length+" node(s) and "+edgesJSON.length+" edge(s)!</font>");
 		document.body.style.cursor = 'auto';
+	}
+	
+	this.addNode = function(node)
+	{
+		originalNodes.push(node);
+		postprocessNodes([node]);
+		if(node["mathml"]!="")
+		{
+			nodeToSVGMath(node);
+		}
+
+		if(node["previewhtml"]!="")
+		{
+			nodeToSVGHTML(node);
+		}
+		nodes.update(node);
+		
+		actionLoggerIn.addToStateHistory("addNode", {"node": node});
 	}
 	
 	this.addEdge = function(edge)
@@ -1558,7 +1641,7 @@ function TheoryGraph()
 		postprocessEdges([edge]);
 		edges.update(edge);
 		
-		addToStateHistory("addEdge", {"edge": edge});
+		actionLoggerIn.addToStateHistory("addEdge", {"edge": edge});
 	}
 	
 	this.deleteEdges = function(edgeIds)
@@ -1580,7 +1663,7 @@ function TheoryGraph()
 		});
 
 		edges.remove(edgeIds);
-		addToStateHistory("deleteEdges", {"edges": deletedEdges});
+		actionLoggerIn.addToStateHistory("deleteEdges", {"edges": deletedEdges});
 	}
 	
 	this.deleteNodes = function(nodeIds, edgeIds=undefined)
@@ -1622,7 +1705,7 @@ function TheoryGraph()
 			});
 		}
 		edges.remove(edgeIds);
-		addToStateHistory("deleteNodes", {"nodes": deletedNodes,"edges":deletedEdges});
+		actionLoggerIn.addToStateHistory("deleteNodes", {"nodes": deletedNodes,"edges":deletedEdges});
 	}
 	
 	this.saveEdge = function(edge)
@@ -1640,7 +1723,7 @@ function TheoryGraph()
 		}
 
 		edges.update(edge);
-		addToStateHistory("editEdge", {"newEdge": edge,"oldEdge":oldEdge});
+		actionLoggerIn.addToStateHistory("editEdge", {"newEdge": edge,"oldEdge":oldEdge});
 	}
 	
 	this.saveNode = function(node)
@@ -1666,7 +1749,7 @@ function TheoryGraph()
 			nodeToSVGHTML(node);
 		}
 		nodes.update(node);
-		addToStateHistory("editNode", {"newNode": node,"oldNode":oldNode});
+		actionLoggerIn.addToStateHistory("editNode", {"newNode": node,"oldNode":oldNode});
 	}
 	
 	this.isUniqueId = function(id)
@@ -1700,7 +1783,7 @@ function TheoryGraph()
 			return;
 		}
 		
-		setStatusText("Downloading nodes...");
+		statusLogger.setStatusText("Downloading nodes...");
 		document.body.style.cursor = 'wait';
 		
 		$.ajaxSetup(
@@ -1709,22 +1792,22 @@ function TheoryGraph()
 			{
                 if (x.status == 0) 
 				{
-					setStatusText('<font color="red">Downloading nodes failed (Check Your Network)</font>');
+					statusLogger.setStatusText('<font color="red">Downloading nodes failed (Check Your Network)</font>');
 					document.body.style.cursor = 'auto';
                 } 
                 else if (x.status == 404) 
 				{
-					setStatusText('<font color="red">Downloading nodes failed (Requested URL not found)</font>');
+					statusLogger.setStatusText('<font color="red">Downloading nodes failed (Requested URL not found)</font>');
 					document.body.style.cursor = 'auto';
                 } 
 				else if (x.status == 500) 
 				{
-					setStatusText('<font color="red">Downloading nodes failed (Internel Server Error)</font>');
+					statusLogger.setStatusText('<font color="red">Downloading nodes failed (Internel Server Error)</font>');
                     document.body.style.cursor = 'auto';
                 }  
 				else 
 				{
-					setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+x.status+')</font>');
+					statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+x.status+')</font>');
 					document.body.style.cursor = 'auto';
                 }
             }
@@ -1733,7 +1816,6 @@ function TheoryGraph()
 		$.get(jsonURL, addNodesAndEdges);
 	}
 	
-	// Make sure every node and edge has unique ids 
 	function ensureUniqueIds(arrays)
 	{
 		var idArray=[];
@@ -1751,7 +1833,6 @@ function TheoryGraph()
 		}
 	}
 	
-	// Opens given cluster by id
 	this.openCluster = function(nodeId)
 	{
 		if (network.isCluster(nodeId) == true) 
@@ -1770,14 +1851,13 @@ function TheoryGraph()
 			{
 				allClusters.splice(index, 1);
 			}
-			  
-			  addToStateHistory("uncluster", {"clusterId": nodeId, "nodes": toUpdate, "name":node.label});
+			
+			  actionLoggerIn.addToStateHistory("uncluster", {"clusterId": nodeId, "nodes": toUpdate, "name":node.label});
 			  nodes.update(toUpdate);
 			  network.redraw();
         }
 	}
 	
-	// Estimates extra height of MathML as SVG
 	function estimateExtraSVGHeight(expression)
 	{
 		if(expression.indexOf("frac") == -1 && expression.indexOf("under") == -1  && expression.indexOf("over") == -1)
@@ -1786,10 +1866,12 @@ function TheoryGraph()
 		}
 		else
 		{
+			//return 16;
 			return 0;
 		}
 	}
 	
+
 	function nodeToSVGHTML(node)
 	{
 		$('#string_span').html(node["previewhtml"]);
@@ -1820,8 +1902,7 @@ function TheoryGraph()
 		}
 		node["image"]="data:image/svg+xml;charset=utf-8,"+ encodeURIComponent(svg);
 	}
-	
-	// Converts MathML node to SVG node
+
 	function nodeToSVGMath(node)
 	{
 		$('#string_span').html(node["mathml"]);
@@ -1851,11 +1932,20 @@ function TheoryGraph()
 		node["image"]="data:image/svg+xml;charset=utf-8,"+ encodeURIComponent(svg);
 	}
 	
-	// Start construction of graph
 	function startConstruction(fixedPositions=false)
-	{
-		internalOptimizer = new Optimizer(originalNodes, originalEdges);
-		setStatusText("Constructing graph...");
+	{	
+		var hideEdgesType={};
+		for(var j=0;j<edgesNameToHide.length;j++)
+		{
+			var type=edgesNameToHide[j].type;
+			if(edgesNameToHide[j].hidden==true)
+			{
+				hideEdgesType[type]=1;
+			}
+		}
+		
+		internalOptimizer = new Optimizer(originalNodes, originalEdges, hideEdgesType, statusLogger);
+		statusLogger.setStatusText("Constructing graph...");
 		var processedNodes=0;
 		var nodesCount=0;
 		
@@ -1887,9 +1977,16 @@ function TheoryGraph()
 
 				$.get(originalNodes[i]["image"], callback2);
 			}
-			else if(originalNodes[i]["mathml"]!=undefined && originalNodes[i]["mathml"].length>10 && originalNodes[i]["mathml"]!="")
+			else 
 			{
-				nodeToSVGMath(originalNodes[i]);
+				if(originalNodes[i]["mathml"]!=undefined && originalNodes[i]["mathml"].length>10 && originalNodes[i]["mathml"]!="")
+				{
+					nodeToSVGMath(originalNodes[i]);
+				}
+				if(typeof originalNodes[i]["previewhtml"]!="undefined" &&  originalNodes[i]["previewhtml"]!="")
+				{
+					nodeToSVGHTML(originalNodes[i]);
+				}
 			}
 		}
 		
@@ -1906,15 +2003,21 @@ function TheoryGraph()
 		{
 			fixedPositions=false;
 		}
-		
-		setStatusText("Rendering graph...");
-		console.log("fixedPositions: "+fixedPositions);
+		statusLogger.setStatusText("Rendering graph...");
 		if(fixedPositions==false)
 		{
-			
-			if(typeof THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
+			var hideEdgesType={};
+			for(var j=0;j<edgesNameToHide.length;j++)
 			{
-				var opti=new Optimizer(originalNodes,originalEdges);
+				var type=edgesNameToHide[j].type;
+				if(edgesNameToHide[j].hidden==true)
+				{
+					hideEdgesType[type]=1;
+				}
+			}
+			if(typeof options.THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
+			{
+				var opti=new Optimizer(originalNodes,originalEdges, hideEdgesType, statusLogger);
 				if(originalNodes.length+originalEdges.length>3000)
 				{
 					opti.weaklyHierarchicalLayout(500,document.getElementById('nodeSpacingBox').value);
@@ -1928,25 +2031,42 @@ function TheoryGraph()
 					opti.weaklyHierarchicalLayout(1000,document.getElementById('nodeSpacingBox').value);
 				}
 			}
-			else if(THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==2)
+			else if(options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==2)
 			{
-				var opti=new Optimizer(originalNodes,originalEdges);
+				var opti=new Optimizer(originalNodes,originalEdges, hideEdgesType, statusLogger);
 				opti.GenerateRandomSolution();
 				if(originalNodes.length+originalEdges.length>3000)
 				{
-					opti.SolveUsingForces(200,document.getElementById('nodeSpacingBox').value);
+					opti.SolveUsingForces(200,document.getElementById('nodeSpacingBox').value,200,{"meta":false},originalEdges);
 				}
 				else if(originalNodes.length+originalEdges.length>2000)
 				{
-					opti.SolveUsingForces(400,document.getElementById('nodeSpacingBox').value);
+					opti.SolveUsingForces(400,document.getElementById('nodeSpacingBox').value,200,{"meta":false},originalEdges);
 				}
 				else
 				{
-					opti.SolveUsingForces(600,document.getElementById('nodeSpacingBox').value);
+					opti.SolveUsingForces(600,document.getElementById('nodeSpacingBox').value,200,{"meta":false},originalEdges);
+				}
+			}
+			else if(options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==4)
+			{
+				var opti=new Optimizer(originalNodes,originalEdges, hideEdgesType, statusLogger);
+				opti.GenerateRandomSolution();
+				if(originalNodes.length+originalEdges.length>3000)
+				{
+					opti.waterDrivenLayout(200,document.getElementById('nodeSpacingBox').value);
+				}
+				else if(originalNodes.length+originalEdges.length>2000)
+				{
+					opti.waterDrivenLayout(400,document.getElementById('nodeSpacingBox').value);
+				}
+				else
+				{
+					opti.waterDrivenLayout(600,document.getElementById('nodeSpacingBox').value);
 				}
 			}
 		}
-		
+
 		for(var i=0;i<originalEdges.length;i++)
 		{
 			originalEdges[i].hidden=false;
@@ -1968,20 +2088,20 @@ function TheoryGraph()
 		edges = new vis.DataSet(originalEdges);
 		
 		// create a network
-		var container = document.getElementById('mynetwork');
+		var container = document.getElementById(containerName);
 		var data = 
 		{
 			nodes: nodes,
 			edges: edges
 		};
 		
-		network = new vis.Network(container, data, THEORY_GRAPH_OPTIONS);
-		//network.startSimulation(10);
+		network = new vis.Network(container, data, options.THEORY_GRAPH_OPTIONS);
+		//network.startSimulation(10); 
 		
-		if(THEORY_GRAPH_OPTIONS.physics.enabled==false)
+		if(options.THEORY_GRAPH_OPTIONS.physics.enabled==false)
 		{
 			document.body.style.cursor = 'auto';
-			setStatusText('<font color="green">Received '+originalNodes.length+' nodes</font>');
+			statusLogger.setStatusText('<font color="green">Received '+originalNodes.length+' nodes</font>');
 		}
 		
 		network.on('afterDrawing', function() 
@@ -1989,7 +2109,7 @@ function TheoryGraph()
 			if(that.onConstructionDone!=undefined)
 			{
 				var tmp=that.onConstructionDone;
-				that.onConstructionDone=undefined;
+				that.onConstructionDone=undefined;;
 				tmp();
 				
 			}
@@ -2017,11 +2137,17 @@ function TheoryGraph()
 			}
 		});
 		
-				
-		// If node is selected
+		// If the document is clicked somewhere
 		network.on("selectNode", function (e) 
 		{
-			console.log(e);
+			//console.log(e);
+			
+			if(that.manualFocus==true)
+			{
+				that.focusOnNodes();
+				return;
+			}
+			
 			if(addNodeToRegion==true && e.nodes.length>0 && allNodeRegions[addNodeRegionId].selected==true)
 			{
 				for(var i=0;i<e.nodes.length;i++)
@@ -2031,6 +2157,7 @@ function TheoryGraph()
 				network.redraw();
 			}
 		});
+
 		
 		// If the menu element is clicked
 		$(".custom-menu li").click(function()
@@ -2085,8 +2212,8 @@ function TheoryGraph()
 				switch($(this).attr("data-action")) 
 				{
 					// A case for each action
-					case "openWindow": window.open(serverUrl+selected["url"]); break;
-					case "showURL": alert(serverUrl+selected["url"]); break;
+					case "openWindow": window.open(options.serverUrl+selected["url"]); break;
+					case "showURL": alert(options.serverUrl+selected["url"]); break;
 					case "openCluster": that.openCluster(selected["id"]); break;
 					case "inferType": alert("Not implemented yet!"); break;
 					case "showDecl": alert("Not implemented yet!"); break;
@@ -2121,7 +2248,7 @@ function TheoryGraph()
 			
 			var edge=network.getEdgeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
 			
-			if(edge!=undefined)
+			if(typeof edge != undefined && edge!=undefined)
 			{
 				network.selectEdges([edge]);
 				
@@ -2135,7 +2262,7 @@ function TheoryGraph()
 					}
 				}
 					
-				if (typeof selectedEdge.clickText != "undefined")
+				if (selectedEdge!=undefined && typeof selectedEdge.clickText != "undefined")
 				{
 					// Show contextmenu
 					$("#tooltip-container").finish().show(10).
@@ -2162,7 +2289,7 @@ function TheoryGraph()
 			};
 			network.setOptions(options);
 			document.body.style.cursor = 'auto';
-			setStatusText('<font color="green">Received '+originalNodes.length+' nodes</font>');
+			statusLogger.setStatusText('<font color="green">Received '+originalNodes.length+' nodes</font>');
 		});
 		
 		
@@ -2192,6 +2319,7 @@ function TheoryGraph()
 		network.on("afterDrawing", function (ctx) 
 		{
 			that.drawAllColoredRegionsOnCanvas(ctx);
+			
 		});
 		
 		network.once('initRedraw', function() 

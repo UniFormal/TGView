@@ -1,9 +1,3 @@
-// Some constants
-var Constants=[];
-Constants.DependencyWidth = 30;
-Constants.DependencyHeight=30;
-
-// Class representing a line
 function HelperLine(xStart, yStart, xEnd, yEnd)
 {
 	this.xStart = xStart;
@@ -12,33 +6,27 @@ function HelperLine(xStart, yStart, xEnd, yEnd)
 	this.yEnd = yEnd;
 }
 
-// Optimizer CLass
-function Optimizer(nodes, edges)
+function Optimizer(nodes, edges, ignoreByType, logger)
 {
-	// Amount of line colisions in current solution
+	var Constants=[];
+	Constants.DependencyWidth = 30;
+	Constants.DependencyHeight = 30;
+	
 	var overAllColision;
-	// Copy of all nodes
 	var myAllNodes=nodes;
-	// Array representing a colision matrix, to check for colisions quickly
 	var field=[];
-	// Max width of canvas/area to use
 	var myWidth=12000;
-	// Max height of canvas/area to use
 	var myHeight=12000;
-	// Amount of nodes in graph
 	var countNodesInGraph;
-	// Amount of edges in graph
 	var edgesCount=edges.length;
 	var that=this;
 	
-	mapEdgesIntoNodes(edges);
+	mapEdgesIntoNodes(edges, ignoreByType);
 	identifySubgraphs();
 	
-	// Find subgraphs and give each graph an unique number, which will be propagated to the nodes
-	// e.g. myAllNodes[i].graphNumber=1
 	function identifySubgraphs()
 	{
-		setStatusText("Identify Subgraphs...");
+		logger.setStatusText("Identify Subgraphs...");
 		for(var i=0;i< myAllNodes.length;i++ )
 		{
 			myAllNodes[i].graphNumber=-1;
@@ -50,7 +38,7 @@ function Optimizer(nodes, edges)
 		for(var i=0;i<myAllNodes.length;i++ )
 		{
 			var n=myAllNodes[i];
-			if( n.graphNumber < 1 )
+			if( n.graphNumber < 1 && n.hidden!=true)
 			{
 				nodesToCheck.push( n );
 				countNodesInGraph.push( 0 );
@@ -65,7 +53,7 @@ function Optimizer(nodes, edges)
 					for(var j=0;j<currNode.connectedNodes.length;j++ )
 					{
 						var u=currNode.connectedNodes[j];
-						if( u.graphNumber < 1 )
+						if( u.graphNumber < 1 && n.hidden!=true)
 						{
 							nodesToCheck.push( u );
 						}
@@ -76,11 +64,9 @@ function Optimizer(nodes, edges)
 		}
 	}
 	
-	// Sets the connection between each node (so maps the edges-array directly to attributes of nodes)
-	// e.g. mappedNodes[edges[i].from].toConnected.push(mappedNodes[edges[i].to]);
-	function mapEdgesIntoNodes(edges)
+	function mapEdgesIntoNodes(edges, ignoreEdgesByType)
 	{
-		setStatusText("Mapping Edges to Nodes...");
+		logger.setStatusText("Mapping Edges to Nodes...");
 		var mappedNodes=[];
 		for(var i=0;i< myAllNodes.length;i++ )
 		{
@@ -104,17 +90,19 @@ function Optimizer(nodes, edges)
 				}
 				else
 				{
-					mappedNodes[edges[i].from].toConnected.push(mappedNodes[edges[i].to]);
-					mappedNodes[edges[i].to].fromConnected.push(mappedNodes[edges[i].from]);
-					
-					mappedNodes[edges[i].to].connectedNodes.push(mappedNodes[edges[i].from]);
-					mappedNodes[edges[i].from].connectedNodes.push(mappedNodes[edges[i].to]);
+					if(typeof ignoreEdgesByType=="undefined" ||( typeof ignoreEdgesByType[edges[i].style]=="undefined" && typeof ignoreEdgesByType["graph"+edges[i].style]=="undefined"))
+					{
+						mappedNodes[edges[i].from].toConnected.push(mappedNodes[edges[i].to]);
+						mappedNodes[edges[i].to].fromConnected.push(mappedNodes[edges[i].from]);
+						
+						mappedNodes[edges[i].to].connectedNodes.push(mappedNodes[edges[i].from]);
+						mappedNodes[edges[i].from].connectedNodes.push(mappedNodes[edges[i].to]);
+					}
 				}
 			}
 		}
 	}
 	
-	// Initializes the optimizer with a random but heurstically optimized solution
 	this.GenerateRandomSolution = function()
 	{
 		lines = [];
@@ -126,13 +114,11 @@ function Optimizer(nodes, edges)
 		}
 	}
 
-	// Sets x and y of colision field
 	function UpdateFieldColision( x,  y,  value = 1 )
 	{
 		field[ y * myWidth + x ] = value;
 	}
 	
-	// Finds heuristically a good node position to insert new node to
 	function InsertNodeAtGoodPosition(n, lines, iterations = 5 )
 	{
 		var xOffset = Constants.DependencyWidth / 2;
@@ -145,13 +131,17 @@ function Optimizer(nodes, edges)
 		var bestColision = 10000000;
 		var nodes = n.connectedNodes;
 
+		var maxIterations=10;
+		
 		if( nodes == undefined || nodes.length == 0 )
 		{
+			var i=0;
 			do
 			{
+				i++;
 				bestX = (Math.random() * myWidth/Constants.DependencyWidth)|0;
 				bestY = (Math.random() * myHeight/Constants.DependencyHeight)|0;
-			} while( field[ bestY * myWidth + bestX ] == 1 );
+			} while( field[ bestY * myWidth + bestX ] == 1 && i<maxIterations);
 
 			n.x=( bestX * Constants.DependencyWidth );
 			n.y=( bestY * Constants.DependencyHeight );
@@ -161,7 +151,7 @@ function Optimizer(nodes, edges)
 		}
 
 		var solution = false;
-		for( var i = 0; i < iterations || solution == false; i++ )
+		for( var i = 0; i < iterations; i++ )
 		{
 			x = (Math.random() * myWidth/Constants.DependencyWidth)|0;
 			y = (Math.random() * myHeight/Constants.DependencyHeight)|0;
@@ -170,8 +160,6 @@ function Optimizer(nodes, edges)
 			{
 				continue;
 			}
-
-			solution = true;
 
 			var colision = 0;
 			var currX = x * Constants.DependencyWidth;
@@ -215,7 +203,7 @@ function Optimizer(nodes, edges)
 		}
 	}
 
-	// Calculates fitness of current solution (the less overlapping lines the better is fitness)
+	
 	function CalculateFitness()
 	{
 		if( OverAllColision != -1 )
@@ -262,7 +250,6 @@ function Optimizer(nodes, edges)
 		return (val > 0) ? 1 : 2; // clock or counterclock wise
 	}
 
-	// Gets amount of line colisions overall
 	function GetAllLineColision( lines )
 	{
 		var colision = 0;
@@ -294,7 +281,7 @@ function Optimizer(nodes, edges)
 		return colision;
 	}
 
-	// Finds a random path from startNode to any node (until all nodes are visited or there is no other way)
+	
 	function findRandomPath(startNode)
 	{
 		if(startNode===undefined)
@@ -313,7 +300,7 @@ function Optimizer(nodes, edges)
 			{
 				return currentPath;
 			}
-			
+
 			var maxNode=n.connectedNodes[0];
 			if(Math.floor(Math.random() * 100)>66)
 			{
@@ -328,6 +315,7 @@ function Optimizer(nodes, edges)
 			}
 			
 			var i=0;
+			
 			while(n.connectedNodes[nextNode].visited==true || n.connectedNodes[nextNode].connectedNodes==undefined || n.connectedNodes[nextNode].connectedNodes.length==0)
 			{
 				nextNode=i;
@@ -348,7 +336,82 @@ function Optimizer(nodes, edges)
 		return currentPath;
 	}
 	
-	// Function to calculate weakly hierarchical layout of graph
+	this.waterDrivenLayout=function(iterations, spacingValue, gravity=200, ignoreEdgesByType, edgesIn)
+	{
+		if(typeof edgesIn!="undefined")
+		{
+			mapEdgesIntoNodes(egdesIn, ignoreEdgesByType)
+		}
+
+		for( var j = 0; j < myAllNodes.length; j++ )
+		{
+			var n=myAllNodes[j];
+			n.overallWeight=0;
+		}
+
+		var weights=[];
+
+		for( var j = 0; j < myAllNodes.length; j++ )
+		{
+			var n=myAllNodes[j];
+			
+			//n.overallWeight=(n.toConnected.length/(n.toConnected.length+n.fromConnected.length)-0.5);
+			weights[j]=0;
+			n.overallWeight=0.5;
+			if(n.fromConnected.length==0)
+			{
+				n.overallWeight=1;
+			}
+			if(n.toConnected.length==0)
+			{
+				n.overallWeight=0;
+			}
+		}
+
+		for(var i=0;i<iterations/10;i++)
+		{
+			var normalizing=0;
+			for( var j = 0; j < myAllNodes.length; j++ )
+			{
+				var n=myAllNodes[j];
+				var tmp=n.overallWeight;
+				
+				for(var k=0;k<n.connectedNodes.length;k++)
+				{
+					tmp+=n.connectedNodes[k].overallWeight/(1+n.connectedNodes.length);
+				}
+				weights[j]=tmp;
+				normalizing+=weights[j];
+			}
+
+			for( var j = 0; j < myAllNodes.length; j++ )
+			{
+				weights[j]/=normalizing;
+				var n=myAllNodes[j];
+				n.overallWeight=weights[j];
+				weights[j]=0;
+			}
+
+		}
+
+		var min=Infinity;
+		var max=-Infinity;
+		for( var j = 0; j < myAllNodes.length; j++ )
+		{
+			var n=myAllNodes[j];
+			min=Math.min(n.overallWeight,min);
+			max=Math.max(n.overallWeight,max);
+		}
+
+		for( var j = 0; j < myAllNodes.length; j++ )
+		{
+			var n=myAllNodes[j];
+			n.overallWeight=((n.overallWeight-min)/(max-min)-0.5)*gravity*2;
+		}
+		console.log(myAllNodes);
+		that.SolveUsingForces (iterations, spacingValue, true,  false, 0.9, 30.0, true );
+	}
+	
 	this.weaklyHierarchicalLayout = function(iterations, spacingValue, usingMinMax = false, currTemperature = 0.9, initialStep = 30.0 )
 	{
 		for( var j = 0; j < myAllNodes.length; j++ )
@@ -380,7 +443,7 @@ function Optimizer(nodes, edges)
 				maxEdgesDif=edgesDif;
 			}
 			
-			if(maxNode.toConnected.length < n.toConnected.length)
+			if(maxNode.toConnected < n.toConnected)
 			{
 				maxNode=n;
 			}
@@ -391,7 +454,7 @@ function Optimizer(nodes, edges)
 		{
 			if(i%50==0)
 			{
-				setStatusText("Beautify Layout: Iteration "+i+" of "+(iterations*2)+"...");
+				logger.setStatusText("Beautify Layout: Iteration "+i+" of "+(iterations*2)+"...");
 			}
 			
 			for( var j = 0; j < myAllNodes.length; j++ )
@@ -527,8 +590,7 @@ function Optimizer(nodes, edges)
 		that.SolveUsingForces(5, spacingValue, true, usingMinMax, currTemperature , 3);
 	}
 	
-	// Function to calculate forces driven layout
-	this.SolveUsingForces = function(iterations, spacingValue, resetForcesFixed=true, usingMinMax = false, currTemperature = 0.9, initialStep = 30.0 )
+	this.SolveUsingForces = function(iterations, spacingValue, resetForcesFixed=true, usingMinMax = false, currTemperature = 0.9, initialStep = 30.0, useGravity=false )
 	{
 		if(resetForcesFixed==true)
 		{
@@ -545,14 +607,14 @@ function Optimizer(nodes, edges)
 
 		var area = myWidth * myHeight;
 		var kVal =  Math.max(Math.min((myAllNodes.length*4+edgesCount/2.5)/2 * 0.5*spacingValue/7.0,300),70);
-		var kSquared = kVal * kVal;
+		var kSquared = kVal*kVal;
 
 		
 		for( var i = 0; i < iterations; i++ )
 		{
 			if(i%100==0)
 			{
-				setStatusText("Beautify Layout: Iteration "+i+" of "+iterations+"...");
+				logger.setStatusText("Beautify Layout: Iteration "+i+" of "+iterations+"...");
 			}
 			
 			var energyBefore = energy;
@@ -562,9 +624,17 @@ function Optimizer(nodes, edges)
 				var n=myAllNodes[j];
 				if(n.forcesFixed===false && n.hidden!=true)
 				{
-					n.dispX = 0;
-					n.dispY = 0;
-					// For 3D: n.dispZ = 0;
+					if (useGravity==true && typeof n.overallWeight!="undefined")
+					{
+						n.dispX = 0;
+						n.dispY = n.overallWeight;
+					}
+					else
+					{
+						n.dispX = 0;
+						n.dispY = 0;
+					}
+					
 					// calculate global (repulsive) forces
 					for( var k = 0; k < myAllNodes.length; k++ )
 					{
@@ -573,16 +643,17 @@ function Optimizer(nodes, edges)
 						{
 							var differenceNodesX = u.x - n.x;
 							var differenceNodesY = u.y - n.y;
-							// For 3D: var differenceNodesY = u.z - n.z;
 							
 							var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY ) + 0.001;
-							// for 3D: 
-							// var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY + differenceNodesZ * differenceNodesZ ) + 0.0001;
 							var repulsiveForce = - (kSquared / lengthDiff);
+													
+							if(typeof n.membership !== "undefined"  && typeof u.membership !== "undefined" && u.membership!=n.membership)
+							{
+								repulsiveForce*=1.5;
+							}
 
 							n.dispX += (differenceNodesX / lengthDiff) * repulsiveForce;
 							n.dispY += (differenceNodesY / lengthDiff) * repulsiveForce;
-							// For 3D: n.dispZ += (differenceNodesZ / lengthDiff) * repulsiveForce;
 						}
 					}
 					
@@ -592,32 +663,31 @@ function Optimizer(nodes, edges)
 						var u=n.connectedNodes[k];
 						var differenceNodesX = u.x - n.x;
 						var differenceNodesY = u.y - n.y;
-						// 3D: var differenceNodesZ = u.z - n.z;
 						
 						var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY ) + 0.001;
-						// For 3D:
-						// var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY + differenceNodesZ * differenceNodesZ ) + 0.0001;
 						var attractiveForce = (lengthDiff * lengthDiff / kVal);
 
+						if(typeof n.membership !== "undefined"  && typeof u.membership !== "undefined" && u.membership==n.membership)
+						{
+							attractiveForce*=5;
+						}
+						
 						n.dispX += (differenceNodesX / lengthDiff) * attractiveForce;
 						n.dispY += (differenceNodesY / lengthDiff) * attractiveForce;
-						// For 3D: n.dispZ += (differenceNodesZ / lengthDiff) * attractiveForce;
 					}
+
 
 					
 					// Limit max displacement to temperature currTemperature
 					var dispLength =  Math.sqrt( n.dispX * n.dispX + n.dispY * n.dispY ) + 0.001;
-					// For 3D: var dispLength =  Math.sqrt( n.dispX * n.dispX + n.dispY * n.dispY + n.dispZ * n.dispZ ) + 0.0001;
 					n.x=(  (n.x + (n.dispX / dispLength) * step) );
 					n.y=(  (n.y + (n.dispY / dispLength) * step) );
-					// For 3D: n.z=(  (n.z + (n.dispZ / dispLength) * step) );
 
 					// Prevent from displacement outside of frame
 					if( usingMinMax == true )
 					{
 						n.x=( Math.max( 48, Math.min( n.x, myWidth - 48 ) ) );
 						n.y=( Math.max( 8, Math.min( n.y, myHeight - 32 ) ) );
-						// For 3D: n.z=( Math.max( 8, Math.min( n.z, myDepth - 32 ) ) );
 					}
 					energy += dispLength * dispLength;
 				}
@@ -630,19 +700,18 @@ function Optimizer(nodes, edges)
 				if( success >= 5 )
 				{
 					success = 0;
-					step /= currTemperature;
+					//step /= currTemperature;
 				}
 			}
 			else
 			{
 				success = 0;
-				step *= currTemperature;
+				//step *= currTemperature;
 			}
 		}
 		placeGraphs();
 	}
 
-	// Places all different graphs on canvas with no overlap
 	function placeGraphs()
 	{
 		var rows=(countNodesInGraph.length+1)>>1;
@@ -694,7 +763,6 @@ function Optimizer(nodes, edges)
 		}
 	}
 	
-	// Check if current line colides with any other line
 	function GetLineColision(currLine, lines)
 	{
 		var colision = 0;
