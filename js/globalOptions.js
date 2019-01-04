@@ -84,8 +84,11 @@ function Options(external)
 		this.external.source=getParameterByName(this.graphDataURLSourceParameterNameTGView);
 	}
 	
-	
-	console.log(this);
+	if (typeof this.external.mainContainer == "undefined")
+	{
+		this.external.mainContainer="tgViewMainEle";
+	}
+
 	
 	// Colors to select for colorizing nodes in graph
 	this.colorizingNodesArray = [

@@ -6,7 +6,7 @@ function TGViewContainerClass(externalOptions)
 	var that=this;
 	var resizer;
 	var logger;
-	var options;
+	var options=new Options(externalOptions);;
 	var historyLogger;
 	var theoryGraph;
 	var legendPanel;
@@ -42,14 +42,12 @@ function TGViewContainerClass(externalOptions)
 		}	
 	}
 	
-	
-	var dom=new DOMCreator("tgViewMainEle");
+	var dom=new DOMCreator(options.external.mainContainer);
 	
 	$("#tgViewMainEle").ready(function()
 	{
 		resizer=new Resizer();
 		logger=new StatusLogger("statusBar");
-		options=new Options(externalOptions);
 		historyLogger=new ActionHistory();
 		theoryGraph=new TheoryGraph("mynetwork", logger, historyLogger);
 		historyLogger.init(theoryGraph);
