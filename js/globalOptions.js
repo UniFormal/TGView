@@ -88,6 +88,11 @@ function Options(external)
 	{
 		this.external.mainContainer="tgViewMainEle";
 	}
+	
+	if (typeof this.external.prefix == "undefined")
+	{
+		this.external.prefix="tgview-";
+	}
 
 	
 	// Colors to select for colorizing nodes in graph

@@ -21,13 +21,13 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 			deleteEdge: deleteEdgeCallback
 		};
 		
-		$( "#helpDialog" ).dialog({autoOpen: false});
-		$( "#helpButton" ).on( "click", function() 
+		$( "#"+options.external.prefix+"helpDialog" ).dialog({autoOpen: false});
+		$(  "#"+options.external.prefix+"helpDialog" ).on( "click", function() 
 		{
-			$( "#helpDialog" ).dialog( "open" );
+			$(  "#"+options.external.prefix+"helpDialog" ).dialog( "open" );
 		});
 		
-		$("#shareIcons").jsSocials(
+		$("#"+options.external.prefix+"shareIcons").jsSocials(
 		{
 		    showLabel: false,
 		    showCount: false,
@@ -40,11 +40,11 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 		var viewOnlyMode=options.external.viewOnlyMode;
 		if(typeof viewOnlyMode != "undefined" && viewOnlyMode=="true")
 		{
-			var menuButtonsDiv = document.getElementById('menuButtonsDiv');
+			var menuButtonsDiv = document.getElementById(options.external.prefix+'menuButtonsDiv');
 			menuButtonsDiv.style.display='none';
 		}
 		
-		var jsonLoader = document.getElementById('jsonLoader');
+		var jsonLoader = document.getElementById(options.external.prefix+'jsonLoader');
 		jsonLoader.addEventListener('change', handleJson, false);
 		
 		addDOMHandler();
@@ -53,33 +53,33 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 	function addDOMHandler()
 	{
 		// TODO bind DOM to functions
-		document.getElementById('leftMenuButton').addEventListener('click',function() {openNav()},false);	
-		document.getElementById('rightMenuButton').addEventListener('click',function() { openNav2() },false);	
-		document.getElementById('closeNav2').addEventListener('click',function() { closeNav2() },false);	
-		document.getElementById('closeNav').addEventListener('click',function() { closeNav() },false);	
-		document.getElementById('undoButton').addEventListener('click',function() { actionLogger.undoLastAction() },false);	
-		document.getElementById('redoButton').addEventListener('click',function() { actionLogger.redoLastAction() },false);	
-		document.getElementById('selectionModeButton').addEventListener('click',function() {switchSelectionMode()},false);	
-		document.getElementById('downloadButton').addEventListener('click',function() { downloadGraph() },false);	
-		document.getElementById('clusterButton').addEventListener('click',function() { clusterSelectedNodes() },false);	
-		document.getElementById('cageButton').addEventListener('click',function() { cageSelectedNodes() },false);
-		document.getElementById('manualHideButton').addEventListener('click',function() { hideSelectedNodes(true) },false);
-		document.getElementById('manualShowButton').addEventListener('click',function() { showAllManuallyHiddenNodes() },false);
-		document.getElementById('helpButton').addEventListener('click',function() {  },false);
-		document.getElementById('selectNodes').addEventListener('click',function() { selectNodes() },false);
-		document.getElementById('clusterNodesColor').addEventListener('click',function() { clusterNodesColor() },false);
+		document.getElementById(options.external.prefix+'leftMenuButton').addEventListener('click',function() {openNav()},false);	
+		document.getElementById(options.external.prefix+'rightMenuButton').addEventListener('click',function() { openNav2() },false);	
+		document.getElementById(options.external.prefix+'closeNav2').addEventListener('click',function() { closeNav2() },false);	
+		document.getElementById(options.external.prefix+'closeNav').addEventListener('click',function() { closeNav() },false);	
+		document.getElementById(options.external.prefix+'undoButton').addEventListener('click',function() { actionLogger.undoLastAction() },false);	
+		document.getElementById(options.external.prefix+'redoButton').addEventListener('click',function() { actionLogger.redoLastAction() },false);	
+		document.getElementById(options.external.prefix+'selectionModeButton').addEventListener('click',function() {switchSelectionMode()},false);	
+		document.getElementById(options.external.prefix+'downloadButton').addEventListener('click',function() { downloadGraph() },false);	
+		document.getElementById(options.external.prefix+'clusterButton').addEventListener('click',function() { clusterSelectedNodes() },false);	
+		document.getElementById(options.external.prefix+'cageButton').addEventListener('click',function() { cageSelectedNodes() },false);
+		document.getElementById(options.external.prefix+'manualHideButton').addEventListener('click',function() { hideSelectedNodes(true) },false);
+		document.getElementById(options.external.prefix+'manualShowButton').addEventListener('click',function() { showAllManuallyHiddenNodes() },false);
+		document.getElementById(options.external.prefix+'helpButton').addEventListener('click',function() {  },false);
+		document.getElementById(options.external.prefix+'selectNodes').addEventListener('click',function() { selectNodes() },false);
+		document.getElementById(options.external.prefix+'clusterNodesColor').addEventListener('click',function() { clusterNodesColor() },false);
 		
-		document.getElementById('iframeRadio').addEventListener('click',function() { generateIFrameGraph() },false);	
-		document.getElementById('htmlRadio').addEventListener('click',function() { generateHTMLGraph() },false);
-		document.getElementById('parameterRadio').addEventListener('click',function() { generateParameterGraph() },false);
-		document.getElementById('uriRadio').addEventListener('click',function() { generateURIGraph() },false);
-		document.getElementById('jsonRadio').addEventListener('click',function() { downloadGraphJSON() },false);
+		document.getElementById(options.external.prefix+'iframeRadio').addEventListener('click',function() { generateIFrameGraph() },false);	
+		document.getElementById(options.external.prefix+'htmlRadio').addEventListener('click',function() { generateHTMLGraph() },false);
+		document.getElementById(options.external.prefix+'parameterRadio').addEventListener('click',function() { generateParameterGraph() },false);
+		document.getElementById(options.external.prefix+'uriRadio').addEventListener('click',function() { generateURIGraph() },false);
+		document.getElementById(options.external.prefix+'jsonRadio').addEventListener('click',function() { downloadGraphJSON() },false);
 		
-		document.getElementById('nodeSpacingBox').addEventListener('change',function() { changeMethod(); },false);
-		document.getElementById('layoutBox').addEventListener('change',function() { changeMethod(this.value); },false);
+		document.getElementById(options.external.prefix+'nodeSpacingBox').addEventListener('change',function() { changeMethod(); },false);
+		document.getElementById(options.external.prefix+'layoutBox').addEventListener('change',function() { changeMethod(this.value); },false);
 		
-		//document.getElementById('').addEventListener('click',function() {  },false);
-		//document.getElementById('').addEventListener('click',function() {  },false);
+		//document.getElementById(options.external.prefix+'').addEventListener('click',function() {  },false);
+		//document.getElementById(options.external.prefix+'').addEventListener('click',function() {  },false);
 		
 	}
 	
@@ -91,12 +91,12 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 			html+='<li data-action="'+options.GRAPH_TYPES[i].id+'" title="'+options.GRAPH_TYPES[i].tooltip+'">'+options.GRAPH_TYPES[i].menuText+'</li>';
 		}
 		html+='<li data-action="close" title="Hides this menu">Hide</li>';
-		document.getElementById('side-menu').innerHTML = html;
+		document.getElementById(options.external.prefix+'side-menu').innerHTML = html;
 	}	
 		
 	function addColors()
 	{
-		var mainEle=document.getElementById("colorPicker");
+		var mainEle=document.getElementById(options.external.prefix+"colorPicker");
 		var colorArray=options.colorizingNodesArray;
 		for(var i=0;i<colorArray.length;i++)
 		{
@@ -121,7 +121,7 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 	{
 		var usedEdgeTypes = theoryGraph.getUsedEdgeTypes();
 		
-		var mainEle=document.getElementById("edgesShowHideDiv");
+		var mainEle=document.getElementById(options.external.prefix+"edgesShowHideDiv");
 		
 		var strong = document.createElement("strong");
 		strong.innerHTML="Hide/Show Edges";
@@ -250,7 +250,7 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 	function downloadGraph()
 	{
 		statusLogger.setStatusText("Downloading Image...");
-		theoryGraph.downloadCanvasAsImage(document.getElementById('downloadButton'));
+		theoryGraph.downloadCanvasAsImage(document.getElementById(options.external.prefix+'downloadButton'));
 	}
 	
 	function switchSelectionMode()
@@ -308,22 +308,22 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 	
 	function openNav() 
 	{
-		document.getElementById("mySidenav").style.width = "400px";
+		document.getElementById(options.external.prefix+"mySidenav").style.width = "400px";
 	}
 
 	function closeNav() 
 	{
-		document.getElementById("mySidenav").style.width = "0";
+		document.getElementById(options.external.prefix+"mySidenav").style.width = "0";
 	}
 
 	function openNav2() 
 	{
-		document.getElementById("mySidenav2").style.width = "400px";
+		document.getElementById(options.external.prefix+"mySidenav2").style.width = "400px";
 	}
 
 	function closeNav2() 
 	{
-		document.getElementById("mySidenav2").style.width = "0";
+		document.getElementById(options.external.prefix+"mySidenav2").style.width = "0";
 	}
 	
 	function cageSelectedNodes()
@@ -371,20 +371,20 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 		var generatedJson=theoryGraph.graphToIFrameString();
 		
 		var embeddingCode="<script>";
-		embeddingCode+="function sendMessageToIFrameFromLocalStorage"+generatedJson.id+"(param){ var tmp=localStorage.getItem(param); document.getElementById('"+generatedJson.id+"').contentWindow.postMessage(tmp, '*'); }\r\n"+generatedJson.storage;
+		embeddingCode+="function sendMessageToIFrameFromLocalStorage"+generatedJson.id+"(param){ var tmp=localStorage.getItem(param); document.getElementById(options.external.prefix+'"+generatedJson.id+"').contentWindow.postMessage(tmp, '*'); }\r\n"+generatedJson.storage;
 		embeddingCode+="<\/script>\r\n";
 		embeddingCode+="<iframe style='width:100%;min-height:550px;' src='"+generatedJson.uri+"' onLoad=\"sendMessageToIFrameFromLocalStorage"+generatedJson.id+"('"+generatedJson.id+"')\" id='"+generatedJson.id+"'><\/iframe>";
 		
-		document.getElementById("uriTextarea").value="";
-		document.getElementById("informationTextarea").value=embeddingCode;
+		document.getElementById(options.external.prefix+"uriTextarea").value="";
+		document.getElementById(options.external.prefix+"informationTextarea").value=embeddingCode;
 	}
 	
 	function generateHTMLGraph()
 	{
 		var generatedJson=theoryGraph.graphToLocalStorageString();
 		
-		document.getElementById("uriTextarea").value=generatedJson.uri;
-		document.getElementById("informationTextarea").value=generatedJson.storage;
+		document.getElementById(options.external.prefix+"uriTextarea").value=generatedJson.uri;
+		document.getElementById(options.external.prefix+"informationTextarea").value=generatedJson.storage;
 	}
 	
 	function generateParameterGraph()
@@ -393,38 +393,38 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 		
 		if(generatedJson.length > 220)
 		{
-			document.getElementById("uriTextarea").value="";
-			document.getElementById("informationTextarea").value="";
+			document.getElementById(options.external.prefix+"uriTextarea").value="";
+			document.getElementById(options.external.prefix+"informationTextarea").value="";
 			alert("Graph is too big to be embedded in URI. Select HTML-Embedding or IFrame-Embedding instead!");
 		}
 		else
 		{
-			document.getElementById("uriTextarea").value=generatedJson;
-			document.getElementById("informationTextarea").value="";
+			document.getElementById(options.external.prefix+"uriTextarea").value=generatedJson;
+			document.getElementById(options.external.prefix+"informationTextarea").value="";
 		}
 	}
 	
 	function generateURIGraph()
 	{
-		document.getElementById("uriTextarea").value=window.location.href;
-		document.getElementById("informationTextarea").value="";
+		document.getElementById(options.external.prefix+"uriTextarea").value=window.location.href;
+		document.getElementById(options.external.prefix+"informationTextarea").value="";
 	}
 	
 	
 
 	function addDataNode(data, callback) 
 	{
-		data.id = document.getElementById('node-id').value;
+		data.id = document.getElementById(options.external.prefix+'node-id').value;
 		if(theoryGraph.isUniqueId(data.id)==false)
 		{
 			alert("The ID entered is already used, please enter an unique ID.");
 			return;
 		}
 		
-		data.label = document.getElementById('node-label').value;
-		data.url = document.getElementById('node-url').value;
-		data.mathml = document.getElementById('node-mathml').value;
-		data.style = document.getElementById('node-style').value;
+		data.label = document.getElementById(options.external.prefix+'node-label').value;
+		data.url = document.getElementById(options.external.prefix+'node-url').value;
+		data.mathml = document.getElementById(options.external.prefix+'node-mathml').value;
+		data.style = document.getElementById(options.external.prefix+'node-style').value;
 		clearPopUp();
 		theoryGraph.addNode(data);
 	}
@@ -432,16 +432,16 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 	function addDataEdge(data, callback) 
 	{
 		var edge={};
-		edge.id = document.getElementById('edge-id').value;
+		edge.id = document.getElementById(options.external.prefix+'edge-id').value;
 		if(theoryGraph.isUniqueEdgeId(edge.id)==false)
 		{
 			alert("The ID entered is already used, please enter an unique ID.");
 			return;
 		}
 		
-		edge.label = document.getElementById('edge-label').value;
-		edge.url = document.getElementById('edge-url').value;
-		edge.style = document.getElementById('edge-style').value;
+		edge.label = document.getElementById(options.external.prefix+'edge-label').value;
+		edge.url = document.getElementById(options.external.prefix+'edge-url').value;
+		edge.style = document.getElementById(options.external.prefix+'edge-style').value;
 		edge.from=data.from;
 		edge.to=data.to;
 		clearPopUp();
@@ -451,10 +451,10 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 	function editDataEdge(data, callback) 
 	{
 		var edge={};
-		edge.id = document.getElementById('edge-id').value;
-		edge.label = document.getElementById('edge-label').value;
-		edge.url = document.getElementById('edge-url').value;
-		edge.style = document.getElementById('edge-style').value;
+		edge.id = document.getElementById(options.external.prefix+'edge-id').value;
+		edge.label = document.getElementById(options.external.prefix+'edge-label').value;
+		edge.url = document.getElementById(options.external.prefix+'edge-url').value;
+		edge.style = document.getElementById(options.external.prefix+'edge-style').value;
 		edge.from=data.from;
 		edge.to=data.to;
 		clearPopUp();
@@ -465,11 +465,11 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 	function saveDataNode(data, callback) 
 	{
 		var node={};
-		node.id = document.getElementById('node-id').value;
-		node.label = document.getElementById('node-label').value;
-		node.url = document.getElementById('node-url').value;
-		node.mathml = document.getElementById('node-mathml').value;
-		node.style = document.getElementById('node-style').value;
+		node.id = document.getElementById(options.external.prefix+'node-id').value;
+		node.label = document.getElementById(options.external.prefix+'node-label').value;
+		node.url = document.getElementById(options.external.prefix+'node-url').value;
+		node.mathml = document.getElementById(options.external.prefix+'node-mathml').value;
+		node.style = document.getElementById(options.external.prefix+'node-style').value;
 		clearPopUp();
 		theoryGraph.saveNode(node);
 		callback(null);
@@ -477,13 +477,13 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 
 	function clearPopUp() 
 	{
-		document.getElementById('saveButton').onclick = null;
-		document.getElementById('cancelButton').onclick = null;
-		document.getElementById('network-popUp').style.display = 'none';
+		document.getElementById(options.external.prefix+'saveButton').onclick = null;
+		document.getElementById(options.external.prefix+'cancelButton').onclick = null;
+		document.getElementById(options.external.prefix+'network-popUp').style.display = 'none';
 		
-		document.getElementById('edge-saveButton').onclick = null;
-		document.getElementById('edge-cancelButton').onclick = null;
-		document.getElementById('network-edge-popUp').style.display = 'none';
+		document.getElementById(options.external.prefix+'edge-saveButton').onclick = null;
+		document.getElementById(options.external.prefix+'edge-cancelButton').onclick = null;
+		document.getElementById(options.external.prefix+'network-edge-popUp').style.display = 'none';
 	}
 
 	function cancelEdit(callback) 
@@ -495,11 +495,11 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 	function addNodeCallback(data, callback) 
 	{
 		// filling in the popup DOM elements
-		document.getElementById('operation').innerHTML = "Add Node";
-		document.getElementById('node-id').value = data.id;
-		document.getElementById('node-label').value = data.label;
-		document.getElementById('node-url').value = "";
-		document.getElementById('node-mathml').value = "";
+		document.getElementById(options.external.prefix+'operation').innerHTML = "Add Node";
+		document.getElementById(options.external.prefix+'node-id').value = data.id;
+		document.getElementById(options.external.prefix+'node-label').value = data.label;
+		document.getElementById(options.external.prefix+'node-url').value = "";
+		document.getElementById(options.external.prefix+'node-mathml').value = "";
 		
 		var html="";
 		Object.keys(options.NODE_STYLES).forEach(function (key) 
@@ -507,21 +507,21 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 		   html+='<option value="'+key+'">'+options.NODE_STYLES[key].alias+'</option>';
 		});
 		
-		document.getElementById('node-style').innerHTML = html;
-		document.getElementById('saveButton').onclick = addDataNode.bind(this, data, callback);
-		document.getElementById('cancelButton').onclick = clearPopUp.bind();
-		document.getElementById('network-popUp').style.display = 'block';
+		document.getElementById(options.external.prefix+'node-style').innerHTML = html;
+		document.getElementById(options.external.prefix+'saveButton').onclick = addDataNode.bind(this, data, callback);
+		document.getElementById(options.external.prefix+'cancelButton').onclick = clearPopUp.bind();
+		document.getElementById(options.external.prefix+'network-popUp').style.display = 'block';
 	}
 
 	function editNodeCallback(data, callback) 
 	{
 		// filling in the popup DOM elements
-		document.getElementById('operation').innerHTML = "Edit Node";
-		document.getElementById('node-id').value = data.id;
-		document.getElementById('node-id').disabled=true;
-		document.getElementById('node-label').value = (typeof data.label !="undefined") ? data.label : "";
-		document.getElementById('node-url').value = (typeof data.url !="undefined") ? data.url : "";
-		document.getElementById('node-mathml').value = (typeof data.mathml !="undefined") ? data.mathml : "";
+		document.getElementById(options.external.prefix+'operation').innerHTML = "Edit Node";
+		document.getElementById(options.external.prefix+'node-id').value = data.id;
+		document.getElementById(options.external.prefix+'node-id').disabled=true;
+		document.getElementById(options.external.prefix+'node-label').value = (typeof data.label !="undefined") ? data.label : "";
+		document.getElementById(options.external.prefix+'node-url').value = (typeof data.url !="undefined") ? data.url : "";
+		document.getElementById(options.external.prefix+'node-mathml').value = (typeof data.mathml !="undefined") ? data.mathml : "";
 		
 		var html="";
 		Object.keys(options.NODE_STYLES).forEach(function (key) 
@@ -529,25 +529,25 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 		   html+='<option value="'+key+'">'+options.NODE_STYLES[key].alias+'</option>';
 		});
 		
-		document.getElementById('node-style').innerHTML = html;
+		document.getElementById(options.external.prefix+'node-style').innerHTML = html;
 		
 		if(typeof data.style !="undefined" )
 		{
-			document.getElementById('node-style').value = data.style;
+			document.getElementById(options.external.prefix+'node-style').value = data.style;
 		}
 		
-		document.getElementById('saveButton').onclick = saveDataNode.bind(this, data, callback);
-		document.getElementById('cancelButton').onclick = cancelEdit.bind(this,callback);
-		document.getElementById('network-popUp').style.display = 'block';
+		document.getElementById(options.external.prefix+'saveButton').onclick = saveDataNode.bind(this, data, callback);
+		document.getElementById(options.external.prefix+'cancelButton').onclick = cancelEdit.bind(this,callback);
+		document.getElementById(options.external.prefix+'network-popUp').style.display = 'block';
 	}
 
 	function addEdgeCallbackHelper(data, callback)
 	{
 		// filling in the popup DOM elements
-		document.getElementById('edge-operation').innerHTML = "Add Edge";
-		document.getElementById('edge-id').value = 'edge_' + Math.random().toString(36).substr(2, 9);
-		document.getElementById('edge-label').value = "";
-		document.getElementById('edge-url').value = "";
+		document.getElementById(options.external.prefix+'edge-operation').innerHTML = "Add Edge";
+		document.getElementById(options.external.prefix+'edge-id').value = 'edge_' + Math.random().toString(36).substr(2, 9);
+		document.getElementById(options.external.prefix+'edge-label').value = "";
+		document.getElementById(options.external.prefix+'edge-url').value = "";
 		
 		var html="";
 		Object.keys(options.ARROW_STYLES).forEach(function (key) 
@@ -555,10 +555,10 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 		   html+='<option value="'+key+'">'+options.ARROW_STYLES[key].alias+'</option>';
 		});
 		
-		document.getElementById('edge-style').innerHTML = html;
-		document.getElementById('edge-saveButton').onclick = addDataEdge.bind(this, data, callback);
-		document.getElementById('edge-cancelButton').onclick = clearPopUp.bind();
-		document.getElementById('network-edge-popUp').style.display = 'block';
+		document.getElementById(options.external.prefix+'edge-style').innerHTML = html;
+		document.getElementById(options.external.prefix+'edge-saveButton').onclick = addDataEdge.bind(this, data, callback);
+		document.getElementById(options.external.prefix+'edge-cancelButton').onclick = clearPopUp.bind();
+		document.getElementById(options.external.prefix+'network-edge-popUp').style.display = 'block';
 	}
 
 	function addEdgeCallback(data, callback) 
@@ -592,10 +592,10 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 	function editEdgeCallbackHelper(data, callback) 
 	{
 		// filling in the popup DOM elements
-		document.getElementById('edge-operation').innerHTML = "Edit Edge";
-		document.getElementById('edge-id').value = data.id;
-		document.getElementById('edge-label').value = (typeof data.label !="undefined") ? data.label : "";
-		document.getElementById('edge-url').value = (typeof data.url !="undefined") ? data.url : "";
+		document.getElementById(options.external.prefix+'edge-operation').innerHTML = "Edit Edge";
+		document.getElementById(options.external.prefix+'edge-id').value = data.id;
+		document.getElementById(options.external.prefix+'edge-label').value = (typeof data.label !="undefined") ? data.label : "";
+		document.getElementById(options.external.prefix+'edge-url').value = (typeof data.url !="undefined") ? data.url : "";
 
 		var html="";
 		Object.keys(options.ARROW_STYLES).forEach(function (key) 
@@ -603,10 +603,10 @@ function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn
 		   html+='<option value="'+key+'">'+options.ARROW_STYLES[key].alias+'</option>';
 		});
 		
-		document.getElementById('edge-style').innerHTML = html;
-		document.getElementById('edge-saveButton').onclick = editDataEdge.bind(this, data, callback);
-		document.getElementById('edge-cancelButton').onclick = clearPopUp.bind();
-		document.getElementById('network-edge-popUp').style.display = 'block';
+		document.getElementById(options.external.prefix+'edge-style').innerHTML = html;
+		document.getElementById(options.external.prefix+'edge-saveButton').onclick = editDataEdge.bind(this, data, callback);
+		document.getElementById(options.external.prefix+'edge-cancelButton').onclick = clearPopUp.bind();
+		document.getElementById(options.external.prefix+'network-edge-popUp').style.display = 'block';
 	}
 
 	function editEdgeCallback(data, callback) 

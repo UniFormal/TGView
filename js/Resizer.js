@@ -1,5 +1,6 @@
-function Resizer()
+function Resizer(optionsIn)
 {	
+	var options=optionsIn;
 	var widthTreeBefore=350;
 	
 	var divW = 0;
@@ -13,13 +14,13 @@ function Resizer()
 	
 	function resizeMenuDiv()
 	{ 
-		if(document.getElementById('mySidenav') != null)
+		if(document.getElementById(options.external.prefix+'mySidenav') != null)
 		{
 			return;
 		}
 		
-		var sideNav=document.getElementById("mySidenav");
-		var tree=document.getElementById("theory_tree_div");
+		var sideNav=document.getElementById(options.external.prefix+"mySidenav");
+		var tree=document.getElementById(options.external.prefix+"theory_tree_div");
 		
 		var currWidth=tree.offsetWidth;
 
@@ -41,7 +42,7 @@ function Resizer()
 			var treeDiv = jQuery('#theory_tree_div');
 			
 			
-			var htmlCanvas = document.getElementById('toolCanvas');
+			var htmlCanvas = document.getElementById(options.external.prefix+'toolCanvas');
 			htmlCanvas.width = (window.innerWidth-36)|0;
 			htmlCanvas.height = (window.innerHeight-74)|0;
 			htmlCanvas.style.width=htmlCanvas.width+"px";
@@ -49,11 +50,11 @@ function Resizer()
 			
 			
 			
-			htmlCanvas = document.getElementById('mainbox');
+			htmlCanvas = document.getElementById(options.external.prefix+'mainbox');
 			htmlCanvas.width = (window.innerWidth-36)|0;
 			htmlCanvas.style.width=htmlCanvas.width+"px";
 			
-			htmlCanvas = document.getElementById('wholeNetwork');
+			htmlCanvas = document.getElementById(options.external.prefix+'wholeNetwork');
 			htmlCanvas.width = (window.innerWidth-36)|0;
 			htmlCanvas.height = (window.innerHeight-74)|0;
 			htmlCanvas.style.width=htmlCanvas.width+"px";

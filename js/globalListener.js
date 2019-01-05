@@ -1,9 +1,6 @@
-var currentMenuNodeId=1;
-
-	
-	
-function TGViewDOMListener(theoryGraphIn)
+function TGViewDOMListener(theoryGraphIn, optionsIn)
 {
+	var options=optionsIn;
 	var theoryGraph=theoryGraphIn;
 	var that=this;
 	var canvasTools;
@@ -44,15 +41,15 @@ function TGViewDOMListener(theoryGraphIn)
 		// Accordion
 		$(".accordion").accordion({ header: "h3" });
 		// Tabs
-		$('#tabs').tabs();
+		$('#'+options.external.prefix+'tabs').tabs();
 		// Button Set
-		$("#radio1").buttonset();
-		$( "#methodCluster" ).selectmenu();
+		$("#"+options.external.prefix+"radio1").buttonset();
+		$( "#"+options.external.prefix+"methodCluster" ).selectmenu();
 			
-		canvasTools=document.getElementById('toolCanvas');
+		canvasTools=document.getElementById(options.external.prefix+'toolCanvas');
 		ctxTools=canvasTools.getContext('2d');
 		rectTools = {};
-		containerTools = $("#toolCanvas");
+		containerTools = $("#"+options.external.prefix+"toolCanvas");
 
 		var canvasOffset=containerTools.offset();
 		var offsetX=canvasOffset.left;
@@ -107,15 +104,15 @@ function TGViewDOMListener(theoryGraphIn)
 	{
 		if(selectionMode==false)
 		{
-			$("#toolCanvas").css("display","block");
+			$("#"+options.external.prefix+"toolCanvas").css("display","block");
 			selectionMode=true;
-			document.getElementById('toolCanvas').style.cursor = "crosshair";
+			document.getElementById(options.external.prefix+'toolCanvas').style.cursor = "crosshair";
 		}
 		else
 		{
-			$("#toolCanvas").css("display","none");
+			$("#"+options.external.prefix+"toolCanvas").css("display","none");
 			selectionMode=false;
-			document.getElementById('toolCanvas').style.cursor = "auto";
+			document.getElementById(options.external.prefix+'toolCanvas').style.cursor = "auto";
 		}
 	}
 }

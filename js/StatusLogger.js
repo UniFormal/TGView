@@ -4,7 +4,7 @@ function StatusLogger(logElement)
 
 	this.setStatusText = function(text)
 	{
-		statusbar = document.getElementById(logTo);
-		statusBar.innerHTML=text;
+		var statusbar = document.getElementById(logTo);
+		statusbar.innerHTML=text;
 	}
 }

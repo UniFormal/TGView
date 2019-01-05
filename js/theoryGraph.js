@@ -1874,10 +1874,10 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 
 	function nodeToSVGHTML(node)
 	{
-		$('#string_span').html(node["previewhtml"]);
-		var width=$('#string_span').width();
-		var height=$('#string_span').height();
-		$('#string_span').html("");
+		$('#'+options.external.prefix+'string_span').html(node["previewhtml"]);
+		var width=$('#'+options.external.prefix+'string_span').width();
+		var height=$('#'+options.external.prefix+'string_span').height();
+		$('#'+options.external.prefix+'string_span').html("");
 		var svg;
 		
 		if(node["shape"]=="image")
@@ -1905,10 +1905,10 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 
 	function nodeToSVGMath(node)
 	{
-		$('#string_span').html(node["mathml"]);
-		var width=$('#string_span').width();
-		var height=$('#string_span').height();
-		$('#string_span').html("");
+		$('#'+options.external.prefix+'string_span').html(node["mathml"]);
+		var width=$('#'+options.external.prefix+'string_span').width();
+		var height=$('#'+options.external.prefix+'string_span').height();
+		$('#'+options.external.prefix+'string_span').html("");
 		var svg;
 		
 		if(node["shape"]=="image")
@@ -2020,15 +2020,15 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 				var opti=new Optimizer(originalNodes,originalEdges, hideEdgesType, statusLogger);
 				if(originalNodes.length+originalEdges.length>3000)
 				{
-					opti.weaklyHierarchicalLayout(500,document.getElementById('nodeSpacingBox').value);
+					opti.weaklyHierarchicalLayout(500,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
 				}
 				else if(originalNodes.length+originalEdges.length>2000)
 				{
-					opti.weaklyHierarchicalLayout(700,document.getElementById('nodeSpacingBox').value);
+					opti.weaklyHierarchicalLayout(700,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
 				}
 				else
 				{
-					opti.weaklyHierarchicalLayout(1000,document.getElementById('nodeSpacingBox').value);
+					opti.weaklyHierarchicalLayout(1000,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
 				}
 			}
 			else if(options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==2)
@@ -2037,15 +2037,15 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 				opti.GenerateRandomSolution();
 				if(originalNodes.length+originalEdges.length>3000)
 				{
-					opti.SolveUsingForces(200,document.getElementById('nodeSpacingBox').value,200,{"meta":false},originalEdges);
+					opti.SolveUsingForces(200,document.getElementById(options.external.prefix+'nodeSpacingBox').value,200,{"meta":false},originalEdges);
 				}
 				else if(originalNodes.length+originalEdges.length>2000)
 				{
-					opti.SolveUsingForces(400,document.getElementById('nodeSpacingBox').value,200,{"meta":false},originalEdges);
+					opti.SolveUsingForces(400,document.getElementById(options.external.prefix+'nodeSpacingBox').value,200,{"meta":false},originalEdges);
 				}
 				else
 				{
-					opti.SolveUsingForces(600,document.getElementById('nodeSpacingBox').value,200,{"meta":false},originalEdges);
+					opti.SolveUsingForces(600,document.getElementById(options.external.prefix+'nodeSpacingBox').value,200,{"meta":false},originalEdges);
 				}
 			}
 			else if(options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==4)
@@ -2054,15 +2054,15 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 				opti.GenerateRandomSolution();
 				if(originalNodes.length+originalEdges.length>3000)
 				{
-					opti.waterDrivenLayout(200,document.getElementById('nodeSpacingBox').value);
+					opti.waterDrivenLayout(200,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
 				}
 				else if(originalNodes.length+originalEdges.length>2000)
 				{
-					opti.waterDrivenLayout(400,document.getElementById('nodeSpacingBox').value);
+					opti.waterDrivenLayout(400,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
 				}
 				else
 				{
-					opti.waterDrivenLayout(600,document.getElementById('nodeSpacingBox').value);
+					opti.waterDrivenLayout(600,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
 				}
 			}
 		}
@@ -2118,7 +2118,7 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 		// If the document is clicked somewhere
 		network.on("click", function (e) 
 		{
-			$("#tooltip-container").hide(10);
+			$("#"+options.external.prefix+"tooltip-container").hide(10);
 			// If the clicked element is not the menu
 			if (!$(e.target).parents(".custom-menu").length > 0) 
 			{
@@ -2227,7 +2227,7 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 		
 		network.on("oncontext", function (params) 
 		{
-			$("#tooltip-container").hide(10);
+			$("#"+options.external.prefix+"tooltip-container").hide(10);
 			$(".custom-menu").hide(10);
 			
 			var node=network.getNodeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
@@ -2241,7 +2241,7 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 				// In the right position (the mouse)
 				css({
 					top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-					left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById("mainbox").offsetLeft + "px",
+					left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(options.external.prefix+"mainbox").offsetLeft + "px",
 				});
 				return;
 			}
@@ -2265,12 +2265,12 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 				if (selectedEdge!=undefined && typeof selectedEdge.clickText != "undefined")
 				{
 					// Show contextmenu
-					$("#tooltip-container").finish().show(10).
+					$("#"+options.external.prefix+"tooltip-container").finish().show(10).
 					html(selectedEdge.clickText ).
 					// In the right position (the mouse)
 					css({
 						top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-						left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById("mainbox").offsetLeft + "px"
+						left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(options.external.prefix+"mainbox").offsetLeft + "px"
 					});
 				}
 			}

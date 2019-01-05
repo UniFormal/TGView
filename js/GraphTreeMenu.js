@@ -34,7 +34,7 @@ function GraphTreeMenu(wrapperIn, optionsIn)
 		currentMouseY = event.pageY;
 	}
 	
-	$('#theory_tree').jstree(
+	$('#'+options.external.prefix+'theory_tree').jstree(
 	{
 		'core' : 
 		{
@@ -60,7 +60,7 @@ function GraphTreeMenu(wrapperIn, optionsIn)
 	//var jsonURL=options.menuEntriesURL;
 	$.get(jsonURL, addTreeNodes);
 
-	$("#theory_tree").on("select_node.jstree",
+	$("#"+options.external.prefix+"theory_tree").on("select_node.jstree",
 		function(evt, data)
 		{
 			wrapper.lastGraphDataUsed=data.node.original.graphdata;
@@ -77,7 +77,7 @@ function GraphTreeMenu(wrapperIn, optionsIn)
 		}
 	);
 		
-	$("#theory_tree").on("open_node.jstree",
+	$("#"+options.external.prefix+"theory_tree").on("open_node.jstree",
 		function(evt, data)
 		{
 			$(".custom-menu-side").hide(10);
@@ -113,7 +113,7 @@ function GraphTreeMenu(wrapperIn, optionsIn)
 				"children": child,
 				"state" : {"opened": !childNodes[i].hasChildren}
 			};
-			$('#theory_tree').jstree().create_node(lazyParent, node, 'last',function() {console.log("Child created");});
+			$('#'+options.external.prefix+'theory_tree').jstree().create_node(lazyParent, node, 'last',function() {console.log("Child created");});
 		}
 	}	
 

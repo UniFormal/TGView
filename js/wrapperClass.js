@@ -42,17 +42,17 @@ function TGViewContainerClass(externalOptions)
 		}	
 	}
 	
-	var dom=new DOMCreator(options.external.mainContainer);
+	var dom=new DOMCreator(options.external.mainContainer, options);
 	
-	$("#tgViewMainEle").ready(function()
+	$("#"+options.external.mainContainer).ready(function()
 	{
-		resizer=new Resizer();
-		logger=new StatusLogger("statusBar");
+		resizer=new Resizer(options);
+		logger=new StatusLogger(options.external.prefix+"statusBar", options);
 		historyLogger=new ActionHistory();
-		theoryGraph=new TheoryGraph("mynetwork", logger, historyLogger);
+		theoryGraph=new TheoryGraph(options.external.prefix+"mynetwork", logger, historyLogger);
 		historyLogger.init(theoryGraph);
-		legendPanel=new LegendPanel("mynetworkLegend", options, logger);
-		tgDomListener= new TGViewDOMListener(theoryGraph);
+		legendPanel=new LegendPanel(options.external.prefix+"mynetworkLegend", options, logger);
+		tgDomListener= new TGViewDOMListener(theoryGraph, options);
 		ui = new InteractionUI(theoryGraph, tgDomListener, logger, options, historyLogger, that);				
 		treeMenu=new GraphTreeMenu(that, options);
 					
@@ -96,7 +96,7 @@ function TGViewContainerClass(externalOptions)
 			
 			if(type!="close")
 			{
-				that.createNewGraph(type, lastGraphDataUsed);
+				that.createNewGraph(type, that.lastGraphDataUsed);
 			}
 				
 			// Hide it AFTER the action was triggered
