@@ -1,4 +1,4 @@
-function TGViewDOMListener(theoryGraphIn, optionsIn)
+export default function TGViewDOMListener(theoryGraphIn, optionsIn)
 {
 	var options=optionsIn;
 	var theoryGraph=theoryGraphIn;
@@ -28,14 +28,14 @@ function TGViewDOMListener(theoryGraphIn, optionsIn)
 		recievedDataJSON = e.data;
 	});
 
-	$(document).bind("contextmenu", function (event) 
+	$("#"+options.external.mainContainer).bind("contextmenu", function (event) 
 	{
 		// Avoid the real menu
 		event.preventDefault();
 	});
 
 
-	$(document).ready(function() 
+	$("#"+options.external.mainContainer).ready(function() 
 	{
 		//$('button').button();
 		// Accordion

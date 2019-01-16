@@ -1,4 +1,6 @@
-function Options(external)
+import {getParameterByName} from './globalFuncs.js';
+
+export default function Options(external)
 {
 	if(typeof external.serverBaseURL !== "undefined")
 	{

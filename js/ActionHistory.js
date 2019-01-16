@@ -1,4 +1,5 @@
-function ActionHistory()
+
+export default function ActionHistory()
 {
 	var theoryGraph;
 	var historyStates=[];

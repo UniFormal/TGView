@@ -1,4 +1,8 @@
-function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
+import Clusterer from './Clusterer.js';
+import Optimizer from './Optimizer.js';
+import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './globalFuncs.js';
+
+export default function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 {
 	var actionLogger=actionLoggerIn;
 	var options;
@@ -178,7 +182,7 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 				}
 			}
 			moveRegionHold=false;
-			document.body.style.cursor = 'auto';
+			document.getElementById(options.external.mainContainer).style.cursor = 'auto';
 			oldRegionPosition=coords;
 			selectRegion=true;
 			redraw=true;
@@ -201,7 +205,7 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 						moveRegionHold=true;
 						moveRegionId=i;
 						oldRegionPosition=coords;
-						document.body.style.cursor = 'pointer';
+						document.getElementById(options.external.mainContainer).style.cursor = 'pointer';
 						selectRegion=true;
 						break;
 					}
@@ -209,7 +213,7 @@ function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 					{
 						addNodeRegionId=i;
 						addNodeToRegion=true;
-						document.body.style.cursor = 'copy';
+						document.getElementById(options.external.mainContainer).style.cursor = 'copy';
 						selectRegion=true;
 						break;
 					}

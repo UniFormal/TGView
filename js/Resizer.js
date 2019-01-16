@@ -1,10 +1,10 @@
-function Resizer(optionsIn)
+export default function Resizer(optionsIn)
 {	
 	var options=optionsIn;
 	var widthTreeBefore=350;
 	
 	var divW = 0;
-	jQuery(document).ready(function()
+	jQuery("#"+options.external.mainContainer).ready(function()
 	{
 		checkResize();
 		window.setInterval(resizeMenuDiv, 250);

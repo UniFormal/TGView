@@ -1,4 +1,5 @@
-function GraphTreeMenu(wrapperIn, optionsIn)
+
+export default function GraphTreeMenu(wrapperIn, optionsIn)
 {
 	var alreadyAdded=[];
 	var options=optionsIn;
@@ -7,7 +8,7 @@ function GraphTreeMenu(wrapperIn, optionsIn)
 	var currentMouseX=0;
 	var currentMouseY=0;
 	
-	document.onmousemove = handleMouseMove;
+	document.getElementById(options.external.mainContainer).onmousemove = handleMouseMove;
 	function handleMouseMove(event) 
 	{
 		var dot, eventDoc, doc, body, pageX, pageY;
@@ -18,7 +19,7 @@ function GraphTreeMenu(wrapperIn, optionsIn)
 		// (This is to support old IE)
 		if (event.pageX == null && event.clientX != null) 
 		{
-			eventDoc = (event.target && event.target.ownerDocument) || document;
+			eventDoc = (event.target && event.target.ownerDocument) || document.getElementById(options.external.mainContainer);
 			doc = eventDoc.documentElement;
 			body = eventDoc.body;
 

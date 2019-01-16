@@ -6,7 +6,7 @@ function HelperLine(xStart, yStart, xEnd, yEnd)
 	this.yEnd = yEnd;
 }
 
-function Optimizer(nodes, edges, ignoreByType, logger)
+export default function Optimizer(nodes, edges, ignoreByType, logger)
 {
 	var Constants=[];
 	Constants.DependencyWidth = 30;

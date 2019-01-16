@@ -1,4 +1,4 @@
-function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn, actionLoggerIn, wrapperIn)
+export default function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn, actionLoggerIn, wrapperIn)
 {
 	var actionLogger=actionLoggerIn;
 	var options=optionsIn;

@@ -1,4 +1,4 @@
-function DOMCreator(containerNameIn, optionsIn)
+export default function DOMCreator(containerNameIn, optionsIn)
 {
 	var options=optionsIn;
 	var containerName=containerNameIn;

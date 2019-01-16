@@ -1,4 +1,4 @@
-function LegendPanel(containerNameIn, optionsIn, statusLoggerIn)
+export default function LegendPanel(containerNameIn, optionsIn, statusLoggerIn)
 {
 	var statusLogger=statusLoggerIn;
 	var containerName=containerNameIn;

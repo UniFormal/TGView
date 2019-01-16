@@ -7,7 +7,7 @@ function HelperLine(xStart, yStart, xEnd, yEnd)
 	this.yEnd = yEnd;
 }
 
-function Clusterer(nodes, edges, loggerIn)
+export default function Clusterer(nodes, edges, loggerIn)
 {
 	var logger=loggerIn;
 	var overAllColision;

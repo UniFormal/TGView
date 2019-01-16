@@ -1,4 +1,4 @@
-function StatusLogger(logElement)
+export default function StatusLogger(logElement)
 {
 	var logTo=logElement;
 
