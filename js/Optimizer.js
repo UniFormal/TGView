@@ -105,7 +105,7 @@ export default function Optimizer(nodes, edges, ignoreByType, logger)
 	
 	this.GenerateRandomSolution = function()
 	{
-		lines = [];
+		var lines = [];
 		var i = 0;
 		
 		for(var i=0;i< myAllNodes.length;i++ )
@@ -282,7 +282,7 @@ export default function Optimizer(nodes, edges, ignoreByType, logger)
 	}
 
 	
-	function findRandomPath(startNode)
+		function findRandomPath(startNode)
 	{
 		if(startNode===undefined)
 			return undefined;
@@ -463,7 +463,7 @@ export default function Optimizer(nodes, edges, ignoreByType, logger)
 			}
 			
 			var tempPath=findRandomPath(maxNode);
-			
+
 			if(tempPath!==undefined && tempPath.length>longPath.length)
 			{
 				longPath=tempPath.slice();
