@@ -550,8 +550,8 @@ export default function Optimizer(nodes, edges, ignoreByType, logger)
 			}
 
 			var level=lengthMapping[myAllNodes[i].overallLength];
-			var currX=xUsed[level];
-			var currY=yUsed[level];
+			//var currX=xUsed[level];
+			//var currY=yUsed[level];
 			if(upDown==false)
 			{
 				yUsed[level]+=distNodes;
@@ -605,7 +605,7 @@ export default function Optimizer(nodes, edges, ignoreByType, logger)
 		var step = initialStep;
 		var success = 0;
 
-		var area = myWidth * myHeight;
+		//var area = myWidth * myHeight;
 		var kVal =  Math.max(Math.min((myAllNodes.length*4+edgesCount/2.5)/2 * 0.5*spacingValue/7.0,300),70);
 		var kSquared = kVal*kVal;
 

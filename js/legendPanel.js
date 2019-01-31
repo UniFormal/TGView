@@ -7,7 +7,7 @@ export default function LegendPanel(containerNameIn, optionsIn, statusLoggerIn)
 	var network = null;
 	var nodes;
 	var edges;
-	var that=this;
+	// var that=this;
 	var options=optionsIn;
 	
 	var smallNodeSize=5;

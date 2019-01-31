@@ -1,4 +1,3 @@
-
 export default function GraphTreeMenu(wrapperIn, optionsIn)
 {
 	var alreadyAdded=[];
@@ -7,11 +6,12 @@ export default function GraphTreeMenu(wrapperIn, optionsIn)
 	var lazyParent="#";
 	var currentMouseX=0;
 	var currentMouseY=0;
-	
+
 	document.getElementById(options.external.mainContainer).onmousemove = handleMouseMove;
 	function handleMouseMove(event) 
 	{
-		var dot, eventDoc, doc, body, pageX, pageY;
+		//var dot, eventDoc, doc, body, pageX, pageY;
+		var eventDoc, doc, body;
 		event = event || window.event; // IE-ism
 
 		// If pageX/Y aren't available and clientX/Y are,

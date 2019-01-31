@@ -1,5 +1,5 @@
 import DOMCreator from './DOMCreator.js';
-import Clusterer from './Clusterer.js';
+// import Clusterer from './Clusterer.js';
 import ActionHistory from './ActionHistory.js';
 import TheoryGraph from './theoryGraph.js';
 import StatusLogger from './StatusLogger.js';
@@ -9,7 +9,8 @@ import InteractionUI from './InteractionUI.js';
 import GraphTreeMenu from './GraphTreeMenu.js';
 import Options from './globalOptions.js';
 import TGViewDOMListener from './globalListener.js';
-import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './globalFuncs.js';
+// import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './globalFuncs.js';
+import {setLocation, getParameterByName} from './globalFuncs.js';
 
 
 export default function TGViewContainerClass(externalOptions)
@@ -18,7 +19,7 @@ export default function TGViewContainerClass(externalOptions)
 	this.lastGraphDataUsed="";
 	this.lastGraphTypeUsed="";
 	var that=this;
-	var resizer;
+	//var resizer;
 	var logger;
 	var options=new Options(externalOptions);;
 	var historyLogger;
@@ -26,7 +27,7 @@ export default function TGViewContainerClass(externalOptions)
 	var legendPanel;
 	var tgDomListener;
 	var ui;				
-	var treeMenu;
+	//var treeMenu;
 	
 	this.createNewGraph = function(type, graphdata) 
 	{

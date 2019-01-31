@@ -1,21 +1,12 @@
-
-function HelperLine(xStart, yStart, xEnd, yEnd)
-{
-	this.xStart = xStart;
-	this.yStart = yStart;
-	this.xEnd = xEnd;
-	this.yEnd = yEnd;
-}
-
 export default function Clusterer(nodes, edges, loggerIn)
 {
 	var logger=loggerIn;
-	var overAllColision;
+	//var overAllColision;
 	var myAllNodes=nodes;
-	var field=[];
+	//var field=[];
 	var countNodesInGraph;
 	var edgesCount=edges.length;
-	var that=this;
+	//var that=this;
 	
 	mapEdgesIntoNodes(edges);
 	identifySubgraphs();
@@ -208,7 +199,7 @@ export default function Clusterer(nodes, edges, loggerIn)
 	function combineTwoSolutionsClusterbased(membership1, membership2)
 	{
 		var newMembership=[];
-		var randNum=Math.random();
+		// var randNum=Math.random();
 		var maxMember1Cluster=0;
 		
 		for(var i=0;i<membership1.length;i++)

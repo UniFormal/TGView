@@ -1,10 +1,11 @@
 import Clusterer from './Clusterer.js';
 import Optimizer from './Optimizer.js';
-import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './globalFuncs.js';
+// import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './globalFuncs.js';
+import {rainbow, getParameterByName, getStartToEnd} from './globalFuncs.js';
 
 export default function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 {
-	var actionLogger=actionLoggerIn;
+	//var actionLogger=actionLoggerIn;
 	var options;
 	var statusLogger=statusLoggerIn;
 	var containerName=containerNameIn;
@@ -15,7 +16,7 @@ export default function TheoryGraph(containerNameIn, statusLoggerIn, actionLogge
 	var nodes;
 	var edges;
 	var lastClusterZoomLevel = 0;
-    var clusterFactor = 1;
+    //var clusterFactor = 1;
 	var that=this;
 	var zoomClusters=[];
 	var clusterPositions=[];
@@ -66,7 +67,7 @@ export default function TheoryGraph(containerNameIn, statusLoggerIn, actionLogge
 		
 		nodesToShow=nodesToShow.concat(nodeIds);
 		
-		var positions=network.getPositions();
+		//var positions=network.getPositions();
 		var edgesToShow=[];
 
 		for(var i=0;i<nodeIds.length;i++)
