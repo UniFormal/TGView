@@ -1,4 +1,9 @@
-	
+// @ts-check
+
+/**
+ * Sets the current browser location to given url
+ * @param {string} curLoc URL to set location to 
+ */
 export function setLocation(curLoc)
 {
 	try 
@@ -13,6 +18,10 @@ export function setLocation(curLoc)
 	location.hash = '#' + curLoc;
 }
 	
+/**
+ * Gets a random CSS color
+ * @returns {string}
+ */
 export function getRandomColor() 
 {
   var letters = '0123456789ABCDEF';
@@ -24,10 +33,16 @@ export function getRandomColor()
   return color;
 }
 
+
+/**
+ * This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
+ * Adam Cole, 2011-Sept-14
+ * HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+ * @param {number} numOfSteps 
+ * @param {number} step
+ * @returns {string} 
+ */
 export function rainbow(numOfSteps, step) {
-	// This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
-	// Adam Cole, 2011-Sept-14
-	// HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
 	var r, g, b;
 	var h = step / numOfSteps;
 	var i = ~~(h * 6);
@@ -46,6 +61,12 @@ export function rainbow(numOfSteps, step) {
 }
 
 
+/**
+ * Extracts a parameter from a URL by name
+ * @param {string} name Name of parameter to extract 
+ * @param {string} [url] URL to extract parameter from, defaults to the current url
+ * @returns {string}
+ */
 export function getParameterByName(name, url) 
 {
 	if (!url) 
@@ -60,6 +81,12 @@ export function getParameterByName(name, url)
 	return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+/**
+ * Given a start point and (possibly negative) length, returns increasing start and end points
+ * @param {number} start Starting point
+ * @param {number} theLen Length, possibly negative
+ * @returns {{start: number, end: number}} 
+ */
 export function getStartToEnd(start, theLen) 
 {
 	return theLen > 0 ? {start: start, end: start + theLen} : {start: start + theLen, end: start};

@@ -1,7 +1,7 @@
 import Clusterer from './Clusterer.js';
 import Optimizer from './Optimizer.js';
-// import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './globalFuncs.js';
-import {rainbow, getParameterByName, getStartToEnd} from './globalFuncs.js';
+// import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
+import {rainbow, getParameterByName, getStartToEnd} from './utils.js';
 
 export default function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 {

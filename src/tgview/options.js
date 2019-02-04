@@ -1,5 +1,5 @@
 // @ts-check
-import {getParameterByName} from './globalFuncs.js';
+import {getParameterByName} from './utils.js';
 
 /**
  * Represents Options for TGView
