@@ -27,12 +27,14 @@ export default function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLogg
 			$(  "#"+options.external.prefix+"helpDialog" ).dialog( "open" );
 		});
 		
+		/*
 		$("#"+options.external.prefix+"shareIcons").jsSocials(
 		{
 		    showLabel: false,
 		    showCount: false,
 		    shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest", "stumbleupon", "whatsapp","telegram"]
 		});
+		*/
 		
 		addColors();
 		generateCustomSideMenu();	

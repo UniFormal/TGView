@@ -10,5 +10,4 @@ the system at a conceptual level. Technical information can be found in the [TGV
 ## find help
 [Help Pages](https://github.com/UniFormal/TGView/wiki/Help-Pages)
 
-
-
+## Dependencies

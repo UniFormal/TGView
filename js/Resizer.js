@@ -3,7 +3,7 @@ export default function Resizer(optionsIn)
 	var options=optionsIn;
 	var widthTreeBefore=350;
 	
-	// var divW = 0;
+	var divW = 0;
 	jQuery("#"+options.external.mainContainer).ready(function()
 	{
 		checkResize();

@@ -8,30 +8,39 @@
       <link href="css/styles.css" rel="stylesheet" type="text/css">
 
       <!-- Font Awesome -->
-      <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+      <link href="deps/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
       
       <!-- VisJS-->
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.18.1/vis.css" rel="stylesheet" type="text/css">
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.18.1/vis.js"></script>
+      <link href="deps/visjs/vis.min.css" rel="stylesheet" type="text/css" />
+      <script type="text/javascript" src="deps/visjs/vis.min.js"></script>
 
       <!-- jQuery -->
-      <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+      <script src="deps/jquery/jquery-3.3.1.min.js"></script>
 
       <!-- JQuery UI-->
-      <link href="https://code.jquery.com/ui/1.12.1/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css">
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+      <link href="deps/jqueryui/jquery-ui.min.css" rel="stylesheet" type="text/css">
+      <script src="deps/jqueryui/jquery-ui.min.js"></script>
       
       <!-- jstree -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.4/jstree.min.js"></script>
+      <link rel="stylesheet" href="deps/jstree/themes/default/style.min.css" />
+      <script type="text/javascript" src="deps/jstree/jstree.min.js"></script>
       
-      <!-- JsSocials-->
+      <!-- JsSocials (disabled because GDPR)
       <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.css" />
       <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials-theme-flat.css" />
       <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.min.js"></script>
+      -->
 	  
    </head>
    <body class="ui-form" style="cursor: auto;overflow:hidden" id="tgViewMainEle">
-		<script src="js/index.js" type="module"></script>
-   </body>
+      <script type="module">
+         import TGViewContainerClass from './js/index.js';
+         
+         var tgView = new TGViewContainerClass({
+            isMathhub: true, 
+            mainContainer: "tgViewMainEle",
+            serverBaseURL: 'https://mmt.mathhub.info/',
+         });
+      </script>
+	</body>
 </html>
