@@ -1,11 +1,3 @@
-function HelperLine(xStart, yStart, xEnd, yEnd)
-{
-	this.xStart = xStart;
-	this.yStart = yStart;
-	this.xEnd = xEnd;
-	this.yEnd = yEnd;
-}
-
 export default function Optimizer(nodes, edges, ignoreByType, logger)
 {
 	var Constants=[];
@@ -788,4 +780,19 @@ export default function Optimizer(nodes, edges, ignoreByType, logger)
 	}
 
 
+}
+
+/**
+ * An instance of a line
+ * @param {number} xStart 
+ * @param {number} yStart 
+ * @param {number} xEnd 
+ * @param {number} yEnd 
+ */
+function HelperLine(xStart, yStart, xEnd, yEnd)
+{
+	this.xStart = xStart;
+	this.yStart = yStart;
+	this.xEnd = xEnd;
+	this.yEnd = yEnd;
 }

@@ -1,13 +1,15 @@
+import $ from "../../deps/jquery/jquery-es.js";
+
 import DOMCreator from './DOMCreator.js';
 // import Clusterer from './Clusterer.js';
 import ActionHistory from './ActionHistory.js';
 import TheoryGraph from './theoryGraph.js';
-import StatusLogger from './StatusLogger.js';
+import { StatusLogger } from './StatusLogger.js';
 import Resizer from './Resizer.js';
 import LegendPanel from './legendPanel.js';
 import InteractionUI from './InteractionUI.js';
 import GraphTreeMenu from './GraphTreeMenu.js';
-import Options from './options.js';
+import { Options } from './options.js';
 import TGViewDOMListener from './globalListener.js';
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
 import {setLocation, getParameterByName} from './utils.js';

@@ -1,3 +1,5 @@
+import $ from "../../deps/jquery/jquery-es.js";
+
 import Clusterer from './Clusterer.js';
 import Optimizer from './Optimizer.js';
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';

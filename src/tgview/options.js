@@ -3,15 +3,15 @@ import {getParameterByName} from './utils.js';
 
 /**
  * Represents Options for TGView
- * @param {Partial<import('./options').ITGViewOptions>} external
+ * @param {Partial<import('./types/options').ITGViewOptions>} external
  * @class
  */
-export default function Options(external)
+export function Options(external)
 {
 
 	/**
 	 * Options that were set externally
-	 * @type {import('./options').ITGViewOptions}
+	 * @type {import('./types/options').ITGViewOptions}
 	 */
 	this.external = {
 		serverBaseURL: external.serverBaseURL || "/",
@@ -86,7 +86,7 @@ export default function Options(external)
 
 	/**
 	 * Options for the legend panel
-	 * @type {import('./options').ILegendPanelOptions}
+	 * @type {import('./types/options').ILegendPanelOptions}
 	 */
 	this.LEGEND_PANEL_OPTIONS = 
 	{
@@ -138,7 +138,7 @@ export default function Options(external)
 	// Options for theory-graph in general
 	/**
 	 * Options for the TheoryGraph API
-	 * @type {import('./options').ITheoryGraphOptions}
+	 * @type {import('./types/options').ITheoryGraphOptions}
 	 */
 	this.THEORY_GRAPH_OPTIONS = {
 		physics: {
@@ -188,7 +188,7 @@ export default function Options(external)
 
 	/**
 	 * Styles for all available arrow types
-	 * @type{{[name: string]: import('./options').IArrowStyle}}
+	 * @type{{[name: string]: import('./types/options').IArrowStyle}}
 	 */
 	this.ARROW_STYLES = {
 		include: {
@@ -261,7 +261,7 @@ export default function Options(external)
 
 	/**
 	 * Styles of all available nodes
-	 * @type{{[name: string]: import('./options').INodeStyle}}
+	 * @type{{[name: string]: import('./types/options').INodeStyle}}
 	 */
 	this.NODE_STYLES = {
 		model: {
@@ -304,7 +304,7 @@ export default function Options(external)
 
 	/**
 	 * Available graph types (for MMT Menu)
-	 * @type {import('./options').IGraphMenuEntry[]}
+	 * @type {import('./types/options').IGraphMenuEntry[]}
 	 */
 	this.GRAPH_TYPES = [
 		{

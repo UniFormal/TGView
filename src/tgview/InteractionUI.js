@@ -1,3 +1,5 @@
+import $ from "../../deps/jquery/jquery-es.js";
+
 export default function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn, actionLoggerIn, wrapperIn)
 {
 	var actionLogger=actionLoggerIn;

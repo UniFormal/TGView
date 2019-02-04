@@ -1,3 +1,9 @@
+// @ts-check
+/**
+ * Creates a DOM Structure for TGView
+ * @param {string} containerNameIn 
+ * @param {import('./options').Options} optionsIn 
+ */
 export default function DOMCreator(containerNameIn, optionsIn)
 {
 	var options=optionsIn;

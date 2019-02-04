@@ -1,3 +1,5 @@
+import $ from "../../deps/jquery/jquery-es.js";
+
 export default function GraphTreeMenu(wrapperIn, optionsIn)
 {
 	var alreadyAdded=[];

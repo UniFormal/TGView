@@ -14,16 +14,16 @@
       <link href="deps/visjs/vis.min.css" rel="stylesheet" type="text/css" />
       <script type="text/javascript" src="deps/visjs/vis.min.js"></script>
 
-      <!-- jQuery -->
-      <script src="deps/jquery/jquery-3.3.1.min.js"></script>
+      <!-- jQuery (handled by deps/jquery/jquery-es.js)
+      <script src="deps/jquery/jquery-3.3.1.min.js"></script> -->
 
-      <!-- JQuery UI-->
+      <!-- JQuery UI (js handled by deps/jquery/jquery-es.js) -->
       <link href="deps/jqueryui/jquery-ui.min.css" rel="stylesheet" type="text/css">
-      <script src="deps/jqueryui/jquery-ui.min.js"></script>
+      <!-- <script src="deps/jqueryui/jquery-ui.min.js"></script> --> 
       
-      <!-- jstree -->
+      <!-- jstree (js handled by deps/jquery/jquery-es.js) -->
       <link rel="stylesheet" href="deps/jstree/themes/default/style.min.css" />
-      <script type="text/javascript" src="deps/jstree/jstree.min.js"></script>
+      <!-- <script type="text/javascript" src="deps/jstree/jstree.min.js"></script> -->
       
       <!-- JsSocials (disabled because GDPR)
       <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.css" />
@@ -35,9 +35,9 @@
    <body class="ui-form" style="cursor: auto;overflow:hidden" id="tgViewMainEle">
       <script type="module">
          import TGViewContainerClass from './src/tgview/index.js';
-         
+      
          var tgView = new TGViewContainerClass({
-            isMathhub: true, 
+            isMathhub: false, 
             mainContainer: "tgViewMainEle",
             serverBaseURL: 'https://mmt.mathhub.info/',
          });

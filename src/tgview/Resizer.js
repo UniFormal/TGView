@@ -1,64 +1,51 @@
-export default function Resizer(optionsIn)
-{	
-	var options=optionsIn;
+// @ts-check
+import $ from "../../deps/jquery/jquery-es.js";
+
+/**
+ * Handles resizing of the window and main container
+ * @param {import('./options').Options} options 
+ */
+export default function Resizer(options)
+{
 	var widthTreeBefore=350;
-	
 	var divW = 0;
-	jQuery("#"+options.external.mainContainer).ready(function()
+
+	$(document.getElementById(options.external.mainContainer)).ready(function()
 	{
 		checkResize();
 		window.setInterval(resizeMenuDiv, 250);
-		jQuery(window).resize(checkResize);
-		//window.setInterval(checkResize, 250);
+		$(window).resize(checkResize);
 	});
 	
 	function resizeMenuDiv()
-	{ 
-		if(document.getElementById(options.external.prefix+'mySidenav') != null)
-		{
-			return;
-		}
-		
-		var sideNav=document.getElementById(options.external.prefix+"mySidenav");
-		var tree=document.getElementById(options.external.prefix+"theory_tree_div");
-		
+	{	
+		var tree = document.getElementById(options.external.prefix+"theory_tree_div");
 		var currWidth=tree.offsetWidth;
 
 		if(widthTreeBefore!=currWidth)
 		{
 			widthTreeBefore=currWidth;
+			var sideNav = document.getElementById(options.external.prefix+'mySidenav');
 			sideNav.style.width=(widthTreeBefore+16)+"px";
 		}
 	}
 
 	function checkResize()
 	{
-		var w = jQuery("#theory_tree_div").width();
-		//console.log(w +"!="+ divW);
-		//if (w != divW) 
+		var w = $(document.getElementById(options.external.prefix+"theory_tree_div")).width();
+
 		{
 			divW = w;
-			
-			var treeDiv = jQuery('#theory_tree_div');
-			
-			
 			var htmlCanvas = document.getElementById(options.external.prefix+'toolCanvas');
-			htmlCanvas.width = (window.innerWidth-36)|0;
-			htmlCanvas.height = (window.innerHeight-74)|0;
-			htmlCanvas.style.width=htmlCanvas.width+"px";
-			htmlCanvas.style.height=htmlCanvas.height+"px";
-			
-			
+			htmlCanvas.style.width=((window.innerWidth-36)|0)+"px";
+			htmlCanvas.style.height=((window.innerHeight-74)|0)+"px";
 			
 			htmlCanvas = document.getElementById(options.external.prefix+'mainbox');
-			htmlCanvas.width = (window.innerWidth-36)|0;
-			htmlCanvas.style.width=htmlCanvas.width+"px";
+			htmlCanvas.style.width=((window.innerWidth-36)|0)+"px";
 			
 			htmlCanvas = document.getElementById(options.external.prefix+'wholeNetwork');
-			htmlCanvas.width = (window.innerWidth-36)|0;
-			htmlCanvas.height = (window.innerHeight-74)|0;
-			htmlCanvas.style.width=htmlCanvas.width+"px";
-			htmlCanvas.style.height=htmlCanvas.height+"px";
+			htmlCanvas.style.width=((window.innerWidth-36)|0)+"px";
+			htmlCanvas.style.height=((window.innerHeight-74)|0)+"px";
 		}
 	}
 }
