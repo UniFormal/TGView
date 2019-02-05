@@ -17,12 +17,12 @@ interface ITGViewMenuEntry {
 /**
  * Represents a TGView Graph
  */
-export interface ITGViewGraph {
-    nodes: ITGViewGraphNode[];
-    edges: ITGViewGraphEdge[];
+export interface IGraphJSONGraph {
+    nodes: IGraphJSONNode[];
+    edges: IGraphJSONEdge[];
 }
 
-interface ITGViewGraphNode {
+interface IGraphJSONNode {
     /** style of this node, as found in NODE_STYLE */
     style: string; // TODO: Allow any NODE_STYLE
     /** shape of this node */
@@ -43,7 +43,7 @@ interface ITGViewGraphNode {
     childsURL: string;   
 }
 
-interface ITGViewGraphEdge {
+interface IGraphJSONEdge {
     /** Id of from-node */
     from: string;
     /** Id of to-node */
