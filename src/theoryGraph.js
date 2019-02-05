@@ -6,6 +6,9 @@ import Optimizer from './Optimizer.js';
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
 import {rainbow, getParameterByName, getStartToEnd} from './utils';
 
+/**
+ * @class
+ */
 export default function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 {
 	//var actionLogger=actionLoggerIn;

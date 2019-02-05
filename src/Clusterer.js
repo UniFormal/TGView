@@ -1,7 +1,7 @@
 /**
  * 
- * @param {import('./types/graph.d').ITGViewGraphNode[]} nodes 
- * @param {import('./types/graph.d').ITGViewGraphEdge[]} edges 
+ * @param {import('./graph').ITGViewGraphNode[]} nodes 
+ * @param {import('./graph').ITGViewGraphEdge[]} edges 
  * @param {import('./StatusLogger').StatusLogger} loggerIn
  * @class
  */
