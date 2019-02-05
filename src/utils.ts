@@ -1,14 +1,12 @@
-// @ts-check
-
 /**
  * Sets the current browser location to given url
- * @param {string} curLoc URL to set location to 
+ * @param curLoc URL to set location to 
  */
-export function setLocation(curLoc)
+export function setLocation(curLoc: string)
 {
 	try 
 	{
-		history.pushState(null, null, curLoc);
+		history.pushState(null, document.title, curLoc);
 		return false;
 	} 
 	catch(e) 
@@ -20,9 +18,8 @@ export function setLocation(curLoc)
 	
 /**
  * Gets a random CSS color
- * @returns {string}
  */
-export function getRandomColor() 
+export function getRandomColor(): string 
 {
   var letters = '0123456789ABCDEF';
   var color = '#';
@@ -38,12 +35,10 @@ export function getRandomColor()
  * This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
  * Adam Cole, 2011-Sept-14
  * HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
- * @param {number} numOfSteps 
- * @param {number} step
  * @returns {string} 
  */
-export function rainbow(numOfSteps, step) {
-	var r, g, b;
+export function rainbow(numOfSteps: number, step: number) {
+	var r = 0; var g = 0; var b = 0;
 	var h = step / numOfSteps;
 	var i = ~~(h * 6);
 	var f = h * 6 - i;
@@ -63,11 +58,10 @@ export function rainbow(numOfSteps, step) {
 
 /**
  * Extracts a parameter from a URL by name
- * @param {string} name Name of parameter to extract 
- * @param {string} [url] URL to extract parameter from, defaults to the current url
- * @returns {string}
+ * @param name Name of parameter to extract 
+ * @param url URL to extract parameter from, defaults to the current url
  */
-export function getParameterByName(name, url) 
+export function getParameterByName(name: string, url?: string): string | null
 {
 	if (!url) 
 	{
@@ -83,11 +77,10 @@ export function getParameterByName(name, url)
 
 /**
  * Given a start point and (possibly negative) length, returns increasing start and end points
- * @param {number} start Starting point
- * @param {number} theLen Length, possibly negative
- * @returns {{start: number, end: number}} 
+ * @param start Starting point
+ * @param theLen Length, possibly negative
  */
-export function getStartToEnd(start, theLen) 
+export function getStartToEnd(start: number, theLen: number) : {start: number, end: number}
 {
 	return theLen > 0 ? {start: start, end: start + theLen} : {start: start + theLen, end: start};
 }

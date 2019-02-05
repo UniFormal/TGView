@@ -1,4 +1,4 @@
-import vis from '../../deps/visjs/vis-es.js';
+import vis from 'vis';
 
 /**
  * 

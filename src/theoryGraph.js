@@ -4,7 +4,7 @@ import vis from '../../deps/visjs/vis-es.js';
 import Clusterer from './Clusterer.js';
 import Optimizer from './Optimizer.js';
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
-import {rainbow, getParameterByName, getStartToEnd} from './utils.js';
+import {rainbow, getParameterByName, getStartToEnd} from './utils';
 
 export default function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
 {

@@ -4,91 +4,101 @@ import {getParameterByName} from './utils.js';
 /**
  * Represents Options for TGView
  * @param {Partial<import('./types/options').ITGViewOptions>} external
- * @class
+ * @constructor
  */
-export function Options(external)
-{
+export class Options {
+	constructor(external: Partial<ITGViewOptions>) {
+		this.external = {
+			serverBaseURL: external.serverBaseURL || "/",
+			serverUrl: external.serverUrl,
 
-	/**
-	 * Options that were set externally
-	 * @type {import('./types/options').ITGViewOptions}
-	 */
-	this.external = {
-		serverBaseURL: external.serverBaseURL || "/",
-		serverUrl: external.serverUrl,
+			isMathhub: external.isMathhub === undefined ? true : external.isMathhub,
+			viewOnlyMode: external.viewOnlyMode || false,
 
-		isMathhub: external.isMathhub === undefined ? true : external.isMathhub,
-		viewOnlyMode: external.viewOnlyMode || false,
+			source: external.source || getParameterByName(Options.graphDataURLSourceParameterNameTGView) || undefined,
+			type: external.type || getParameterByName(Options.graphDataURLTypeParameterNameTGView) || undefined,
+			graphdata: external.graphdata || getParameterByName(Options.graphDataURLDataParameterNameTGView) || undefined,
 
-		source: external.source || getParameterByName(Options.graphDataURLSourceParameterNameTGView),
-		type: external.type || getParameterByName(Options.graphDataURLTypeParameterNameTGView),
-		graphdata: external.graphdata || getParameterByName(Options.graphDataURLDataParameterNameTGView),
+			highlight: external.highlight || getParameterByName(Options.graphDataURLHighlightParameterNameTGView) || undefined,
+			
+			mainContainer: external.mainContainer || "tgViewMainEle",
+			prefix: external.prefix || "tgview-",
+		}
 
-		highlight: external.highlight || getParameterByName(Options.graphDataURLHighlightParameterNameTGView),
-		
-		mainContainer: external.mainContainer || "tgViewMainEle",
-		prefix: external.prefix || "tgview-",
+		/**
+		 * The base URL of all requests to the server
+		 * @type {string}
+		 */
+		this.serverBaseURL = this.external.serverBaseURL || "/";
+
+		/**
+		 * The url to items on the server
+		 * @todo: What exactly is this used for
+		 * @type {string} 
+		 */
+		this.serverUrl = this.serverBaseURL || (window.location.protocol == "file:" ? "/" : "/mh/mmt/");
+
+		// if we have an external serverURL, use it
+		if (this.external.serverUrl !== undefined) {
+			this.serverUrl = this.external.serverUrl;
+		}
+
+		// if we are not on MathHub, the server url is '/'
+		if (!this.external.isMathhub) {
+			this.serverUrl = '/';
+		}
+
+		/**
+		 * URL for getting menu-entries in the side-menu
+		 * @type {string}
+		 */
+		this.menuEntriesURL = this.serverUrl + ":jgraph/menu?id=";
+
+		// URL parts for getting graphdata, construction looks like:
+		// graphDataURL + graphDataURLTypeParameterName + concreteTypeValue + "&" + graphDataURLDataParameterName + concreteGraphdataValue
+		this.graphDataURL = this.serverUrl + ":jgraph/json?";		
 	}
 
-	/**
-	 * The base URL of all requests to the server
-	 * @type {string}
-	 */
-	this.serverBaseURL = this.external.serverBaseURL || "/";
+	/** Options that were set externally */
+	readonly external: ITGViewOptions
 
-	/**
-	 * The url to items on the server
-	 * @todo: What exactly is this used for
-	 * @type {string} 
-	 */
-	this.serverUrl = this.serverBaseURL || (window.location.protocol == "file:" ? "/" : "/mh/mmt/");
+	// TODO: Can one of these two be made private?
+	// or removed entirely?
 
-	// if we have an external serverURL, use it
-	if (this.external.serverUrl !== undefined) {
-		this.serverUrl = this.external.serverUrl;
-	}
+	/** the server base url */
+	readonly serverBaseURL: string; 
 
-	// if we are not on MathHub, the server url is '/'
-	if (!this.external.isMathhub) {
-		this.serverUrl = '/';
-	}
+	/** the server url */
+	readonly serverUrl: string;
 
-	/**
-	 * URL for getting menu-entries in the side-menu
-	 * @type {string}
-	 */
-	this.menuEntriesURL = this.serverUrl + ":jgraph/menu?id=";
+	/** the url to the menu entries */
+	readonly menuEntriesURL: string;
 
-	// URL parts for getting graphdata, construction looks like:
-	// graphDataURL + graphDataURLTypeParameterName + concreteTypeValue + "&" + graphDataURLDataParameterName + concreteGraphdataValue
-	this.graphDataURL = this.serverUrl + ":jgraph/json?";
+	/** the url to the graph data */
+	readonly graphDataURL: string;
 
-	
-	// Colors to select for colorizing nodes in graph
 	/**
 	 * Colors to select the colorizing nodes in a graph
 	 * @type {string[]}
 	 */
-	this.colorizingNodesArray = [
-	  "#CCCCFF",
-	  "#FFFFCC",
-	  "#FFCC99",
-	  "#CCFFCC",
-	  "#DDDDDD",
-	  "#FFCCCC"
+	readonly colorizingNodesArray = [
+		"#CCCCFF",
+		"#FFFFCC",
+		"#FFCC99",
+		"#CCFFCC",
+		"#DDDDDD",
+		"#FFCCCC"
 	];
 
 	/**
 	 * Color to used for highlighting nodes given by URI parameter
-	 * @type {string}
 	 */
-	this.highlightColorByURI = "#ff8080";
+	readonly highlightColorByURI = "#ff8080";
 
 	/**
 	 * Options for the legend panel
-	 * @type {import('./types/options').ILegendPanelOptions}
 	 */
-	this.LEGEND_PANEL_OPTIONS = 
+	readonly LEGEND_PANEL_OPTIONS = 
 	{
 		physics:
 		{
@@ -135,12 +145,10 @@ export function Options(external)
 		},
 	};
 
-	// Options for theory-graph in general
 	/**
 	 * Options for the TheoryGraph API
-	 * @type {import('./types/options').ITheoryGraphOptions}
 	 */
-	this.THEORY_GRAPH_OPTIONS = {
+	readonly THEORY_GRAPH_OPTIONS = {
 		physics: {
 			enabled: false,
 			solver: "barnesHut",
@@ -188,9 +196,8 @@ export function Options(external)
 
 	/**
 	 * Styles for all available arrow types
-	 * @type{{[name: string]: import('./types/options').IArrowStyle}}
-	 */
-	this.ARROW_STYLES = {
+     */
+	readonly ARROW_STYLES: {[id: string]: IArrowStyle} = {
 		include: {
 			color: "#cccccc",
 			colorHighlight: "#cccccc",
@@ -261,9 +268,8 @@ export function Options(external)
 
 	/**
 	 * Styles of all available nodes
-	 * @type{{[name: string]: import('./types/options').INodeStyle}}
 	 */
-	this.NODE_STYLES = {
+	readonly NODE_STYLES: {[id: string]: INodeStyle} = {
 		model: {
 			shape: "square",
 			color: "#DDDDDD",
@@ -304,9 +310,8 @@ export function Options(external)
 
 	/**
 	 * Available graph types (for MMT Menu)
-	 * @type {import('./types/options').IGraphMenuEntry[]}
 	 */
-	this.GRAPH_TYPES = [
+	readonly GRAPH_TYPES: IGraphMenuEntry[] = [
 		{
 			id: "thgraph",
 			menuText: "Th. Graph",
@@ -333,15 +338,86 @@ export function Options(external)
 			tooltip: "MPD Graph-Viewer"
 		}
 	];
+
+	// For Backend
+	static readonly graphDataURLTypeParameterName = "key";
+	static readonly graphDataURLDataParameterName = "uri";
+
+	// For TGView
+	static readonly graphDataURLTypeParameterNameTGView = "type";
+	static readonly graphDataURLDataParameterNameTGView = "graphdata";
+	static readonly graphDataURLHighlightParameterNameTGView = "highlight";
+	static readonly graphDataURLSourceParameterNameTGView = "source";
+	static readonly graphDataURLDataSourceParameterNameTGView = "uri";
 }
 
-// For Backend
-Options.graphDataURLTypeParameterName = "key";
-Options.graphDataURLDataParameterName = "uri";
 
-// For TGView
-Options.graphDataURLTypeParameterNameTGView = "type";
-Options.graphDataURLDataParameterNameTGView = "graphdata";
-Options.graphDataURLHighlightParameterNameTGView = "highlight";
-Options.graphDataURLSourceParameterNameTGView = "source";
-Options.graphDataURLDataSourceParameterNameTGView = "uri";
+
+
+/**
+ * Options that an be passed to TGView
+ */
+export interface ITGViewOptions {
+    serverBaseURL: string;
+    serverUrl?: string;
+
+    isMathhub: boolean;
+    viewOnlyMode: boolean;
+
+    source?: string; // TODO: This should be something like "uri" | "html" | undefined
+    type?: string;
+    graphdata?: string;
+    highlight?: string;
+
+    mainContainer: string;
+    prefix: string; // TODO: Rename this to elementPrefix
+}
+
+/**
+ * options for the legend panel
+ * TODO: Define this in terms of library
+ */
+interface ILegendPanelOptions {}
+
+/**
+ * options for the underlying theory graph
+ * TODO: Define this in terms of the library
+*/
+interface ITheoryGraphOptions {}
+
+/** Common Style properties for both arrow and nodes */
+interface IStyleCommon {
+    color: string;
+    colorBorder?: string;
+    colorHover?: string;
+    colorHighlight: string;
+    colorHighlightBorder?: string;
+    dashes: boolean;
+    alias: string;
+}
+
+/**
+ * A Style for an arrow
+ */
+interface IArrowStyle extends IStyleCommon {
+    circle: boolean;
+    directed: boolean;
+    smoothEdge: boolean;
+    width: number;
+}
+
+/**
+ * A Style for a node
+ */
+interface INodeStyle extends IStyleCommon {
+    shape: "square" | "circle";
+}
+
+/**
+ * A Graph Type as available in the MMT Menu
+ */
+interface IGraphMenuEntry {
+    id: string;
+    menuText: string;
+    tooltip: string;
+}
