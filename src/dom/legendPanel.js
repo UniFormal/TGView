@@ -3,7 +3,7 @@ import vis from 'vis';
 /**
  * 
  * @param {string} containerNameIn Name of containet to instantiate LegendPanel in
- * @param {import('./options').Options} optionsIn Options
+ * @param {import('../options').Options} optionsIn Options
  * @param {import('./StatusLogger').StatusLogger} statusLoggerIn 
  * @class
  */

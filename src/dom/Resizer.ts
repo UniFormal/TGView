@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-import { Options } from "./options";
+import { Options } from "../options";
 
 /**
  * Handles resizing of the window and main container

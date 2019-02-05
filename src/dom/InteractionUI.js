@@ -1,10 +1,21 @@
-import $ from "../../deps/jquery/jquery-es.js";
+import jQuery from 'jquery';
+import StatusLogger from "./StatusLogger";
+import { Options } from "../options";
+import TheoryGraph from "../core/theoryGraph";
 
-export default function InteractionUI(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn, actionLoggerIn, wrapperIn)
-{
-	var actionLogger=actionLoggerIn;
-	var options=optionsIn;
-	var theoryGraph=theoryGraphIn;
+export default class InteractionUI {
+	constructor(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn: Options, actionLoggerIn: StatusLogger, wrapperIn) {
+		this.actionLogger = actionLoggerIn;
+		this.options = optionsIn;
+		this.theoryGraph = theoryGraphIn;
+
+		this.init();
+	}
+
+	private readonly actionLogger: StatusLogger;
+	private readonly options: Options;
+	private readonly theoryGraph: TheoryGraph;
+	private readonly tgDomListenerIn: DOMLi
 	var tgDomListener=tgDomListenerIn;
 	var statusLogger=statusLoggerIn;
 	var wrapper=wrapperIn;

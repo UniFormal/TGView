@@ -1,4 +1,4 @@
-import { Options } from "./options";
+import { Options } from "../options";
 
 /**
  * Represents a class that can log to something
@@ -6,7 +6,7 @@ import { Options } from "./options";
  * @param optionsIn Options that are used with this StatusLogger
  * @class
  */
-export class StatusLogger {
+export default class StatusLogger {
 	constructor(logElement: string, optionsIn: Options)
 	{
 		this.logTo = logElement;

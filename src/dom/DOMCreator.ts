@@ -1,4 +1,4 @@
-import { Options } from "./options";
+import { Options } from "../options";
 
 // TODO: Instead of using the DomPrefix all over the code assign the important element inside of this class
 // e.g. this.sideNavElement = document.getElementById(...) // whatever

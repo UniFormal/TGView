@@ -1,6 +1,6 @@
 import LayoutBase, { IEdgeIgnorance, INode } from "./Base";
 import { IGraphJSONNode, IGraphJSONEdge } from "../graph";
-import { StatusLogger } from "../StatusLogger";
+import StatusLogger from "../dom/StatusLogger";
 
 export default class Optimizer extends LayoutBase {
     constructor(nodes: IGraphJSONNode[], edges: IGraphJSONEdge[], ignoreByType: IEdgeIgnorance, logger: StatusLogger) {

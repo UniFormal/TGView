@@ -1,16 +1,8 @@
-import $ from "../../deps/jquery/jquery-es.js";
-import vis from '../../deps/visjs/vis-es.js';
-
-import Clusterer from './graph/Clusterer.js';
-import Optimizer from './Optimizer.js';
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
-import {rainbow, getParameterByName, getStartToEnd} from './utils';
+import {rainbow, getParameterByName, getStartToEnd} from '../utils';
+import { StatusLogger } from "./ui/StatusLogger";
 
-/**
- * @class
- */
-export default function TheoryGraph(containerNameIn, statusLoggerIn, actionLoggerIn)
-{
+export default class TheoryGraph {
 	//var actionLogger=actionLoggerIn;
 	var options;
 	var statusLogger=statusLoggerIn;

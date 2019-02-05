@@ -39,6 +39,13 @@
   dependencies:
     "@types/jquery" "*"
 
+"@types/jstree@^3.3.37":
+  version "3.3.37"
+  resolved "https://registry.yarnpkg.com/@types/jstree/-/jstree-3.3.37.tgz#f79add02a0af21202a1e0c1bbffe5276b2b87317"
+  integrity sha512-aoyF7MoUoh6I3XocPvkHAqX/qaay+QpdBUHMrgJNeP/eouij/Fn5YzL4nIm6XEAgjhTMZKs1EH/3WSVsWPcGpg==
+  dependencies:
+    "@types/jquery" "*"
+
 "@types/sizzle@*":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
@@ -2299,7 +2306,7 @@ joi@^14.3.1:
     isemail "3.x.x"
     topo "3.x.x"
 
-jquery@^3.3.1:
+jquery@>=1.9.1, jquery@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
   integrity sha512-Ubldcmxp5np52/ENotGxlLe6aGMvmF4R8S6tZjsP6Knsaxd/xp3Zrh50cG93lR6nPXyUFwzN3ZSOQI0wRJNdGg==
@@ -2343,6 +2350,13 @@ json5@^1.0.1:
   integrity sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==
   dependencies:
     minimist "^1.2.0"
+
+jstree@^3.3.7:
+  version "3.3.7"
+  resolved "https://registry.yarnpkg.com/jstree/-/jstree-3.3.7.tgz#41df485d66148836ac389603a3e12f4574b06251"
+  integrity sha512-yzzalO1TbZ4HdPezO43LesGI4Wv2sB0Nl+4GfwO0YYvehGws5qtTAhlBISxfur9phMLwCtf9GjHlRx2ZLXyRnw==
+  dependencies:
+    jquery ">=1.9.1"
 
 keycharm@^0.2.0:
   version "0.2.0"

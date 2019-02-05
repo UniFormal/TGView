@@ -1,23 +1,5 @@
 // import TheoryGraph from './theoryGraph';
-
-// TODO: For the moment we manually declare the theory graph class here
-// because we have not yet updated the other file
-declare class TheoryGraph {
-	openCluster(p: any): void
-	cluster(p1: any, p2: any, p3: any): void
-	selectNodes(p: any): void
-	deleteNodes(p: any): void
-	saveNode(p: any): void
-	addNode(p: any): void
-	removeNodeRegion(p: any): void
-	hideNodesById(p1: any, p2: any): void
-	addEdge(p: any): void
-	saveEdge(p: any): void
-	deleteEdges(p: any): void
-	hideEdgesById(p1: any, p2: any): void
-	selectEdgesById(p: any): void
-	cageNodes(p1: any, p2: any): any
-}
+declare class TheoryGraph {}
 
 /**
  * Represents a History of actions that occured

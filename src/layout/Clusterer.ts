@@ -1,4 +1,4 @@
-import { StatusLogger } from "../StatusLogger";
+import StatusLogger from "../dom/StatusLogger";
 import { IGraphJSONEdge, IGraphJSONNode } from "../graph";
 import LayoutBase from "./Base";
 

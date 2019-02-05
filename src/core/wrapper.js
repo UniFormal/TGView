@@ -1,18 +1,18 @@
 import $ from "../../deps/jquery/jquery-es.js";
 
-import DOMCreator from './DOMCreator.js';
+import DOMCreator from '../dom/DOMCreator.js';
 // import Clusterer from './Clusterer.js';
 import ActionHistory from './ActionHistory.js';
 import TheoryGraph from './theoryGraph.js';
-import { StatusLogger } from './StatusLogger.js';
-import Resizer from './Resizer.js';
-import LegendPanel from './legendPanel.js';
-import InteractionUI from './InteractionUI.js';
-import GraphTreeMenu from './GraphTreeMenu.js';
-import { Options } from './options.js';
-import TGViewDOMListener from './globalListener.js';
+import { StatusLogger } from '../dom/StatusLogger.js';
+import Resizer from '../dom/Resizer.js';
+import LegendPanel from '../dom/legendPanel.js';
+import InteractionUI from '../dom/InteractionUI.js';
+import GraphTreeMenu from '../dom/GraphTreeMenu.js';
+import { Options } from '../options.js';
+import TGViewDOMListener from '../dom/GlobalListener.js';
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
-import {setLocation, getParameterByName} from './utils.js';
+import {setLocation, getParameterByName} from '../utils.js';
 
 
 export default function TGViewContainerClass(externalOptions)
