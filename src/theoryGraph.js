@@ -1,7 +1,7 @@
 import $ from "../../deps/jquery/jquery-es.js";
 import vis from '../../deps/visjs/vis-es.js';
 
-import Clusterer from './Clusterer.js';
+import Clusterer from './graph/Clusterer.js';
 import Optimizer from './Optimizer.js';
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
 import {rainbow, getParameterByName, getStartToEnd} from './utils';

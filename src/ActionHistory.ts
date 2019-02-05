@@ -258,7 +258,7 @@ export default class ActionHistory
 		this.lastActionWasUndoRedo=0;
 	}
 
-	doLastAction()
+	private doLastAction()
 	{
 		if(this.historyStates.length==0)
 			return;
