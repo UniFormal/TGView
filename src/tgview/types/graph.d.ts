@@ -2,9 +2,58 @@
  * JSON representing a TGView menu entry
  */
 interface ITGViewMenuEntry {
+    /** text show in the side menu */
     menuText: string;
+    /** internal id */
     id: string;
+    /** Location of archive on server */
     uri: string;
+    /** Default graph type to open */
     type: string;
+    /** true when the archive has children */
     hasChildren: boolean;
+}
+
+/**
+ * Represents a TGView Graph
+ */
+export interface ITGViewGraph {
+    nodes: ITGViewGraphNode[];
+    edges: ITGViewGraphEdge[];
+}
+
+interface ITGViewGraphNode {
+    /** style of this node, as found in NODE_STYLE */
+    style: string; // TODO: Allow any NODE_STYLE
+    /** shape of this node */
+    shape: "circle" | "ellipse" | "square"; // TODO: Was this moved into the style
+    /** internal id */
+    id: string;
+    /** text shown */
+    label: string;
+    /** html show in the node */
+    previewhtml: string;
+    /** url for showing node */
+    url: string;
+    /** x position of the node */
+    x: number;
+    /** y position of the node */
+    y: number;
+    /** url to download children from */
+    childsURL: string;   
+}
+
+interface ITGViewGraphEdge {
+    /** Id of from-node */
+    from: string;
+    /** Id of to-node */
+    to: string;
+    /** style of this edge, as found in EDGE_STYLE */
+    style: string; // TODO: Should we limit this?
+    /** Text shown when edge is clicked */
+    clickText: string;
+    /** Weight of the edge */
+    weight: number;
+    /** url for showing edge */
+    url: string;
 }

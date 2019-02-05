@@ -1,4 +1,5 @@
 import $ from "../../deps/jquery/jquery-es.js";
+import vis from '../../deps/visjs/vis-es.js';
 
 import Clusterer from './Clusterer.js';
 import Optimizer from './Optimizer.js';

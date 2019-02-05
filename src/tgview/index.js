@@ -60,6 +60,7 @@ export default function TGViewContainerClass(externalOptions)
 	}
 	
 	var dom=new DOMCreator(options.external.mainContainer, options);
+	// TODO: Pass through the dom elements everywhere
 	
 	$("#"+options.external.mainContainer).ready(function()
 	{

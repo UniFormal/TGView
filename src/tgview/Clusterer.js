@@ -1,3 +1,10 @@
+/**
+ * 
+ * @param {import('./types/graph.d').ITGViewGraphNode[]} nodes 
+ * @param {import('./types/graph.d').ITGViewGraphEdge[]} edges 
+ * @param {import('./StatusLogger').StatusLogger} loggerIn
+ * @class
+ */
 export default function Clusterer(nodes, edges, loggerIn)
 {
 	var logger=loggerIn;

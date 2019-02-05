@@ -1,3 +1,12 @@
+import vis from '../../deps/visjs/vis-es.js';
+
+/**
+ * 
+ * @param {string} containerNameIn Name of containet to instantiate LegendPanel in
+ * @param {import('./options').Options} optionsIn Options
+ * @param {import('./StatusLogger').StatusLogger} statusLoggerIn 
+ * @class
+ */
 export default function LegendPanel(containerNameIn, optionsIn, statusLoggerIn)
 {
 	var statusLogger=statusLoggerIn;

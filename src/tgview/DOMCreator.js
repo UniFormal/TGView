@@ -1,8 +1,14 @@
 // @ts-check
+
+// TODO: Instead of using the DomPrefix all over the code assign the important element inside of this class
+// e.g. this.sideNavElement = document.getElementById(...) // whatever
+// and eventually generate a prefix that is only needed during construction
+
 /**
  * Creates a DOM Structure for TGView
  * @param {string} containerNameIn 
  * @param {import('./options').Options} optionsIn 
+ * @class
  */
 export default function DOMCreator(containerNameIn, optionsIn)
 {

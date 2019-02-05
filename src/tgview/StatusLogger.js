@@ -4,6 +4,7 @@
  * Represents a class that can log to something
  * @param {string} logElement ID of Element that should be logged into
  * @param {import('./options').Options} optionsIn Options that are used with this StatusLogger
+ * @class
  */
 export function StatusLogger(logElement, optionsIn)
 {
