@@ -3,11 +3,11 @@ import {rainbow, getParameterByName, getStartToEnd} from '../utils';
 import StatusLogger from "../dom/StatusLogger";
 import ActionHistory from "./ActionHistory";
 import { Options } from "../options";
-import { INode } from "../layout/Base";
 import { IGraphJSONEdge, IGraphJSONNode, IGraphJSONGraph } from "../graph";
 import Optimizer from "../layout/Optimizer";
-import { Position, BoundingBox, IdType, ClusterOptions, Network, DataSet } from "vis";
+import { Position, IdType, ClusterOptions, Network, DataSet } from "vis";
 import Clusterer from "../layout/Clusterer";
+
 
 declare module 'vis' {
 	interface NetworkNodes {
@@ -75,10 +75,10 @@ export default class TheoryGraph {
 	private readonly actionLogger: ActionHistory;
 	private readonly containerName: string;
 
-	private originalNodes: vis.Node[] = []; // TODO: 'style'
-	private originalEdges: vis.Edge[] = []; // TODO: 'type'
+	private originalNodes: vis.Node[] = []; // TODO: CustomNode
+	private originalEdges: vis.Edge[] = []; // TODO: CustomEdge
 
-	private network: vis.Network = undefined!; // HACK HACK HACK TODO: Create an empty network
+	private network: vis.Network = undefined!;
 
 	private nodes: vis.DataSet<vis.Node> = undefined!;
 	private edges: vis.DataSet<vis.Edge> = undefined!;
@@ -106,9 +106,7 @@ export default class TheoryGraph {
 	private allManuallyHiddenNodes: {nodes: vis.Node[], edges: vis.Edge[]}[] = [];
 	private allNodeRegions: INodeRegion[] = [];
 
-	private readonly removeRegionImg = new Image();
-	private readonly moveRegionImg = new Image();
-	private readonly addNodeToRegionImg = new Image();
+
 	
 	private moveRegionHold=false;
 	private moveRegionId=0;
@@ -118,6 +116,11 @@ export default class TheoryGraph {
 	private addNodeRegionId: IdType | undefined;
 
 	private internalOptimizer: Optimizer | undefined;
+
+
+	private readonly removeRegionImg = new Image();
+	private readonly moveRegionImg = new Image();
+	private readonly addNodeToRegionImg = new Image();
 	
 	setOptions(optionsIn: Options) {
 		this.options = optionsIn;
@@ -319,6 +322,10 @@ export default class TheoryGraph {
 		}
 	}
 	
+	/**
+	 * Removes a region from the graph
+	 * @param index Index of region to remove
+	 */
 	removeNodeRegion(index: number)
 	{
 		this.allNodeRegions.splice(index, 1);
@@ -973,7 +980,12 @@ export default class TheoryGraph {
 		this.actionLogger.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":false});
 	}
 	
-	hideNodesById(nodeIds?: vis.IdType[], hideNode: boolean)
+	/**
+	 * 
+	 * @param nodeIds Ids of nodes to hide
+	 * @param hideNode 
+	 */
+	hideNodesById(nodeIds: vis.IdType[] | undefined, hideNode: boolean)
 	{
 		if(typeof nodeIds=="undefined" || nodeIds.length==0)
 		{
@@ -1398,7 +1410,7 @@ export default class TheoryGraph {
 	getGraph(jsonURL: string)
 	{
 		this.statusLogger.setStatusText("Downloading graph...");
-		document.body.style.cursor = 'wait';
+		this.statusLogger.setStatusCursor('wait');
 		
 		$.ajaxSetup(
 		{
@@ -1407,22 +1419,22 @@ export default class TheoryGraph {
                 if (x.status == 0) 
 				{
 					this.statusLogger.setStatusText('<font color="red">Downloading graph failed (Check Your Network)</font>');
-					document.body.style.cursor = 'auto';
+					this.statusLogger.setStatusCursor('auto');
                 } 
                 else if (x.status == 404) 
 				{
 					this.statusLogger.setStatusText('<font color="red">Downloading graph failed (Requested URL not found)</font>');
-					document.body.style.cursor = 'auto';
+					this.statusLogger.setStatusCursor('auto');
                 } 
 				else if (x.status == 500) 
 				{
 					this.statusLogger.setStatusText('<font color="red">Downloading graph failed (Internel Server Error)</font>');
-                    document.body.style.cursor = 'auto';
+                    this.statusLogger.setStatusCursor('auto');
                 }  
 				else 
 				{
 					this.statusLogger.setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+x.status+')</font>');
-					document.body.style.cursor = 'auto';
+					this.statusLogger.setStatusCursor('auto');
 					console.log(x);
                 }
             }
@@ -1436,14 +1448,14 @@ export default class TheoryGraph {
 		if(typeof data === 'string') // data.length < 20 TODO: WHAT?
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			return;
 		}
 		
 		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			return;
 		}
 
@@ -1466,21 +1478,21 @@ export default class TheoryGraph {
 		if(status!=200 && status!="success") 
 		{
 			this.statusLogger.setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+status+')</font>');
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			return;
 		}
 	
 		if(typeof data === 'string') // data.length < 20 TODO: WHAT?
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			return;
 		}
 		
 		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			return;
 		}
 		
@@ -1666,21 +1678,21 @@ export default class TheoryGraph {
 		if(status!=200 && status!="success") // TODO: what kind of type is this? use either number or string
 		{
 			this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+status+')</font>');
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			return;
 		}
 	
 		if(typeof data === 'string') // data.length < 20 TODO: WHAT?
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			return;
 		}
 		
 		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			return;
 		}
 		
@@ -1700,7 +1712,7 @@ export default class TheoryGraph {
 		this.originalNodes=this.originalNodes.concat(nodesJSON);
 		
 		this.statusLogger.setStatusText("<font color=\"green\">Successfully recieved "+nodesJSON.length+" node(s) and "+edgesJSON.length+" edge(s)!</font>");
-		document.body.style.cursor = 'auto';
+		this.statusLogger.setStatusCursor('auto');
 	}
 	
 	addNode(node: IGraphJSONNode)
@@ -1871,7 +1883,7 @@ export default class TheoryGraph {
 		}
 		
 		this.statusLogger.setStatusText("Downloading nodes...");
-		document.body.style.cursor = 'wait';
+		this.statusLogger.setStatusCursor('wait');
 		
 		$.ajaxSetup(
 		{
@@ -1880,22 +1892,22 @@ export default class TheoryGraph {
                 if (x.status == 0) 
 				{
 					this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (Check Your Network)</font>');
-					document.body.style.cursor = 'auto';
+					this.statusLogger.setStatusCursor('auto');
                 } 
                 else if (x.status == 404) 
 				{
 					this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (Requested URL not found)</font>');
-					document.body.style.cursor = 'auto';
+					this.statusLogger.setStatusCursor('auto');
                 } 
 				else if (x.status == 500) 
 				{
 					this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (Internel Server Error)</font>');
-                    document.body.style.cursor = 'auto';
+                    this.statusLogger.setStatusCursor('auto');
                 }  
 				else 
 				{
 					this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+x.status+')</font>');
-					document.body.style.cursor = 'auto';
+					this.statusLogger.setStatusCursor('auto');
                 }
             }
         });
@@ -2185,7 +2197,7 @@ export default class TheoryGraph {
 		
 		if(this.options.THEORY_GRAPH_OPTIONS.physics.enabled==false)
 		{
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			this.statusLogger.setStatusText('<font color="green">Received '+this.originalNodes.length+' nodes</font>');
 		}
 		
@@ -2218,7 +2230,7 @@ export default class TheoryGraph {
 			if(this.addNodeToRegion==true && this.allNodeRegions[this.addNodeRegionId as number].selected==false)
 			{
 				this.addNodeToRegion=false;
-				document.body.style.cursor = 'auto';
+				this.statusLogger.setStatusCursor('auto');
 			}
 		});
 		
@@ -2374,7 +2386,7 @@ export default class TheoryGraph {
 				}
 			};
 			this.network.setOptions(options);
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 			this.statusLogger.setStatusText('<font color="green">Received '+this.originalNodes.length+' nodes</font>');
 		});
 		
@@ -2414,7 +2426,7 @@ export default class TheoryGraph {
 			{
 				this.lastClusterZoomLevel = this.network.getScale();
 			}
-			document.body.style.cursor = 'auto';
+			this.statusLogger.setStatusCursor('auto');
 		});
 	}
 }

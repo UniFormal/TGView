@@ -11,10 +11,16 @@ export default class StatusLogger {
 	{
 		this.logTo = logElement;
 	}
+
 	private logTo: string;
 	setStatusText(text: string) {
 		var statusbar = document.getElementById(this.logTo);
 		if (!statusbar) return;
 		statusbar.innerHTML=text;
+	}
+
+	setStatusCursor(cursor: 'wait' | 'auto'){
+		// TODO: Set the cursor only for the mainElement
+		document.body.style.cursor = cursor || "auto";
 	}
 }

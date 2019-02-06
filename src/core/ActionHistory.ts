@@ -1,5 +1,4 @@
-// import TheoryGraph from './theoryGraph';
-declare class TheoryGraph {}
+import TheoryGraph from './theoryGraph';
 
 /**
  * Represents a History of actions that occured

@@ -289,7 +289,7 @@ export default class InteractionUI {
 	{
 		theoryGraph.manualFocus=false;
 		statusLogger.setStatusText("Relayouting graph...");
-		document.body.style.cursor = 'wait';
+		statusLogger.setStatusCursor('wait');
 		if(typeof idx !=='undefined')
 		{
 			if(idx==1 || idx==2 || idx==4)
@@ -303,7 +303,7 @@ export default class InteractionUI {
 			else if(idx==3)
 			{
 				theoryGraph.manualFocus=true;
-				document.body.style.cursor = 'auto';
+				statusLogger.setStatusCursor('wait');
 				return;
 			}
 		}

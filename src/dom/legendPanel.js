@@ -232,7 +232,7 @@ export default function LegendPanel(containerNameIn, optionsIn, statusLoggerIn)
 				}
 			};
 			network.setOptions(options);
-			document.body.style.cursor = 'auto';
+			statusLogger.setStatusCursor('auto');
 		});
 		
 		network.once("beforeDrawing", function (ctx) 
