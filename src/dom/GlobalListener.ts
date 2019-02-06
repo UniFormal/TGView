@@ -1,6 +1,6 @@
 import {default as $} from 'jquery';
 
-import TheoryGraph from "../core/theoryGraph";
+import TheoryGraph, { IRectangle } from "../core/theoryGraph";
 import { Options } from "../options";
 
 export default class TGViewDOMListener {
@@ -62,10 +62,13 @@ export default class TGViewDOMListener {
 			this.containerTools.on("mousedown", (e) => {
 				if (this.selectionMode==true) 
 				{ 
-					this.rectTools.w=0;
-					this.rectTools.h=0;
-					this.rectTools.startX = e.offsetX ;
-					this.rectTools.startY = e.offsetY ;
+					this.rectTools = {
+						w: 0,
+						h: 0,
+						startX: e.offsetX,
+						startY: e.offsetY,
+					};
+
 					this.dragTools = true;   
 				}
 			}); 
@@ -75,7 +78,7 @@ export default class TGViewDOMListener {
 				if (this.dragTools==true) 
 				{ 
 					this.dragTools = false;
-					this.theoryGraph.selectNodesInRect(this.rectTools!);
+					this.theoryGraph.selectNodesInRect(this.rectTools as IRectangle);
 					this.ctxTools!.clearRect(0, 0, this.canvasTools!.width, this.canvasTools!.height);
 					this.switchSelectionMode();
 				}
@@ -88,7 +91,7 @@ export default class TGViewDOMListener {
 	
 	private canvasTools: HTMLCanvasElement | undefined;
 	private ctxTools: CanvasRenderingContext2D | undefined;
-	private rectTools: Partial<{w: number, h: number, startX: number, startY: number}> = {};
+	private rectTools: Partial<IRectangle> = {};
 	private dragTools: boolean = false;
 	private containerTools: JQuery<HTMLElement> | undefined;
 	private selectionMode = false;

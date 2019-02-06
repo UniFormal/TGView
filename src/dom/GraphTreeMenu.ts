@@ -6,6 +6,7 @@ import 'jstree';
 declare class TGViewContainerClass {}
 
 import { Options } from "../options";
+import { ITGViewMenuEntry } from "../graph";
 
 export default class GraphTreeMenu {
 
@@ -37,13 +38,52 @@ export default class GraphTreeMenu {
 					"state", "types", "wholerow"
 				]
 			}); 
+
+			var jsonURL="https://neuralocean.de/graph/test/menu.json" || this.options.menuEntriesURL;
+
+			$.get(jsonURL, this.addTreeNodes.bind(this));
+		
+			$("#"+this.options.external.prefix+"theory_tree").on("select_node.jstree",
+				(evt, data) =>
+				{
+					this.wrapper.lastGraphDataUsed=data.node.original.graphdata; // TODO: Fix me
+					var y = this.currentMouseY - 8;
+					var x = this.currentMouseX + 4;
+		
+					// TODO: no-globals
+					$(".custom-menu-side").finish().show(10).
+					// In the right position (the mouse)
+					css({
+						top: y + "px",
+						left: x + "px",
+					});
+					evt.preventDefault();
+				}
+			);
+				
+			$("#"+this.options.external.prefix+"theory_tree").on("open_node.jstree",
+				(evt, data) =>
+				{
+					$(".custom-menu-side").hide(10);
+					this.lazyParent=data.node.id;
+					data.node.children=[];
+					if(this.alreadyAdded[this.lazyParent]!=true)
+					{
+						console.log(data.node);
+						console.log(this.lazyParent+" added: "+this.alreadyAdded[this.lazyParent]);
+						var jsonURL=this.options.menuEntriesURL+data.node.serverId;
+						//var jsonURL="http://neuralocean.de/graph/test/menu.json";
+						//this.alreadyAdded[lazyParent]=true;
+						$.get(jsonURL, this.addTreeNodes.bind(this));
+					}
+				}
+			);
 	}
 
 	private wrapper: TGViewContainerClass;
 	private options: Options;
 
-	private alreadyAdded = [];
-
+	private alreadyAdded: {[id: string]: boolean} = {};
 
 	private lazyParent = "#";
 	private currentMouseX = 0;
@@ -78,11 +118,11 @@ export default class GraphTreeMenu {
 		this.currentMouseY = event.pageY;
 	}
 
-	private addTreeNodes(data)
+	private addTreeNodes(data: ITGViewMenuEntry[])
 	{
 		var childNodes=data;
 		console.log(childNodes);
-		console.log(lazyParent+";");
+		console.log(this.lazyParent+";");
 		for(var i=0;i<childNodes.length;i++)
 		{
 			var child=(childNodes[i].hasChildren==true) ? [{"id":"placeholder"}] : undefined;
@@ -96,46 +136,7 @@ export default class GraphTreeMenu {
 				"children": child,
 				"state" : {"opened": !childNodes[i].hasChildren}
 			};
-			$('#'+options.external.prefix+'theory_tree').jstree().create_node(lazyParent, node, 'last',function() {console.log("Child created");});
+			$('#'+this.options.external.prefix+'theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log("Child created");});
 		}
-	}	
-	 
-	var jsonURL="https://neuralocean.de/graph/test/menu.json";
-	//var jsonURL=options.menuEntriesURL;
-	$.get(jsonURL, addTreeNodes);
-
-	$("#"+options.external.prefix+"theory_tree").on("select_node.jstree",
-		function(evt, data)
-		{
-			wrapper.lastGraphDataUsed=data.node.original.graphdata;
-			var y = currentMouseY - 8;
-			var x = currentMouseX + 4;
-
-			$(".custom-menu-side").finish().show(10).
-			// In the right position (the mouse)
-			css({
-				top: y + "px",
-				left: x + "px",
-			});
-			evt.preventDefault();
-		}
-	);
-		
-	$("#"+options.external.prefix+"theory_tree").on("open_node.jstree",
-		function(evt, data)
-		{
-			$(".custom-menu-side").hide(10);
-			lazyParent=data.node.id;
-			data.node.children=[];
-			if(alreadyAdded[lazyParent]!=true)
-			{
-				console.log(data.node);
-				console.log(lazyParent+" added: "+alreadyAdded[lazyParent]);
-				var jsonURL=options.menuEntriesURL+data.node.serverId;
-				//var jsonURL="http://neuralocean.de/graph/test/menu.json";
-				//alreadyAdded[lazyParent]=true;
-				$.get(jsonURL, addTreeNodes);
-			}
-		}
-	);
+	}
 }

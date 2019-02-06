@@ -410,7 +410,7 @@ interface IArrowStyle extends IStyleCommon {
  * A Style for a node
  */
 interface INodeStyle extends IStyleCommon {
-    shape: "square" | "circle";
+    shape: "square" | "circle" | "ellipse";
 }
 
 /**

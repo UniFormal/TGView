@@ -53,7 +53,7 @@ interface IGraphJSONEdge {
     /** Text shown when edge is clicked */
     clickText: string;
     /** Weight of the edge */
-    weight: number;
+    weight: string;
     /** url for showing edge */
     url: string;
 }

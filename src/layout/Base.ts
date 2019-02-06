@@ -1,4 +1,4 @@
-import StatusLogger from "../ui/StatusLogger";
+import StatusLogger from "../dom/StatusLogger";
 import { IGraphJSONEdge, IGraphJSONNode } from "../graph";
 
 export default class LayoutBase {

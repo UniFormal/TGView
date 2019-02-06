@@ -1,61 +1,135 @@
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
 import {rainbow, getParameterByName, getStartToEnd} from '../utils';
-import { StatusLogger } from "./ui/StatusLogger";
+import StatusLogger from "../dom/StatusLogger";
+import ActionHistory from "./ActionHistory";
+import { Options } from "../options";
+import { INode } from "../layout/Base";
+import { IGraphJSONEdge, IGraphJSONNode, IGraphJSONGraph } from "../graph";
+import Optimizer from "../layout/Optimizer";
+import { Position, BoundingBox, IdType, ClusterOptions } from "vis";
+import Clusterer from "../layout/Clusterer";
+
+declare module 'vis' {
+	interface NetworkNodes {
+		[index: number]: Position // options: hidden?
+		[index: string]: Position // options: hidden?
+	}
+	interface Network {
+		getConnectedNodes(nodeOrEdgeId: IdType, direction: string): IdType[];
+		body: { nodes: NetworkNodes };
+		canvas: {frame: {canvas: HTMLCanvasElement}};
+		clustering: Network;
+	}
+	interface Node {
+		style?: string;
+		label?: string;
+		mathml?: string;
+		previewhtml?: string;
+		url?: string;
+		membership?: number;
+	}
+	interface Edge {
+		style?: string;
+		type?: string;
+		weight?: string;
+		url?: string;
+	}
+}
+
+interface INodeRegion extends vis.BoundingBox {
+	nodeIds: vis.IdType[];
+	selected: boolean;
+
+	color: string;
+
+	mappedNodes: {
+		[index: number]: number
+		[index: string]: number
+	}
+}
+
+export interface IRectangle {
+	w: number;
+	h: number;
+	startX: number;
+	startY: number;
+}
+
+interface IPositionWithId extends Partial<vis.Position> {
+	id: IdType;
+}
 
 export default class TheoryGraph {
-	//var actionLogger=actionLoggerIn;
-	var options;
-	var statusLogger=statusLoggerIn;
-	var containerName=containerNameIn;
-	var originalNodes = null;
-	var originalEdges = null;
-	var network = null;
-	var clusterId=0;
-	var nodes;
-	var edges;
-	var lastClusterZoomLevel = 0;
-    //var clusterFactor = 1;
-	var that=this;
-	var zoomClusters=[];
-	var clusterPositions=[];
-	var allClusters=[];
-	var hiddenNodes={};
-	var edgesNameToHide=[];
-	this.onConstructionDone=undefined;
-	this.manualFocus=false; 
-	
-	var allManuallyHiddenNodes=[];
-	var allNodeRegions=[];
+	constructor(containerNameIn: string, statusLoggerIn: StatusLogger, actionLoggerIn: ActionHistory){
+		this.statusLogger = statusLoggerIn;
+		this.containerName = containerNameIn;
+		this.actionLogger = actionLoggerIn;
 
-	var removeRegionImg = new Image();
-	removeRegionImg.src = "img/delete_region.png";
-	
-	var moveRegionImg = new Image();
-	moveRegionImg.src = "img/move_region.png";
-	
-	var addNodeToRegionImg = new Image();
-	addNodeToRegionImg.src = "img/add_region.png";
-	
-	var moveRegionHold=false;
-	var moveRegionId=0;
-	var oldRegionPosition={};
-	
-	var addNodeToRegion=false;
-	var addNodeRegionId;
-
-	var internalOptimizer;
-	
-	this.setOptions = function(optionsIn)
-	{
-		options=optionsIn;
+		this.removeRegionImg.src = "img/delete_region.png";
+		this.moveRegionImg.src = "img/move_region.png";
+		this.addNodeToRegionImg.src = "img/add_region.png";
 	}
+
+	private options: Options = undefined!; // HACK HACK HACK
+	private readonly statusLogger: StatusLogger;
+	private readonly actionLogger: ActionHistory;
+	private readonly containerName: string;
+
+	private originalNodes: vis.Node[] = []; // TODO: 'style'
+	private originalEdges: vis.Edge[] = []; // TODO: 'type'
+
+	private network: vis.Network = undefined!; // HACK HACK HACK TODO: Create an empty network
+
+	private nodes: vis.DataSet<vis.Node> = undefined!;
+	private edges: vis.DataSet<vis.Edge> = undefined!;
 	
-	this.focusOnNodes=function(nodeIds)
-	{
-		var nodesToShow=[];
+	private clusterId = 0;
+	private lastClusterZoomLevel = 0;
+
+	private zoomClusters: any[] = []; // TODO: Fix me
+	private allClusters: string[] = [];
+	private clusterPositions: {[id: string]: [vis.IdType[], {
+		[index: number]: Position
+		[index: string]: Position
+	}]} = {}
+	
+	
+	private hiddenNodes: {
+		[id: number]: boolean
+		[id: string]: boolean
+	} = {};
+	private edgesNameToHide: vis.Edge[]=[];
+
+	onConstructionDone: (() => void) | undefined;
+	manualFocus: boolean = false;
+	
+	private allManuallyHiddenNodes: {nodes: vis.Node[], edges: vis.Edge[]}[] = [];
+	private allNodeRegions: INodeRegion[] = [];
+
+	private readonly removeRegionImg = new Image();
+	private readonly moveRegionImg = new Image();
+	private readonly addNodeToRegionImg = new Image();
+	
+	private moveRegionHold=false;
+	private moveRegionId=0;
+	private oldRegionPosition:{x?: number, y?: number}={}; // TODO: Fix my type
+
+	private addNodeToRegion=false;
+	private addNodeRegionId: IdType | undefined;
+
+	private internalOptimizer: Optimizer | undefined;
+	
+	setOptions(optionsIn: Options) {
+		this.options = optionsIn;
+	}
+
+	focusOnNodes(nodeIds?: vis.IdType[]) {
+		this.network.getSelectedNodes()
+
+		var nodesToShow: vis.IdType[] = [];
 		if (typeof nodeIds == "undefined")
 		{
-			nodeIds = network.getSelectedNodes();
+			nodeIds = this.network.getSelectedNodes();
 		}
 		
 		if(nodeIds==undefined || nodeIds.length==0)
@@ -66,42 +140,42 @@ export default class TheoryGraph {
 		nodesToShow=nodesToShow.concat(nodeIds);
 		
 		//var positions=network.getPositions();
-		var edgesToShow=[];
+		var edgesToShow:vis.IdType[]=[];
 
 		for(var i=0;i<nodeIds.length;i++)
 		{
-			var middleNodePos=network.body.nodes[nodeIds[i]];
-			
-			var connectedEdges=network.getConnectedEdges(nodeIds[i]);
+			var middleNodePos=this.network.body.nodes[nodeIds[i]];
+			var connectedEdges=this.network.getConnectedEdges(nodeIds[i]);
 			
 			edgesToShow=edgesToShow.concat(connectedEdges);
-			var toNodes=network.getConnectedNodes(nodeIds[i],"to");
-			var fromNodes=network.getConnectedNodes(nodeIds[i],"from");
+			var toNodes=this.network.getConnectedNodes(nodeIds[i],"to");
+			var fromNodes=this.network.getConnectedNodes(nodeIds[i],"from");
 			
 			if(nodeIds.length==1)
 			{
 				for(var j=0;j<fromNodes.length;j++)
 				{
-					if((middleNodePos.y-network.body.nodes[fromNodes[j]].y)<200)
+					if((middleNodePos.y-this.network.body.nodes[fromNodes[j]].y)<200)
 					{
-						network.body.nodes[fromNodes[j]].y=middleNodePos.y-(Math.random()*50+150);
+						
+						this.network.body.nodes[fromNodes[j]]!.y=middleNodePos.y-(Math.random()*50+150);
 					}
-					if(Math.abs(middleNodePos.x-network.body.nodes[fromNodes[j]].x) > 200)
+					if(Math.abs(middleNodePos.x-this.network.body.nodes[fromNodes[j]].x) > 200)
 					{
-						network.body.nodes[fromNodes[j]].x=middleNodePos.x+Math.random()*400-200;
+						this.network.body.nodes[fromNodes[j]].x=middleNodePos.x+Math.random()*400-200;
 					}
 				}
 				
 				
 				for(var j=0;j<toNodes.length;j++)
 				{
-					if((middleNodePos.y-network.body.nodes[toNodes[j]].y)>200)
+					if((middleNodePos.y-this.network.body.nodes[toNodes[j]].y)>200)
 					{
-						network.body.nodes[toNodes[j]].y=middleNodePos.y+(Math.random()*50+150);
+						this.network.body.nodes[toNodes[j]].y=middleNodePos.y+(Math.random()*50+150);
 					}
-					if(Math.abs(middleNodePos.x-network.body.nodes[fromNodes[j]].x) > 200)
+					if(Math.abs(middleNodePos.x-this.network.body.nodes[fromNodes[j]].x) > 200)
 					{
-						network.body.nodes[toNodes[j]].x=middleNodePos.x+Math.random()*400-200;
+						this.network.body.nodes[toNodes[j]].x=middleNodePos.x+Math.random()*400-200;
 					}
 				}
 			}
@@ -110,18 +184,18 @@ export default class TheoryGraph {
 			nodesToShow = nodesToShow.concat(toNodes);
 		}
 
-		that.hideNodesById(nodesToShow, false);
+		this.hideNodesById(nodesToShow, false);
 		
 		var nodesToHide=[];
-		for(var i=0;i<originalNodes.length;i++)
+		for(var i=0;i<this.originalNodes.length;i++)
 		{
 
-			originalNodes[i].y=network.body.nodes[originalNodes[i].id].y;
-			originalNodes[i].x=network.body.nodes[originalNodes[i].id].x;
+			this.originalNodes[i].y=this.network.body.nodes[this.originalNodes[i].id!].y;
+			this.originalNodes[i].x=this.network.body.nodes[this.originalNodes[i].id!].x;
 			
-			if(nodesToShow.indexOf(originalNodes[i]["id"]) == -1)
+			if(nodesToShow.indexOf(this.originalNodes[i]["id"]!) == -1)
 			{
-				nodesToHide.push(originalNodes[i]["id"]);
+				nodesToHide.push(this.originalNodes[i]["id"]!);
 				//originalNodes[i].hidden=true;
 			}
 			else
@@ -131,88 +205,88 @@ export default class TheoryGraph {
 			
 		}
 		
-		that.hideNodesById(nodesToHide, true);
+		this.hideNodesById(nodesToHide, true);
 
 		
 		//internalOptimizer.SolveUsingForces(25, 50/originalNodes.length*nodesToShow.length, false);
 		if(nodeIds.length==1)
 		{
-			internalOptimizer.SolveUsingForces(25, 12, false);
+			this.internalOptimizer!.SolveUsingForces(25, 12, false);
 		}
 		
-		var newNodePositions=[];
-		for(var i=0;i<originalNodes.length;i++)
+		var newNodePositions: Array<IPositionWithId>=[];
+		for(var i=0;i<this.originalNodes.length;i++)
 		{
-			newNodePositions.push({"id": originalNodes[i].id, "x": originalNodes[i].x,"y": originalNodes[i].y})
+			newNodePositions.push({"id": this.originalNodes[i].id!, "x": this.originalNodes[i].x,"y": this.originalNodes[i].y})
 		}
-		nodes.update(newNodePositions);
+		this.nodes.update(newNodePositions); // TODO: Fix nodes type
 		
-		statusLogger.setStatusText("");
+		this.statusLogger.setStatusText("");
 		
 		var edgesToHide=[];
-		for(var i=0;i<originalEdges.length;i++)
+		for(var i=0;i<this.originalEdges.length;i++)
 		{
-			edgesToHide.push(originalEdges[i].id)
+			edgesToHide.push(this.originalEdges[i].id!) // TODO: Fix originalEdges type
 		}
 		
-		that.hideEdgesById(edgesToHide,true);
+		this.hideEdgesById(edgesToHide,true);
 		
-		that.hideEdgesById(edgesToShow,false);
+		this.hideEdgesById(edgesToShow,false);
 	}
 	
-	this.manipulateSelectedRegion = function(coords)
+	manipulateSelectedRegion(coords: Position)
 	{
 		// If the document is hold somewhere
 		
-		var updateNodes=[];
+		var updateNodes: IPositionWithId[] =[];
 		var redraw=false;
 		var selectRegion=false;
-		if(moveRegionHold==true)
+		if(this.moveRegionHold==true)
 		{
 			var newRegionPosition=coords;
-			var difX=newRegionPosition.x-oldRegionPosition.x;
-			var difY=newRegionPosition.y-oldRegionPosition.y;
-			var positions=network.getPositions(allNodeRegions[moveRegionId].nodeIds);
-			for(var i=0;i<allNodeRegions[moveRegionId].nodeIds.length;i++)
+			var difX=newRegionPosition.x-this.oldRegionPosition.x!;
+			var difY=newRegionPosition.y-this.oldRegionPosition.y!;
+			var positions=this.network.getPositions(this.allNodeRegions[this.moveRegionId].nodeIds);
+			for(var i=0;i<this.allNodeRegions[this.moveRegionId].nodeIds.length;i++)
 			{
-				if(typeof allNodeRegions[moveRegionId].nodeIds[i] != "undefined")
+				if(typeof this.allNodeRegions[this.moveRegionId].nodeIds[i] != "undefined")
 				{
-					updateNodes.push({"id":allNodeRegions[moveRegionId].nodeIds[i] ,"x":network.body.nodes[allNodeRegions[moveRegionId].nodeIds[i]].x+difX, "y":network.body.nodes[allNodeRegions[moveRegionId].nodeIds[i]].y+difY});
+					updateNodes.push({"id":this.allNodeRegions[this.moveRegionId].nodeIds[i] ,"x":this.network.body.nodes[this.allNodeRegions[this.moveRegionId].nodeIds[i]].x+difX, "y":this.network.body.nodes[this.allNodeRegions[this.moveRegionId].nodeIds[i]].y+difY});
 				}
 			}
-			moveRegionHold=false;
-			document.getElementById(options.external.mainContainer).style.cursor = 'auto';
-			oldRegionPosition=coords;
+			this.moveRegionHold=false;
+			document.getElementById(this.options.external.mainContainer)!.style.cursor = 'auto';
+			this.oldRegionPosition=coords;
 			selectRegion=true;
 			redraw=true;
-			nodes.update(updateNodes);
+			this.nodes.update(updateNodes);
 		}
 		else
 		{
-			for(var i=0;i<allNodeRegions.length;i++)
+			for(var i=0;i<this.allNodeRegions.length;i++)
 			{
-				if(allNodeRegions[i].selected==true)
+				if(this.allNodeRegions[i].selected==true)
 				{
-					if(allNodeRegions[i].left-44<=coords.x && allNodeRegions[i].left>=coords.x && allNodeRegions[i].top-6<=coords.y && allNodeRegions[i].top+34>=coords.y)
+					if(this.allNodeRegions[i].left-44<=coords.x && this.allNodeRegions[i].left>=coords.x && this.allNodeRegions[i].top-6<=coords.y && this.allNodeRegions[i].top+34>=coords.y)
 					{
-						that.removeNodeRegion(i);
+						this.removeNodeRegion(i);
 						redraw=true;
 						break;
 					}
-					else if(allNodeRegions[i].left-42<=coords.x && allNodeRegions[i].left>=coords.x && allNodeRegions[i].top+40<=coords.y && allNodeRegions[i].top+74>=coords.y)
+					else if(this.allNodeRegions[i].left-42<=coords.x && this.allNodeRegions[i].left>=coords.x && this.allNodeRegions[i].top+40<=coords.y && this.allNodeRegions[i].top+74>=coords.y)
 					{
-						moveRegionHold=true;
-						moveRegionId=i;
-						oldRegionPosition=coords;
-						document.getElementById(options.external.mainContainer).style.cursor = 'pointer';
+						this.moveRegionHold=true;
+						this.moveRegionId=i;
+						this.oldRegionPosition=coords;
+						document.getElementById(this.options.external.mainContainer)!.style.cursor = 'pointer';
 						selectRegion=true;
 						break;
 					}
-					else if(allNodeRegions[i].left-74<=coords.x && allNodeRegions[i].left>=coords.x && allNodeRegions[i].top+86<=coords.y && allNodeRegions[i].top+122>=coords.y)
+					else if(this.allNodeRegions[i].left-74<=coords.x && this.allNodeRegions[i].left>=coords.x && this.allNodeRegions[i].top+86<=coords.y && this.allNodeRegions[i].top+122>=coords.y)
 					{
-						addNodeRegionId=i;
-						addNodeToRegion=true;
-						document.getElementById(options.external.mainContainer).style.cursor = 'copy';
+						this.addNodeRegionId=i;
+						this.addNodeToRegion=true;
+						document.getElementById(this.options.external.mainContainer)!.style.cursor = 'copy';
 						selectRegion=true;
 						break;
 					}
@@ -222,50 +296,50 @@ export default class TheoryGraph {
 		
 		if(redraw==true)
 		{
-			network.redraw();
+			this.network.redraw();
 		}
 		return selectRegion;
 	}
 	
-	this.selectRegion =function(coords)
+	selectRegion(coords: Position)
 	{
 		var redraw=false;
-		for(var i=0;i<allNodeRegions.length;i++)
+		for(var i=0;i<this.allNodeRegions.length;i++)
 		{
-			allNodeRegions[i].selected=false;
-			if(allNodeRegions[i].left<=coords.x && allNodeRegions[i].right>=coords.x && allNodeRegions[i].top<=coords.y && allNodeRegions[i].bottom>=coords.y)
+			this.allNodeRegions[i].selected=false;
+			if(this.allNodeRegions[i].left<=coords.x && this.allNodeRegions[i].right>=coords.x && this.allNodeRegions[i].top<=coords.y && this.allNodeRegions[i].bottom>=coords.y)
 			{
-				allNodeRegions[i].selected=true;
+				this.allNodeRegions[i].selected=true;
 				redraw=true;
 			}
 		}
 		if(redraw==true)
 		{
-			network.redraw();
+			this.network.redraw();
 		}
 	}
 	
-	this.removeNodeRegion=function(index)
+	removeNodeRegion(index: number)
 	{
-		allNodeRegions.splice(index, 1);
-		network.redraw();
+		this.allNodeRegions.splice(index, 1);
+		this.network.redraw();
 	}
 	
-	this.drawAllColoredRegionsOnCanvas=function(ctx)
+	drawAllColoredRegionsOnCanvas(ctx: CanvasRenderingContext2D)
 	{
-		for(var i=0;i<allNodeRegions.length;i++)
+		for(var i=0;i<this.allNodeRegions.length;i++)
 		{
-			ctx.fillStyle = allNodeRegions[i].color;
-			ctx.strokeStyle = allNodeRegions[i].color;
+			ctx.fillStyle = this.allNodeRegions[i].color;
+			ctx.strokeStyle = this.allNodeRegions[i].color;
 			
 			ctx.setLineDash([8]);
 			var oldWidth=ctx.lineWidth;
 			
-			if(allNodeRegions[i].selected==true)
+			if(this.allNodeRegions[i].selected==true)
 			{
-				ctx.drawImage(removeRegionImg, allNodeRegions[i].left-46, allNodeRegions[i].top-8,38,38);
-				ctx.drawImage(moveRegionImg, allNodeRegions[i].left-46, allNodeRegions[i].top+38,38,38);
-				ctx.drawImage(addNodeToRegionImg, allNodeRegions[i].left-46, allNodeRegions[i].top+84,38,38);
+				ctx.drawImage(this.removeRegionImg, this.allNodeRegions[i].left-46, this.allNodeRegions[i].top-8,38,38);
+				ctx.drawImage(this.moveRegionImg, this.allNodeRegions[i].left-46, this.allNodeRegions[i].top+38,38,38);
+				ctx.drawImage(this.addNodeToRegionImg, this.allNodeRegions[i].left-46, this.allNodeRegions[i].top+84,38,38);
 				
 				
 				ctx.lineWidth=10;
@@ -274,7 +348,7 @@ export default class TheoryGraph {
 			{
 				ctx.lineWidth=6;
 			}	
-			ctx.strokeRect(allNodeRegions[i].left,allNodeRegions[i].top,allNodeRegions[i].right-allNodeRegions[i].left,allNodeRegions[i].bottom-allNodeRegions[i].top);
+			ctx.strokeRect(this.allNodeRegions[i].left,this.allNodeRegions[i].top,this.allNodeRegions[i].right-this.allNodeRegions[i].left,this.allNodeRegions[i].bottom-this.allNodeRegions[i].top);
 			ctx.setLineDash([]);
 			ctx.lineWidth=oldWidth;
 			//ctx.globalAlpha = 0.2;			
@@ -283,55 +357,55 @@ export default class TheoryGraph {
 		}
 	}
 	
-	this.drawAllColoredRegions = function(ctx)
+	drawAllColoredRegions(ctx: CanvasRenderingContext2D)
 	{
-		if(allNodeRegions.length==0)
+		if(this.allNodeRegions.length==0)
 		{
 			return;
 		}
 
-		for(var i=0;i<allNodeRegions.length;i++)
+		for(var i=0;i<this.allNodeRegions.length;i++)
 		{
-			allNodeRegions[i].left=10000000;
-			allNodeRegions[i].right=-10000000;
-			allNodeRegions[i].top=10000000;
-			allNodeRegions[i].bottom=-10000000;
-			allNodeRegions[i].mappedNodes={};
+			this.allNodeRegions[i].left=10000000;
+			this.allNodeRegions[i].right=-10000000;
+			this.allNodeRegions[i].top=10000000;
+			this.allNodeRegions[i].bottom=-10000000;
+			this.allNodeRegions[i].mappedNodes={};
 			
-			for(var j=0;j<allNodeRegions[i].nodeIds.length;j++)
+			for(var j=0;j<this.allNodeRegions[i].nodeIds.length;j++)
 			{
-				if(hiddenNodes[allNodeRegions[i].nodeIds[j]] == true)
+				if(this.hiddenNodes[this.allNodeRegions[i].nodeIds[j]] == true)
 				{
 					continue;
 				}
-				var box=network.getBoundingBox(allNodeRegions[i].nodeIds[j]);
+				var box=this.network.getBoundingBox(this.allNodeRegions[i].nodeIds[j]);
 				
-				allNodeRegions[i].left=Math.min(allNodeRegions[i].left,box.left);
-				allNodeRegions[i].right=Math.max(allNodeRegions[i].right,box.right);
-				allNodeRegions[i].top=Math.min(allNodeRegions[i].top,box.top);
-				allNodeRegions[i].bottom=Math.max(allNodeRegions[i].bottom,box.bottom);
+				this.allNodeRegions[i].left=Math.min(this.allNodeRegions[i].left,box.left);
+				this.allNodeRegions[i].right=Math.max(this.allNodeRegions[i].right,box.right);
+				this.allNodeRegions[i].top=Math.min(this.allNodeRegions[i].top,box.top);
+				this.allNodeRegions[i].bottom=Math.max(this.allNodeRegions[i].bottom,box.bottom);
 				
-				allNodeRegions[i].mappedNodes[allNodeRegions[i].nodeIds[j]]=1;
+				this.allNodeRegions[i].mappedNodes[this.allNodeRegions[i].nodeIds[j]]=1;
 			}
 			
 			var distance=(i*4)%20+8;
 
-			if(allNodeRegions[i].left==10000000)
+			if(this.allNodeRegions[i].left==10000000)
 			{
 				continue;
 			}
 
-			allNodeRegions[i].left-=distance;
-			allNodeRegions[i].right+=distance;
-			allNodeRegions[i].top-=distance;
-			allNodeRegions[i].bottom+=distance;
+			this.allNodeRegions[i].left-=distance;
+			this.allNodeRegions[i].right+=distance;
+			this.allNodeRegions[i].top-=distance;
+			this.allNodeRegions[i].bottom+=distance;
 			
 			
 			
-			ctx.fillStyle = allNodeRegions[i].color;
-			ctx.strokeStyle = allNodeRegions[i].color;
+			ctx.fillStyle = this.allNodeRegions[i].color;
+			ctx.strokeStyle = this.allNodeRegions[i].color;
 			
-			if(allNodeRegions[i].selected==true)
+			if(this.allNodeRegions[i].selected==true)
 			{
 				ctx.globalAlpha = 0.5;	
 			}
@@ -339,13 +413,13 @@ export default class TheoryGraph {
 			{
 				ctx.globalAlpha = 0.2;	
 			}				
-			ctx.fillRect(allNodeRegions[i].left,allNodeRegions[i].top,allNodeRegions[i].right-allNodeRegions[i].left,allNodeRegions[i].bottom-allNodeRegions[i].top);
+			ctx.fillRect(this.allNodeRegions[i].left,this.allNodeRegions[i].top,this.allNodeRegions[i].right-this.allNodeRegions[i].left,this.allNodeRegions[i].bottom-this.allNodeRegions[i].top);
 			ctx.globalAlpha = 1.0;
 		}
-		that.repositionNodes();
+		this.repositionNodes();
 	}
 
-	function intersectRect(a, b) 
+	intersectRect(a: vis.BoundingBox, b: vis.BoundingBox): boolean
 	{
 		return (a.left <= b.right &&
 			b.left <= a.right &&
@@ -353,11 +427,11 @@ export default class TheoryGraph {
 			b.top <= a.bottom)
 	}
 	
-	function liesInAnyRegion(box,id)
+	liesInAnyRegion(box: vis.BoundingBox,id: IdType): number
 	{
-		for(var j=0;j<allNodeRegions.length;j++)
+		for(var j=0;j<this.allNodeRegions.length;j++)
 		{
-			if(typeof allNodeRegions[j].mappedNodes[id]=="undefined" && intersectRect(box, allNodeRegions[j])==true)
+			if(typeof this.allNodeRegions[j].mappedNodes[id]=="undefined" && this.intersectRect(box, this.allNodeRegions[j])==true)
 			{
 				return j;
 			}
@@ -366,23 +440,23 @@ export default class TheoryGraph {
 		return -1;
 	}
 	
-	this.repositionNodes=function()
+	repositionNodes()
 	{
 		//var allNodePositions=network.getPositions();
-		var newPositions=[];
-		for(var i=0;i<originalNodes.length;i++)
+		var newPositions: IPositionWithId[]=[];
+		for(var i=0;i<this.originalNodes.length;i++)
 		{
-			var box=network.getBoundingBox(originalNodes[i].id);
+			var box=this.network.getBoundingBox(this.originalNodes[i].id!);
 			
 			var avgX=0;
 			var avgY=0;
 			var countAvg=0;
-			for(var j=0;j<allNodeRegions.length;j++)
+			for(var j=0;j<this.allNodeRegions.length;j++)
 			{	
-				if(typeof allNodeRegions[j].mappedNodes[originalNodes[i].id]!="undefined")
+				if(typeof this.allNodeRegions[j].mappedNodes[this.originalNodes[i].id!]!="undefined")
 				{
-					avgX+=(allNodeRegions[j].left+allNodeRegions[j].right)/2;
-					avgY+=(allNodeRegions[j].top+allNodeRegions[j].bottom)/2;
+					avgX+=(this.allNodeRegions[j].left+this.allNodeRegions[j].right)/2;
+					avgY+=(this.allNodeRegions[j].top+this.allNodeRegions[j].bottom)/2;
 					countAvg++;
 				}
 			}
@@ -390,9 +464,9 @@ export default class TheoryGraph {
 			avgX/=countAvg;
 			avgY/=countAvg;
 			
-			for(var j=0;j<allNodeRegions.length;j++)
+			for(var j=0;j<this.allNodeRegions.length;j++)
 			{	
-				if(typeof allNodeRegions[j].mappedNodes[originalNodes[i].id]=="undefined" && intersectRect(box, allNodeRegions[j])==true)
+				if(typeof this.allNodeRegions[j].mappedNodes[this.originalNodes[i].id!]=="undefined" && this.intersectRect(box, this.allNodeRegions[j])==true)
 				{
 					var minDirection=0;
 					var minDistance; 
@@ -402,8 +476,8 @@ export default class TheoryGraph {
 					
 					if(countAvg==0)
 					{
-						minDistance=Math.abs(box.right-allNodeRegions[j].left); 
-						tmp=Math.abs(box.left-allNodeRegions[j].right);
+						minDistance=Math.abs(box.right-this.allNodeRegions[j].left); 
+						tmp=Math.abs(box.left-this.allNodeRegions[j].right);
 						
 						if(tmp<minDistance)
 						{
@@ -411,14 +485,14 @@ export default class TheoryGraph {
 							minDistance=tmp;
 						}
 						
-						tmp=Math.abs(box.bottom-allNodeRegions[j].top);
+						tmp=Math.abs(box.bottom-this.allNodeRegions[j].top);
 						if(tmp<minDistance)
 						{
 							minDirection=2;
 							minDistance=tmp;
 						}
 						
-						tmp=Math.abs(box.top-allNodeRegions[j].bottom);
+						tmp=Math.abs(box.top-this.allNodeRegions[j].bottom);
 						if(tmp<minDistance)
 						{
 							minDirection=3;
@@ -427,8 +501,8 @@ export default class TheoryGraph {
 					}
 					else
 					{
-						minDistance=Math.abs(allNodeRegions[j].left-width/1.8-avgX)+Math.abs((box.bottom+box.top)/2-avgY); 
-						tmp=Math.abs(allNodeRegions[j].right+width/1.8-avgX)+Math.abs((box.bottom+box.top)/2-avgY);
+						minDistance=Math.abs(this.allNodeRegions[j].left-width/1.8-avgX)+Math.abs((box.bottom+box.top)/2-avgY); 
+						tmp=Math.abs(this.allNodeRegions[j].right+width/1.8-avgX)+Math.abs((box.bottom+box.top)/2-avgY);
 						
 						if(tmp<minDistance)
 						{
@@ -436,14 +510,14 @@ export default class TheoryGraph {
 							minDistance=tmp;
 						}
 						
-						tmp=Math.abs(allNodeRegions[j].top-height/1.8-avgY)+Math.abs((box.left+box.right)/2-avgX);
+						tmp=Math.abs(this.allNodeRegions[j].top-height/1.8-avgY)+Math.abs((box.left+box.right)/2-avgX);
 						if(tmp<minDistance)
 						{
 							minDirection=2;
 							minDistance=tmp;
 						}
 						
-						tmp=Math.abs(allNodeRegions[j].bottom+height/1.8-avgY)+Math.abs((box.left+box.right)/2-avgX);
+						tmp=Math.abs(this.allNodeRegions[j].bottom+height/1.8-avgY)+Math.abs((box.left+box.right)/2-avgX);
 						if(tmp<minDistance)
 						{
 							minDirection=3;
@@ -455,66 +529,66 @@ export default class TheoryGraph {
 					if(minDirection==0)
 					{
 						var intersectingRegion=0;
-						var newX=allNodeRegions[j].left-width/1.8;
+						var newX=this.allNodeRegions[j].left-width/1.8;
 						while(intersectingRegion!=-1)
 						{
 							box.left=newX-width/2;
 							box.right=newX+width/2;
-							intersectingRegion=liesInAnyRegion(box,originalNodes[i].id);
+							intersectingRegion=this.liesInAnyRegion(box,this.originalNodes[i].id!);
 							if(intersectingRegion!=-1)
 							{
-								newX=allNodeRegions[intersectingRegion].left-width/1.8;
+								newX=this.allNodeRegions[intersectingRegion].left-width/1.8;
 							}
 						} 
-						newPositions.push({"x":newX, "id":originalNodes[i].id});
+						newPositions.push({"x":newX, "id":this.originalNodes[i].id!});
 					}
 					else if(minDirection==1)
 					{
 						var intersectingRegion=0;
-						var newX=allNodeRegions[j].right+width/1.8;
+						var newX=this.allNodeRegions[j].right+width/1.8;
 						while(intersectingRegion!=-1)
 						{
 							box.left=newX-width/2;
 							box.right=newX+width/2;
-							intersectingRegion=liesInAnyRegion(box,originalNodes[i].id);
+							intersectingRegion=this.liesInAnyRegion(box,this.originalNodes[i].id!);
 							if(intersectingRegion!=-1)
 							{
-								newX=allNodeRegions[intersectingRegion].right+width/1.8;
+								newX=this.allNodeRegions[intersectingRegion].right+width/1.8;
 							}
 						} 
-						newPositions.push({"x":newX, "id":originalNodes[i].id});
+						newPositions.push({"x":newX, "id":this.originalNodes[i].id!});
 					}
 					else if(minDirection==2)
 					{
 						var intersectingRegion=0;
-						var newY=allNodeRegions[j].top-height/1.8;
+						var newY=this.allNodeRegions[j].top-height/1.8;
 						while(intersectingRegion!=-1)
 						{
 							box.top=newY-height/2;
 							box.bottom=newY+height/2;
-							intersectingRegion=liesInAnyRegion(box,originalNodes[i].id);
+							intersectingRegion=this.liesInAnyRegion(box,this.originalNodes[i].id!);
 							if(intersectingRegion!=-1)
 							{
-								newY=allNodeRegions[intersectingRegion].top-height/1.8;
+								newY=this.allNodeRegions[intersectingRegion].top-height/1.8;
 							}
 						} 
-						newPositions.push({"y":newY, "id":originalNodes[i].id});
+						newPositions.push({"y":newY, "id":this.originalNodes[i].id!});
 					}
 					else if(minDirection==3)
 					{
 						var intersectingRegion=0;
-						var newY=allNodeRegions[j].bottom+height/1.8;
+						var newY=this.allNodeRegions[j].bottom+height/1.8;
 						while(intersectingRegion!=-1)
 						{
 							box.top=newY-height/2;
 							box.bottom=newY+height/2;
-							intersectingRegion=liesInAnyRegion(box,originalNodes[i].id);
+							intersectingRegion=this.liesInAnyRegion(box,this.originalNodes[i].id!);
 							if(intersectingRegion!=-1)
 							{
-								newY=allNodeRegions[intersectingRegion].bottom+height/1.8;
+								newY=this.allNodeRegions[intersectingRegion].bottom+height/1.8;
 							}
 						} 
-						newPositions.push({"y":newY, "id":originalNodes[i].id});
+						newPositions.push({"y":newY, "id":this.originalNodes[i].id!});
 					}
 				}
 			}
@@ -522,13 +596,14 @@ export default class TheoryGraph {
 		
 		for(var i=0;i<newPositions.length;i++)
 		{
-			if(typeof newPositions[i].x != "undefined")
+			var position = newPositions[i];
+			if(typeof position.x != "undefined")
 			{
-				network.body.nodes[newPositions[i].id].x=newPositions[i].x;
+				this.network.body.nodes[newPositions[i].id].x=position.x;
 			}
-			if(typeof newPositions[i].y != "undefined")
+			if(typeof position.y != "undefined")
 			{
-				network.body.nodes[newPositions[i].id].y=newPositions[i].y;
+				this.network.body.nodes[newPositions[i].id].y=position.y;
 			}
 		}
 		
@@ -540,75 +615,75 @@ export default class TheoryGraph {
 		// 5. Reposition nodes: move all nodes to region center and apply few iterations of forces driven layout
 	}
 	
-	this.selectNodesByType=function(type)
+	selectNodesByType(type: string)
 	{
-		var nodeIds = network.getSelectedNodes();
-		for (var i = 0; i < originalNodes.length; i++) 
+		var nodeIds = this.network.getSelectedNodes();
+		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
-			var curNode = originalNodes[i];
+			var curNode = this.originalNodes[i];
 			if(curNode["style"]==type)
 			{
-				nodeIds.push(curNode.id);
+				nodeIds.push(curNode.id!);
 			}
 			
 		}
-		actionLoggerIn.addToStateHistory("select", {"nodes": nodeIds});
-		network.selectNodes(nodeIds);
+		this.actionLogger.addToStateHistory("select", {"nodes": nodeIds});
+		this.network.selectNodes(nodeIds);
 	}
 	
-	this.selectEdgesById=function(edgeIds)
+	selectEdgesById(edgeIds: vis.IdType[])
 	{
-		actionLoggerIn.addToStateHistory("selectEdges", {"edges": edgeIds});
-		network.selectEdges(edgeIds);
+		this.actionLogger.addToStateHistory("selectEdges", {"edges": edgeIds});
+		this.network.selectEdges(edgeIds);
 	}
 	
-	this.selectEdgesByType=function(type)
+	selectEdgesByType(type: string)
 	{
 		var edgeIds = [];
-		for (var i = 0; i < originalEdges.length; i++) 
+		for (var i = 0; i < this.originalEdges.length; i++) 
 		{
-			var currEdge = originalEdges[i];
+			var currEdge = this.originalEdges[i];
 			if(currEdge["style"]==type)
 			{
-				edgeIds.push(currEdge.id);
+				edgeIds.push(currEdge.id!);
 			}
 			
 		}
-		actionLoggerIn.addToStateHistory("selectEdges", {"edges": edgeIds});
-		network.selectEdges(edgeIds);
+		this.actionLogger.addToStateHistory("selectEdges", {"edges": edgeIds});
+		this.network.selectEdges(edgeIds);
 	}
 	
-	this.getUsedNodeTypes=function()
+	getUsedNodeTypes(): string[]
 	{
 		var usedNodeTypes=[];
-		for (var i = 0; i < originalNodes.length; i++) 
+		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
-			if(typeof originalNodes[i]["style"]!="undefined" && usedNodeTypes.indexOf(originalNodes[i]["style"])==-1)
+			if(typeof this.originalNodes[i]["style"]!="undefined" && usedNodeTypes.indexOf(this.originalNodes[i]["style"]!)==-1)
 			{
-				usedNodeTypes.push(originalNodes[i]["style"]);
+				usedNodeTypes.push(this.originalNodes[i]["style"]!);
 			}
 		}
 		return usedNodeTypes;
 	}
 	
-	this.getUsedEdgeTypes=function()
+	getUsedEdgeTypes(): string[]
 	{
 		var usedEdgeTypes=[];
-		for (var i = 0; i < originalEdges.length; i++) 
+		for (var i = 0; i < this.originalEdges.length; i++) 
 		{
-			if(typeof originalEdges[i]["style"]!="undefined" && usedEdgeTypes.indexOf(originalEdges[i]["style"])==-1)
+			if(typeof this.originalEdges[i]["style"]!="undefined" && usedEdgeTypes.indexOf(this.originalEdges[i]["style"]!)==-1)
 			{
-				usedEdgeTypes.push(originalEdges[i]["style"]);
+				usedEdgeTypes.push(this.originalEdges[i]["style"]!);
 			}
 		}
 		return usedEdgeTypes;
 	}
 	
-	this.graphToIFrameString=function(parameterName, onlySelected, compressionRate)
+	graphToIFrameString(parameterName: string, onlySelected: boolean, compressionRate: number)
 	{
 		if (typeof parameterName == "undefined")
 		{
-			parameterName="tgviewGraphData_"+Math.floor(new Date() / 1000)+"_"+Math.floor(Math.random() * 1000);
+			parameterName="tgviewGraphData_"+Math.floor((new Date()).getTime() / 1000)+"_"+Math.floor(Math.random() * 1000);
 		}
 		
 		if (typeof onlySelected == "undefined")
@@ -621,14 +696,15 @@ export default class TheoryGraph {
 			compressionRate=0;
 		}
 		
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=iframe&uri="+parameterName, "id":parameterName};
+		//TODO: what is this?, looks like an unsafe eval() being called somewhere
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+this.generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=iframe&uri="+parameterName, "id":parameterName};
 	}
 	
-	this.graphToLocalStorageString=function(parameterName, onlySelected, compressionRate)
+	graphToLocalStorageString(parameterName: string, onlySelected: boolean, compressionRate: number)
 	{
 		if (typeof parameterName == "undefined")
 		{
-			parameterName="tgviewGraphData_"+Math.floor(new Date() / 1000)+"_"+Math.floor(Math.random() * 1000);
+			parameterName="tgviewGraphData_"+Math.floor((new Date()).getTime() / 1000)+"_"+Math.floor(Math.random() * 1000);
 		}
 		
 		if (typeof onlySelected == "undefined")
@@ -641,10 +717,10 @@ export default class TheoryGraph {
 			compressionRate=0;
 		}
 		
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+parameterName, "name":parameterName};
+		return {"storage":"localStorage.setItem('"+parameterName+"', '"+this.generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+parameterName, "name":parameterName};
 	}
 	
-	this.graphToURIParameterString=function(onlySelected, compressionRate)
+	graphToURIParameterString(onlySelected: boolean, compressionRate: number)
 	{
 		if (typeof onlySelected == "undefined")
 		{
@@ -656,10 +732,10 @@ export default class TheoryGraph {
 			compressionRate=2;
 		}
 		
-		return location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+encodeURI(generateCompressedJSON(onlySelected, compressionRate));
+		return location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+encodeURI(this.generateCompressedJSON(onlySelected, compressionRate));
 	}
 
-	this.graphToStringJSON=function(onlySelected, compressionRate)
+	graphToStringJSON(onlySelected: boolean, compressionRate: number)
 	{
 		if (typeof onlySelected == "undefined")
 		{
@@ -671,12 +747,13 @@ export default class TheoryGraph {
 			compressionRate=0;
 		}
 		
-		return generateCompressedJSON(onlySelected, compressionRate);
+		return this.generateCompressedJSON(onlySelected, compressionRate);
 	}
 	
-	function generateCompressedJSON(onlySelected, compressionRate)
+	generateCompressedJSON(onlySelected: boolean, compressionRate: number)
 	{	
-		var allNodePositions=[];
+		// TODO: Use JSON.stringify for cleaner code
+		var allNodePositions: vis.Position[]=[];
 		
 		var json="{\"nodes\":[";
 		if (typeof onlySelected == "undefined")
@@ -691,37 +768,37 @@ export default class TheoryGraph {
 
 		if(compressionRate==0)
 		{
-			allNodePositions=network.getPositions();
+			allNodePositions=this.network.getPositions() as any as vis.Position[]; // TODO: Is this safe?
 		}
 		
 		var nodeIds=undefined;
-		var nodeIdMapping=[];
+		var nodeIdMapping: number[]=[];
 		
 		if(onlySelected==true)
 		{
-			nodeIds=network.getSelectedNodes();
+			nodeIds=this.network.getSelectedNodes();
 			
 			for (var i = 0; i < nodeIds.length; i++) 
 			{
-				nodeIdMapping[nodeIds[i]]=1;
+				nodeIdMapping[nodeIds[i] as number]=1;
 			}
 		}
 		
-		var mapping=[];
+		var mapping: number[]=[];
 		var counter=0;
-		for (var i = 0; i < originalNodes.length; i++) 
+		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
 			var currentNodeJson="{";
-			var curNode = originalNodes[i];
+			var curNode = this.originalNodes[i];
 			
-			if(onlySelected==true && typeof nodeIdMapping[curNode.id] == "undefined")
+			if(onlySelected==true && typeof nodeIdMapping[curNode.id as number] == "undefined")
 			{
 				continue;
 			}
 			
-			if(typeof mapping[curNode.id] == "undefined")
+			if(typeof mapping[curNode.id as number] == "undefined")
 			{
-				mapping[curNode.id]=counter;
+				mapping[curNode.id as number]=counter;
 				counter++;
 			}
 			
@@ -751,8 +828,8 @@ export default class TheoryGraph {
 			
 			if(compressionRate==0)
 			{
-				currentNodeJson+=',"x":"'+allNodePositions[curNode.id].x+'"';
-				currentNodeJson+=',"y":"'+allNodePositions[curNode.id].y+'"';
+				currentNodeJson+=',"x":"'+allNodePositions[curNode.id as number].x+'"';
+				currentNodeJson+=',"y":"'+allNodePositions[curNode.id as number].y+'"';
 			}
 			
 			currentNodeJson+="},";
@@ -761,10 +838,10 @@ export default class TheoryGraph {
 		
 		json=json.substring(0, json.length - 1)+"],\"edges\":[";
 		
-		for (var i = 0; i < originalEdges.length; i++) 
+		for (var i = 0; i < this.originalEdges.length; i++) 
 		{				
-			var currEdge = originalEdges[i];
-			if(typeof mapping[currEdge.to] != "undefined" && mapping[currEdge.from] != "undefined" )
+			var currEdge = this.originalEdges[i];
+			if(typeof mapping[currEdge.to as number] != "undefined" && typeof mapping[currEdge.from as number] != "undefined" )
 			{
 				var currentEdgeJson="{";
 				
@@ -792,18 +869,18 @@ export default class TheoryGraph {
 			}
 		}
 		
-		if(allClusters.length>0)
+		if(this.allClusters.length>0)
 		{
 			json=json.substring(0, json.length - 1)+"],\"cluster\":[";
 			
-			for (var i = 0; i < allClusters.length; i++) 
+			for (var i = 0; i < this.allClusters.length; i++) 
 			{		
 				var currentClusterJson="{\"nodeIds\":";
-				currentClusterJson+=JSON.stringify(clusterPositions[allClusters[i]][0]);
+				currentClusterJson+=JSON.stringify(this.clusterPositions[this.allClusters[i]][0]);
 				currentClusterJson+=",";
 				
 				currentClusterJson+="\"nodePositions\":";
-				currentClusterJson+=JSON.stringify(clusterPositions[allClusters[i]][1]);
+				currentClusterJson+=JSON.stringify(this.clusterPositions[this.allClusters[i]][1]);
 				currentClusterJson+="";
 				
 				currentClusterJson+="},";
@@ -815,7 +892,7 @@ export default class TheoryGraph {
 		return json;
 	}
 	
-	this.loadGraphByLocalStorage=function(parameterName)
+	loadGraphByLocalStorage(parameterName?: string)
 	{
 		if (typeof parameterName == "undefined")
 		{
@@ -823,39 +900,39 @@ export default class TheoryGraph {
 		}
 
 		var graphData=localStorage.getItem(parameterName);
-		drawGraph(JSON.parse(graphData));
+		drawGraph(JSON.parse(graphData!));
 	}
 	
-	this.loadGraphByURIParameter=function()
+	loadGraphByURIParameter()
 	{
 		var graphData=getParameterByName("uri");
-		drawGraph(JSON.parse(graphData));
+		drawGraph(JSON.parse(graphData!));
 	}
 	
-	this.hideEdges=function(type, hideEdge)
+	hideEdges(type: string, hideEdge: boolean)
 	{
-		that.setEdgesHidden(type, hideEdge);
-		var edgesToHide=[];
-		for(var i=0;i<originalEdges.length;i++)
+		this.setEdgesHidden(type, hideEdge);
+		var edgesToHide: Array<{id: IdType, hidden: boolean}>=[];
+		for(var i=0;i<this.originalEdges.length;i++)
 		{
 			//console.log(type+""+originalEdges[i]["style"]);
-			if(type==originalEdges[i]["style"] || ("graph"+type)==originalEdges[i]["style"] )
+			if(type==this.originalEdges[i]["style"] || ("graph"+type)==this.originalEdges[i]["style"] )
 			{
 				if(hideEdge==true)
 				{
-					edgesToHide.push({id: originalEdges[i]["id"], hidden: hideEdge});
+					edgesToHide.push({id: this.originalEdges[i]["id"]!, hidden: hideEdge!});
 				}
-				else if(hideEdge==false && (hiddenNodes[originalEdges[i].to]==false && hiddenNodes[originalEdges[i].from]==false))
+				else if(hideEdge==false && (this.hiddenNodes[this.originalEdges[i].to!]==false && this.hiddenNodes[this.originalEdges[i].from!]==false))
 				{
-					edgesToHide.push({id: originalEdges[i]["id"], hidden: hideEdge});
+					edgesToHide.push({id: this.originalEdges[i]["id"]!, hidden: hideEdge!});
 				}
 			}
 		}
-		edges.update(edgesToHide);
+		this.edges.update(edgesToHide);
 		//actionLoggerIn.addToStateHistory("hideEdges", {"hideEdges":edgesToHide,"hidden":hideEdge});
 	}
 	
-	this.hideEdgesById=function(edgeIds, hideEdge)
+	hideEdgesById(edgeIds?: IdType[], hideEdge: boolean)
 	{
 		if(typeof edgeIds=="undefined" || edgeIds.length==0)
 			return;
@@ -865,159 +942,161 @@ export default class TheoryGraph {
 		{
 			edgesToHide.push({id: edgeIds[i], hidden: hideEdge});
 		}
-		edges.update(edgesToHide);
-		actionLoggerIn.addToStateHistory("hideEdges", {"hideEdges":edgesToHide,"hidden":hideEdge});
+		this.edges.update(edgesToHide);
+		this.actionLogger.addToStateHistory("hideEdges", {"hideEdges":edgesToHide,"hidden":hideEdge});
 	}
 	
 	
-	this.showAllManuallyHiddenNodes=function()
+	showAllManuallyHiddenNodes()
 	{
 		var nodesToHide=[];
 		var edgesToHide=[];
-		for(var i=0;i<allManuallyHiddenNodes.length;i++)
+		for(var i=0;i<this.allManuallyHiddenNodes.length;i++)
 		{
-			for(var j=0;j<allManuallyHiddenNodes[i].nodes.length;j++)
+			for(var j=0;j<this.allManuallyHiddenNodes[i].nodes.length;j++)
 			{
-				allManuallyHiddenNodes[i].nodes[j].hidden=false;
-				nodesToHide.push(allManuallyHiddenNodes[i].nodes[j]);
-				hiddenNodes[allManuallyHiddenNodes[i].nodes[j].id]=false;
+				this.allManuallyHiddenNodes[i].nodes[j].hidden=false;
+				nodesToHide.push(this.allManuallyHiddenNodes[i].nodes[j]);
+				this.hiddenNodes[this.allManuallyHiddenNodes[i].nodes[j].id!]=false;
 			}
-			nodes.update(allManuallyHiddenNodes[i].nodes);
+			this.nodes.update(this.allManuallyHiddenNodes[i].nodes);
 			
-			for(var j=0;j<allManuallyHiddenNodes[i].edges.length;j++)
+			for(var j=0;j<this.allManuallyHiddenNodes[i].edges.length;j++)
 			{
-				allManuallyHiddenNodes[i].edges[j].hidden=false;
-				edgesToHide.push(allManuallyHiddenNodes[i].edges[j]);
+				this.allManuallyHiddenNodes[i].edges[j].hidden=false;
+				edgesToHide.push(this.allManuallyHiddenNodes[i].edges[j]);
 			}
-			edges.update(allManuallyHiddenNodes[i].edges);
+			this.edges.update(this.allManuallyHiddenNodes[i].edges);
 		}
-		allManuallyHiddenNodes=[];
+		this.allManuallyHiddenNodes=[];
 
-		actionLoggerIn.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":false});
+		this.actionLogger.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":false});
 	}
 	
-	this.hideNodesById=function(nodeIds, hideNode)
+	hideNodesById(nodeIds?: vis.IdType[], hideNode: boolean)
 	{
 		if(typeof nodeIds=="undefined" || nodeIds.length==0)
 		{
-			nodeIds=network.getSelectedNodes();
+			nodeIds=this.network.getSelectedNodes();
 		}
 		
 		var nodesToHide=[];
 		for(var i=0;i<nodeIds.length;i++)
 		{
 			nodesToHide.push({id: nodeIds[i], hidden: hideNode});
-			hiddenNodes[nodeIds[i]]=hideNode;
+			this.hiddenNodes[nodeIds[i]]=hideNode;
 		}
-		nodes.update(nodesToHide);
+		this.nodes.update(nodesToHide);
 		
 
 		var edgesToHide=[];
-		for(var i=0;i<originalEdges.length;i++)
+		for(var i=0;i<this.originalEdges.length;i++)
 		{
-			if(hideNode==true && (hiddenNodes[originalEdges[i].to] == true || hiddenNodes[originalEdges[i].from] == true))
+			if(hideNode==true && (this.hiddenNodes[this.originalEdges[i].to!] == true || this.hiddenNodes[this.originalEdges[i].from!] == true))
 			{
-				edgesToHide.push({id: originalEdges[i]["id"], hidden: hideNode});
+				edgesToHide.push({id: this.originalEdges[i]["id"], hidden: hideNode});
 			}
 
-			if(hideNode==false && (hiddenNodes[originalEdges[i].to]==false && hiddenNodes[originalEdges[i].from]==false))
+			if(hideNode==false && (this.hiddenNodes[this.originalEdges[i].to!]==false && this.hiddenNodes[this.originalEdges[i].from!]==false))
 			{
-				edgesToHide.push({id: originalEdges[i]["id"], hidden: hideNode});
+				edgesToHide.push({id: this.originalEdges[i]["id"], hidden: hideNode});
 			}
 		}
-		edges.update(edgesToHide);
+		this.edges.update(edgesToHide);
 		
-		allManuallyHiddenNodes.push({"nodes":nodesToHide, "edges":edgesToHide});
-		actionLoggerIn.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideNode});
+		this.allManuallyHiddenNodes.push({"nodes":nodesToHide, "edges":edgesToHide});
+		this.actionLogger.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideNode});
 	}
 	
-	this.hideNodes=function(type, hideEdge)
+	hideNodes(type: string, hideEdge: boolean)
 	{
 		//that.setEdgesHidden(type, hideEdge);
 		var nodesToHide=[];
 		
-		for(var i=0;i<originalNodes.length;i++)
+		for(var i=0;i<this.originalNodes.length;i++)
 		{
 			//console.log(type+""+originalEdges[i]["style"]);
-			if(type==originalNodes[i]["style"] || ("graph"+type)==originalNodes[i]["style"] )
+			if(type==this.originalNodes[i]["style"] || ("graph"+type)==this.originalNodes[i]["style"] )
 			{
-				nodesToHide.push({id: originalNodes[i]["id"], hidden: hideEdge});
-				hiddenNodes[originalNodes[i]["id"]]=hideEdge;
+				nodesToHide.push({id: this.originalNodes[i]["id"], hidden: hideEdge});
+				this.hiddenNodes[this.originalNodes[i]["id"]!]=hideEdge;
 			}
 		}
-		nodes.update(nodesToHide);
+		this.nodes.update(nodesToHide);
 		
-		var mappedEdges={};
-		for(var i=0;i<edgesNameToHide.length;i++)
+		var mappedEdges: {[tp: string]: boolean}={};
+		for(var i=0;i<this.edgesNameToHide.length;i++)
 		{
-			mappedEdges[edgesNameToHide[i].type]=edgesNameToHide[i].hidden;
+			mappedEdges[this.edgesNameToHide[i].type!]=this.edgesNameToHide[i].hidden!;
 		}
 		
 		var edgesToHide=[];
-		for(var i=0;i<originalEdges.length;i++)
+		for(var i=0;i<this.originalEdges.length;i++)
 		{
-			if(hideEdge==true && (hiddenNodes[originalEdges[i].to] == true || hiddenNodes[originalEdges[i].from] == true))
+			if(hideEdge==true && (this.hiddenNodes[this.originalEdges[i].to!] == true || this.hiddenNodes[this.originalEdges[i].from!] == true))
 			{
-				edgesToHide.push({id: originalEdges[i]["id"], hidden: hideEdge});
+				edgesToHide.push({id: this.originalEdges[i]["id"]!, hidden: hideEdge});
 			}
 			
-			if(typeof mappedEdges[originalEdges[i]["style"]] != "undefined" && mappedEdges[originalEdges[i]["style"]]!=hideEdge)
+			if(typeof mappedEdges[this.originalEdges[i]["style"]!] != "undefined" && mappedEdges[this.originalEdges[i]["style"]!]!=hideEdge)
 			{
 				continue;
 			}
 			
 			
-			if(hideEdge==false && (hiddenNodes[originalEdges[i].to]==false && hiddenNodes[originalEdges[i].from]==false))
+			if(hideEdge==false && (this.hiddenNodes[this.originalEdges[i].to!]==false && this.hiddenNodes[this.originalEdges[i].from!]==false))
 			{
-				edgesToHide.push({id: originalEdges[i]["id"], hidden: hideEdge});
+				edgesToHide.push({id: this.originalEdges[i]["id"], hidden: hideEdge});
 			}
 		}
-		edges.update(edgesToHide);
+		this.edges.update(edgesToHide);
 		
 		//actionLoggerIn.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideEdge});
 	}
 	
-	this.setEdgesHidden=function(type, hideEdge)
+	setEdgesHidden(type: string, hideEdge: boolean)
 	{
-		for(var i=0;i<edgesNameToHide.length;i++)
+		for(var i=0;i<this.edgesNameToHide.length;i++)
 		{
-			if(type==edgesNameToHide[i].type)
+			if(type==this.edgesNameToHide[i].type)
 			{
-				edgesNameToHide[i].hidden=hideEdge;
+				this.edgesNameToHide[i].hidden=hideEdge;
 				return;
 			}
 		}
 
-		edgesNameToHide.push({"hidden": hideEdge,"type": type});
+		this.edgesNameToHide.push({"hidden": hideEdge,"type": type});
 	}
 	
-	this.downloadCanvasAsImage = function(button)
+	downloadCanvasAsImage(/*button*/)
 	{
 		var minX=111110;
 		var minY=111110;
 		var maxX=-111110;
 		var maxY=-111110;
-		for (var i = 0; i < originalNodes.length; i++) 
+		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
-			var curNode = originalNodes[i];
-			var nodePosition = network.getPositions([curNode.id]);
+			var curNode = this.originalNodes[i];
+			var nodePosition = this.network.getPositions([curNode.id!]);
 			
-			minX=Math.min(nodePosition[curNode.id].x,minX);
-			maxX=Math.max(nodePosition[curNode.id].x,maxX);
+			minX=Math.min(nodePosition[curNode.id!].x,minX);
+			maxX=Math.max(nodePosition[curNode.id!].x,maxX);
 			
-			minY=Math.min(nodePosition[curNode.id].y,minY);
-			maxY=Math.max(nodePosition[curNode.id].y,maxY);
+			minY=Math.min(nodePosition[curNode.id!].y,minY);
+			maxY=Math.max(nodePosition[curNode.id!].y,maxY);
 		}
 		
-		var originalWidth=network.canvas.frame.canvas.width;
-		var originalHeight=network.canvas.frame.canvas.height;
+		var originalWidth=this.network.canvas.frame.canvas.width + 'px';
+		var originalHeight=this.network.canvas.frame.canvas.height+ 'px';
 		
-		network.setSize(Math.min((maxX-minX)*1.2,3500),Math.min((maxY-minY)*1.2,3500));
+		var sizeA = Math.min((maxX-minX)*1.2,3500) + 'px';
+		var sizeB = Math.min((maxY-minY)*1.2,3500) + 'px';
+		this.network.setSize(sizeA,sizeB);
 		
-		network.redraw();
-		network.fit();
+		this.network.redraw();
+		this.network.fit();
 		
-		network.once("afterDrawing",function () 
+		this.network.once("afterDrawing",() => 
 		{
 			
 			//button.href = network.canvas.frame.canvas.toDataURL();
@@ -1027,9 +1106,9 @@ export default class TheoryGraph {
 			downloadLink.target   = '_blank';
 			downloadLink.download = 'graph.png';
 
-			var image=network.canvas.frame.canvas.toDataURL("image/png");
+			var image=this.network.canvas.frame.canvas.toDataURL("image/png");
 
-			var URL = window.URL || window.webkitURL;
+			var URL: typeof window.URL = window.URL || (window as any).webkitURL;
 			var downloadUrl = image;
 
 			// set object URL as the anchor's href
@@ -1047,62 +1126,63 @@ export default class TheoryGraph {
 						
 			
 			//window.open(image);
-			network.setSize(originalWidth,originalHeight);
-			network.redraw();
-			network.fit();
-			statusLogger.setStatusText("");
+			this.network.setSize(originalWidth,originalHeight);
+			this.network.redraw();
+			this.network.fit();
+			this.statusLogger.setStatusText("");
 		});
 	}
 	
-    function openOutlierClusters(scale) 
+    openOutlierClusters(scale: number): boolean
 	{
         var newClusters = [];
         var declustered = false;
-        for (var i = 0; i < zoomClusters.length; i++) 
+        for (var i = 0; i < this.zoomClusters.length; i++) 
 		{
-            if (zoomClusters[i].scale < scale) 
+            if (this.zoomClusters[i].scale < scale) 
 			{
-                network.openCluster(zoomClusters[i].id);
-                lastClusterZoomLevel = scale;
+                this.network.openCluster(this.zoomClusters[i].id);
+                this.lastClusterZoomLevel = scale;
                 declustered = true;
             }
             else 
 			{
-                newClusters.push(zoomClusters[i])
+                newClusters.push(this.zoomClusters[i])
             }
         }
-        zoomClusters = newClusters;
+		this.zoomClusters = newClusters;
+		return declustered;
     }
 	
-	this.selectNodes = function(nodeIds)
+	selectNodes(nodeIds: vis.IdType[])
 	{
-		network.selectNodes(nodeIds);
-		actionLoggerIn.addToStateHistory("select", {"nodes": nodeIds});
+		this.network.selectNodes(nodeIds);
+		this.actionLogger.addToStateHistory("select", {"nodes": nodeIds});
 	}
 	
-	this.selectNodesWithIdLike=function(searchId)
+	selectNodesWithIdLike(searchId: string)
 	{
 		var nodeIds = [];
-		for (var i = 0; i < originalNodes.length; i++) 
+		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
-			var curNode = originalNodes[i];
-			if(curNode.id.indexOf(searchId)>-1)
+			var curNode = this.originalNodes[i];
+			if((curNode.id as string).indexOf(searchId)>-1)
 			{
-				nodeIds.push(curNode.id);
+				nodeIds.push(curNode.id!);
 			}
 			
 		}
-		actionLoggerIn.addToStateHistory("select", {"nodes": nodeIds});
-		network.selectNodes(nodeIds);
+		this.actionLogger.addToStateHistory("select", {"nodes": nodeIds});
+		this.network.selectNodes(nodeIds);
 	}
 	
-	this.clusterOutliers=function(scale)
+	clusterOutliers(scale: number)
 	{
-		var clusterOptionsByData = 
+		var clusterOptionsByData: vis.ClusterOptions = 
 		{
-			processProperties: function (clusterOptions, childNodes) 
+			processProperties: (clusterOptions, childNodes) =>
 			{
-				clusterId = clusterId + 1;
+				this.clusterId = this.clusterId + 1;
 				var childrenCount = 0;
 				for (var i = 0; i < childNodes.length; i++) 
 				{
@@ -1111,20 +1191,20 @@ export default class TheoryGraph {
 				clusterOptions.childrenCount = childrenCount;
 				clusterOptions.label = "# " + childrenCount + "";
 				clusterOptions.font = {size: Math.min(childrenCount+20,40)}
-				clusterOptions.id = 'cluster_' + clusterId;
-				zoomClusters.push({id:'cluster_' + clusterId, scale:scale});
+				clusterOptions.id = 'cluster_' + this.clusterId;
+				this.zoomClusters.push({id:'cluster_' + this.clusterId, scale:scale});
 				return clusterOptions;
 			},
 			clusterNodeProperties: {borderWidth: 2, shape: 'database', color:"orange"}
 		}
-		network.clusterOutliers(clusterOptionsByData);
+		this.network.clusterOutliers(clusterOptionsByData);
 	}
 	
-	this.cageNodes=function(nodeIds,color)
+	cageNodes(nodeIds?: vis.IdType[],color: string)
 	{
 		if(nodeIds==undefined)
 		{
-			nodeIds=network.getSelectedNodes();
+			nodeIds=this.network.getSelectedNodes();
 		}
 
 		if(color==undefined)
@@ -1134,44 +1214,44 @@ export default class TheoryGraph {
     		(4*Math.floor(Math.random()*4)).toString(16);
 		}
 		
-		for(var i=0;i<allNodeRegions.length;i++)
+		for(var i=0;i<this.allNodeRegions.length;i++)
 		{
-			allNodeRegions[i].selected=false;
+			this.allNodeRegions[i].selected=false;
 		}
 		
-		allNodeRegions.push({"nodeIds":nodeIds,"color":color,"selected":true});
-		actionLoggerIn.addToStateHistory("cageNodes", {"nodeIds":nodeIds,"color":color,"index":allNodeRegions.length-1});
-		network.redraw();
+		this.allNodeRegions.push({"nodeIds":nodeIds,"color":color,"selected":true}); // TODO: Fix allNodeRegions
+		this.actionLogger.addToStateHistory("cageNodes", {"nodeIds":nodeIds,"color":color,"index":this.allNodeRegions.length-1});
+		this.network.redraw();
 	}
 	
-	this.selectNodesInRect = function(rect) 
+	selectNodesInRect(rect: IRectangle) 
 	{
-		var fromX;
-		var toX;
-		var fromY;
-		var toY;
+		//var fromX;
+		//var toX;
+		//var fromY;
+		//var toY;
 		var nodesIdInDrawing = [];
 		var xRange = getStartToEnd(rect.startX, rect.w);
 		var yRange = getStartToEnd(rect.startY, rect.h);
 
-		for (var i = 0; i < originalNodes.length; i++) 
+		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
-			var curNode = originalNodes[i];
-			var nodePosition = network.getPositions([curNode.id]);
-			if(typeof nodePosition!="undefined" && typeof network.body.nodes[curNode.id] !="undefined" && network.body.nodes[curNode.id].options.hidden!=true)
+			var curNode = this.originalNodes[i];
+			var nodePosition = this.network.getPositions([curNode.id!]);
+			if(typeof nodePosition!="undefined" && typeof this.network.body.nodes[curNode.id!] !="undefined" && this.network.body.nodes[curNode.id!].options.hidden!=true)
 			{
-				var nodeXY = network.canvasToDOM({x: nodePosition[curNode.id].x, y: nodePosition[curNode.id].y});
+				var nodeXY = this.network.canvasToDOM({x: nodePosition[curNode.id!].x, y: nodePosition[curNode.id!].y});
 				if (xRange.start <= nodeXY.x && nodeXY.x <= xRange.end && yRange.start <= nodeXY.y && nodeXY.y <= yRange.end) 
 				{
-					nodesIdInDrawing.push(curNode.id);
+					nodesIdInDrawing.push(curNode.id!);
 				}
 			}
 		}
-		actionLoggerIn.addToStateHistory("select", {"nodes": nodesIdInDrawing});
-		network.selectNodes(nodesIdInDrawing);
+		this.actionLogger.addToStateHistory("select", {"nodes": nodesIdInDrawing});
+		this.network.selectNodes(nodesIdInDrawing);
 	}
 	
-	this.colorizeNodesByName = function(nodeNames, color)
+	colorizeNodesByName(nodeNames?: string | null, color: string)
 	{
 		if(typeof nodeNames == "undefined" || nodeNames==null || nodeNames==undefined)
 		{
@@ -1182,7 +1262,7 @@ export default class TheoryGraph {
 		var nodeNamesArray=[];
 		if( typeof nodeNames == 'string' ) 
 		{
-			var nodeNamesArray = nodeNames.replace(" ", "").split(",");
+			nodeNamesArray = nodeNames.replace(" ", "").split(",");
 			
 		}
 		else
@@ -1194,23 +1274,23 @@ export default class TheoryGraph {
 		{
 			console.log("^"+nodeNamesArray[i].replace("*", "(.*)")+"$");
 			var re = new RegExp("^"+nodeNamesArray[i].split("*").join("(.*)")+"$");
-			for (var j = 0; j < originalNodes.length; j++) 
+			for (var j = 0; j < this.originalNodes.length; j++) 
 			{
-				if (re.test(originalNodes[j].label)) 
+				if (re.test(this.originalNodes[j].label!)) 
 				{
-					colorizingIds.push(originalNodes[j].id);
+					colorizingIds.push(this.originalNodes[j].id!);
 				}
 			}
 		}
-		that.colorizeNodes(colorizingIds,color);
+		this.colorizeNodes(colorizingIds,color);
 	}
 	
-	this.clusterUsingColor = function()
+	clusterUsingColor()
 	{
-		internalClusterer = new Clusterer(originalNodes, originalEdges, statusLogger);
+		var internalClusterer = new Clusterer(this.originalNodes, this.originalEdges, this.statusLogger); // TODO: Match originalNodes type
 		var membership=internalClusterer.cluster();
 		
-		var clusteredNodes=[];
+		var clusteredNodes: vis.IdType[][] =[];
 		var usedClusters=[];
 		
 		for(var i=0;i<membership.length;i++)
@@ -1221,30 +1301,30 @@ export default class TheoryGraph {
 				usedClusters.push(membership[i]);
 			}
 			
-			clusteredNodes[membership[i]].push(originalNodes[i].id);
+			clusteredNodes[membership[i]].push(this.originalNodes[i].id!);
 		}
 		
 				
 		for(var i=0;i<membership.length;i++)
 		{
-			originalNodes[i].membership=membership[i];
+			this.originalNodes[i].membership=membership[i];
 		}
 		
-		startRendering();
+		this.startRendering();
 		
 		for(var i=0;i<usedClusters.length;i++)
 		{
 			//that.cageNodes(clusteredNodes[usedClusters[i]],rainbow(usedClusters.length,i));
-			that.colorizeNodes(clusteredNodes[usedClusters[i]],rainbow(usedClusters.length,i),false);
+			this.colorizeNodes(clusteredNodes[usedClusters[i]],rainbow(usedClusters.length,i),false);
 		}
-		network.redraw();
+		this.network.redraw();
 	}
 	
-	this.colorizeNodes = function(nodeIds,color, doRedraw=true)
+	colorizeNodes(nodeIds?: vis.IdType[],color: string, doRedraw=true)
 	{
 		if(nodeIds==undefined)
 		{
-			nodeIds=network.getSelectedNodes();
+			nodeIds=this.network.getSelectedNodes();
 		}
 		
 		if(color==undefined)
@@ -1252,31 +1332,31 @@ export default class TheoryGraph {
 			color="blue";
 		}
 		
-		if(network!=null)
+		if(this.network!=null)
 		{
 			var toUpdate=[];
 			for (var i=0;i<nodeIds.length;i++) 
 			{
 				toUpdate.push({id: nodeIds[i], color:{background:color,highlight:{background:color}}});
 			}
-			nodes.update(toUpdate);
+			this.nodes.update(toUpdate);
 			if(doRedraw==true)
 			{
-				network.redraw();
+				this.network.redraw();
 			}
 		}
 	}
 	
-	this.cluster = function(nodeIds,name,givenClusterId)
+	cluster(nodeIds?: vis.IdType[],name?: string,givenClusterId?: number)
 	{
 		if(typeof givenClusterId ==="undefined")
 		{
-			givenClusterId=clusterId;
+			givenClusterId=this.clusterId;
 		}
 		
 		if(nodeIds==undefined)
 		{
-			nodeIds=network.getSelectedNodes();
+			nodeIds=this.network.getSelectedNodes();
 		}
 		
 		if(name==undefined)
@@ -1284,17 +1364,18 @@ export default class TheoryGraph {
 			name='cluster_' +givenClusterId;
 		}
 		
-		if(network!=null)
+		if(this.network!=null)
 		{
-			clusterPositions['cluster_' +givenClusterId]=[];
-			clusterPositions['cluster_' +givenClusterId][0]=nodeIds;
-			clusterPositions['cluster_' +givenClusterId][1]=network.getPositions(nodeIds);
-			allClusters.push('cluster_' +givenClusterId);
-			var options = 
+			this.clusterPositions['cluster_' +givenClusterId]=[
+				nodeIds,
+				this.network.getPositions(nodeIds)
+			];
+			this.allClusters.push('cluster_' +givenClusterId);
+			var options: ClusterOptions = 
 			{
-				joinCondition:function(nodeOptions) 
+				joinCondition: (nodeOptions) =>
 				{
-					return nodeIds.indexOf(nodeOptions.id) != -1;
+					return nodeIds!.indexOf(nodeOptions.id) != -1;
 				},
 				processProperties: function (clusterOptions, childNodes, childEdges) 
 				{
@@ -1306,17 +1387,17 @@ export default class TheoryGraph {
                   clusterOptions.mass = totalMass;
                   return clusterOptions;
               },
-              clusterNodeProperties: {id: 'cluster_' +givenClusterId , borderWidth: 2, shape: 'database', color:"orange", label:name}
+              clusterNodeProperties: {id: 'cluster_' +givenClusterId , borderWidth: 2, shape: 'database', color:"orange", label:name} as NodeOptions
 			}
-			network.clustering.cluster(options);
-			actionLoggerIn.addToStateHistory("cluster", {"clusterId": 'cluster_' +givenClusterId, "name": name, "nodes": nodeIds});
-			clusterId++;
+			this.network.clustering.cluster(options);
+			this.actionLogger.addToStateHistory("cluster", {"clusterId": 'cluster_' +givenClusterId, "name": name, "nodes": nodeIds});
+			this.clusterId++;
 		}
 	}
 	
-	this.getGraph = function(jsonURL)
+	getGraph(jsonURL: string)
 	{
-		statusLogger.setStatusText("Downloading graph...");
+		this.statusLogger.setStatusText("Downloading graph...");
 		document.body.style.cursor = 'wait';
 		
 		$.ajaxSetup(
@@ -1325,22 +1406,22 @@ export default class TheoryGraph {
 			{
                 if (x.status == 0) 
 				{
-					statusLogger.setStatusText('<font color="red">Downloading graph failed (Check Your Network)</font>');
+					this.statusLogger.setStatusText('<font color="red">Downloading graph failed (Check Your Network)</font>');
 					document.body.style.cursor = 'auto';
                 } 
                 else if (x.status == 404) 
 				{
-					statusLogger.setStatusText('<font color="red">Downloading graph failed (Requested URL not found)</font>');
+					this.statusLogger.setStatusText('<font color="red">Downloading graph failed (Requested URL not found)</font>');
 					document.body.style.cursor = 'auto';
                 } 
 				else if (x.status == 500) 
 				{
-					statusLogger.setStatusText('<font color="red">Downloading graph failed (Internel Server Error)</font>');
+					this.statusLogger.setStatusText('<font color="red">Downloading graph failed (Internel Server Error)</font>');
                     document.body.style.cursor = 'auto';
                 }  
 				else 
 				{
-					statusLogger.setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+x.status+')</font>');
+					this.statusLogger.setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+x.status+')</font>');
 					document.body.style.cursor = 'auto';
 					console.log(x);
                 }
@@ -1350,88 +1431,88 @@ export default class TheoryGraph {
 		$.get(jsonURL, drawGraph);
 	}
 
-	this.loadJSONGraph=function(data)
+	loadJSONGraph(data: IGraphJSONGraph | string)
 	{
-		if(data.length<20)
+		if(typeof data === 'string') // data.length < 20 TODO: WHAT?
 		{
-			statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
+			this.statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 		
 		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
 		{
-			statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
+			this.statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 
-		originalNodes=data["nodes"];
-		originalEdges=data["edges"];
+		this.originalNodes=data["nodes"];
+		this.originalEdges=data["edges"];
 
-		addUsedButNotDefinedNodes();
+		this.addUsedButNotDefinedNodes();
 		
-		ensureUniqueIds(originalNodes);
-		ensureUniqueIds(originalEdges);
+		this.ensureUniqueIds(this.originalNodes); // TODO: Fix types here
+		this.ensureUniqueIds(this.originalEdges); // TODO: Fix types here
 		
-		postprocessEdges();
-		postprocessNodes();
+		this.postprocessEdges();
+		this.postprocessNodes();
 		
-		startConstruction(true);
+		this.startConstruction(true);
 	}
 	
-	function drawGraph(data, status=200)
+	drawGraph(data: string, status: number | string=200)
 	{
-		if(status!=200 && status!="success")
+		if(status!=200 && status!="success") 
 		{
-			statusLogger.setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+status+')</font>');
+			this.statusLogger.setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+status+')</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 	
-		if(data.length<20)
+		if(typeof data === 'string') // data.length < 20 TODO: WHAT?
 		{
-			statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
+			this.statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 		
 		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
 		{
-			statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
+			this.statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 		
-		originalNodes=data["nodes"];
-		originalEdges=data["edges"];
+		this.originalNodes=data["nodes"];
+		this.originalEdges=data["edges"];
 
-		addUsedButNotDefinedNodes();
+		this.addUsedButNotDefinedNodes();
 		
-		ensureUniqueIds(originalNodes);
-		ensureUniqueIds(originalEdges);
+		this.ensureUniqueIds(this.originalNodes);
+		this.ensureUniqueIds(this.originalEdges);
 		
-		postprocessEdges();
-		postprocessNodes();
+		this.postprocessEdges();
+		this.postprocessNodes();
 		
-		startConstruction();
+		this.startConstruction();
 	}
 	
-	function addUsedButNotDefinedNodes()
+	addUsedButNotDefinedNodes()
 	{
-		statusLogger.setStatusText("Adding used but not defined nodes...");
-		var mappedNodes=[];
-		for(var i=0;i< originalNodes.length;i++ )
+		this.statusLogger.setStatusText("Adding used but not defined nodes...");
+		var mappedNodes: vis.Node[] =[];
+		for(var i=0;i< this.originalNodes.length;i++ )
 		{
-			mappedNodes[originalNodes[i].id]=originalNodes[i];
+			mappedNodes[this.originalNodes[i].id as number]=this.originalNodes[i];
 		}
 		
-		for(var i=0;i< originalEdges.length;i++ )
+		for(var i=0;i< this.originalEdges.length;i++ )
 		{
-			if(originalEdges[i].from != undefined && mappedNodes[originalEdges[i].from]==undefined)
+			if(this.originalEdges[i].from != undefined && mappedNodes[this.originalEdges[i].from as number]==undefined)
 			{
-				var nodeLabel=originalEdges[i].from;
-				var exploded=originalEdges[i].from.split("?");
+				var nodeLabel=this.originalEdges[i].from as string;
+				var exploded=nodeLabel.split("?");
 				if(exploded[1]!=undefined)
 				{
 					nodeLabel=exploded[1];
@@ -1439,20 +1520,20 @@ export default class TheoryGraph {
 				
 				var addNode=
 				{
-					"id" : originalEdges[i].from,
+					"id" : this.originalEdges[i].from!,
 					"style" : "border",
 					"label" : nodeLabel,
-					"url" : originalEdges[i].from
+					"url" : this.originalEdges[i].from as string
 				};
 				
-				originalNodes.push(addNode);
-				mappedNodes[originalEdges[i].from]=addNode;
-				console.log("Border-Node: "+nodeLabel+" ("+originalEdges[i].from+")");
+				this.originalNodes.push(addNode);
+				mappedNodes[this.originalEdges[i].from as number]=addNode;
+				console.log("Border-Node: "+nodeLabel+" ("+this.originalEdges[i].from+")");
 			}
-			if(originalEdges[i].to!=undefined && mappedNodes[originalEdges[i].to]==undefined)
+			if(this.originalEdges[i].to!=undefined && mappedNodes[this.originalEdges[i].to as number]==undefined)
 			{
-				var nodeLabel=originalEdges[i].to;
-				var exploded=originalEdges[i].to.split("?");
+				var nodeLabel=this.originalEdges[i].to as string;
+				var exploded=nodeLabel.split("?");
 				if(exploded[1]!=undefined)
 				{
 					nodeLabel=exploded[1];
@@ -1460,49 +1541,50 @@ export default class TheoryGraph {
 				
 				var addNode=
 				{
-					"id" : originalEdges[i].to,
+					"id" : this.originalEdges[i].to!,
 					"style" : "border",
 					"label" : nodeLabel,
-					"url" : originalEdges[i].to
+					"url" : this.originalEdges[i].to as string
 				};
 				
-				originalNodes.push(addNode);
-				mappedNodes[originalEdges[i].to]=addNode;
-				console.log("Border-Node: "+nodeLabel+" ("+originalEdges[i].to+")");
+				this.originalNodes.push(addNode);
+				mappedNodes[this.originalEdges[i].to as number]=addNode;
+				console.log("Border-Node: "+nodeLabel+" ("+this.originalEdges[i].to+")");
 			}
 		}
 	}
 	
-	function postprocessNodes(nodesIn)
+	postprocessNodes(nodesIn?: vis.Node[])
 	{	
+		// TODO: Node types
 		if(typeof nodesIn =="undefined" )
 		{
-			nodesIn=originalNodes;
+			nodesIn=this.originalNodes;
 		}
 		
 		for(var i=0;i<nodesIn.length;i++)
 		{
-			if(nodesIn[i].style!=undefined && options.NODE_STYLES[nodesIn[i].style]!=undefined)
+			if(nodesIn[i].style!=undefined && this.options.NODE_STYLES[nodesIn[i].style!]!=undefined)
 			{
-				var styleInfos=options.NODE_STYLES[nodesIn[i].style];
+				var styleInfos=this.options.NODE_STYLES[nodesIn[i].style!]!;
 
 				if(styleInfos.shape=="ellipse" || styleInfos.shape=="circle")
 				{
-					if((nodesIn[i].previewhtml!=undefined && nodesIn[i].previewhtml!="" && nodesIn[i].previewhtml.length>10) || (nodesIn[i].mathml!=undefined && nodesIn[i].mathml!="" && nodesIn[i].mathml.length>10))
+					if((nodesIn[i].previewhtml!=undefined && nodesIn[i].previewhtml!="" && nodesIn[i].previewhtml!.length>10) || (nodesIn[i].mathml!=undefined && nodesIn[i].mathml!="" && nodesIn[i].mathml!.length>10))
 						nodesIn[i].shape="circularImage";
 					else
 						nodesIn[i].shape="ellipse";
 				}
 				else if(styleInfos.shape=="square")
 				{
-					if((nodesIn[i].previewhtml!=undefined && nodesIn[i].previewhtml!="" && nodesIn[i].previewhtml.length>10) || (nodesIn[i].mathml!=undefined && nodesIn[i].mathml!="" && nodesIn[i].mathml.length>10))
+					if((nodesIn[i].previewhtml!=undefined && nodesIn[i].previewhtml!="" && nodesIn[i].previewhtml!.length>10) || (nodesIn[i].mathml!=undefined && nodesIn[i].mathml!="" && nodesIn[i].mathml!.length>10))
 						nodesIn[i].shape="image";
 					else
 						nodesIn[i].shape="square";
 				}
 				else
 				{
-					if((nodesIn[i].previewhtml!=undefined && nodesIn[i].previewhtml!="" && nodesIn[i].previewhtml.length>10) || (nodesIn[i].mathml!=undefined && nodesIn[i].mathml!="" && nodesIn[i].mathml.length>10))
+					if((nodesIn[i].previewhtml!=undefined && nodesIn[i].previewhtml!="" && nodesIn[i].previewhtml!.length>10) || (nodesIn[i].mathml!=undefined && nodesIn[i].mathml!="" && nodesIn[i].mathml!.length>10))
 						nodesIn[i].shape="image";
 					else
 						nodesIn[i].shape=styleInfos.shape;
@@ -1543,27 +1625,27 @@ export default class TheoryGraph {
 		}
 	}
 	
-	function postprocessEdges(edgesIn)
+	postprocessEdges(edgesIn?: vis.Edge[])
 	{
 		if(typeof edgesIn =="undefined" )
 		{
-			edgesIn=originalEdges;
+			edgesIn=this.originalEdges;
 		}
 		
 		for(var i=0;i<edgesIn.length;i++)
 		{
-			if(edgesIn[i].style!=undefined && options.ARROW_STYLES[edgesIn[i].style]!=undefined)
+			if(edgesIn[i].style!=undefined && this.options.ARROW_STYLES[edgesIn[i].style!]!=undefined)
 			{
-				var styleInfos=options.ARROW_STYLES[edgesIn[i].style];
+				var styleInfos=this.options.ARROW_STYLES[edgesIn[i].style]!;
 				edgesIn[i].arrows = {to:{enabled:styleInfos.directed}};
 				
 				if(styleInfos.circle==true)
 				{
-					edgesIn[i].arrows.to.type="circle";
+					edgesIn[i].arrows!.to.type="circle";
 				}
 				else
 				{
-					edgesIn[i].arrows.to.type="arrow";
+					edgesIn[i].arrows!.to.type="arrow";
 				}
 
 				if(styleInfos.smoothEdge==false)
@@ -1582,7 +1664,7 @@ export default class TheoryGraph {
 	{
 		if(status!=200 && status!="success")
 		{
-			statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+status+')</font>');
+			this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+status+')</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
