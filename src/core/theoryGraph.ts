@@ -6,13 +6,13 @@ import { Options } from "../options";
 import { INode } from "../layout/Base";
 import { IGraphJSONEdge, IGraphJSONNode, IGraphJSONGraph } from "../graph";
 import Optimizer from "../layout/Optimizer";
-import { Position, BoundingBox, IdType, ClusterOptions } from "vis";
+import { Position, BoundingBox, IdType, ClusterOptions, Network, DataSet } from "vis";
 import Clusterer from "../layout/Clusterer";
 
 declare module 'vis' {
 	interface NetworkNodes {
-		[index: number]: Position // options: hidden?
-		[index: string]: Position // options: hidden?
+		[index: number]: Node // options: hidden?
+		[index: string]: Node // options: hidden?
 	}
 	interface Network {
 		getConnectedNodes(nodeOrEdgeId: IdType, direction: string): IdType[];
@@ -900,13 +900,13 @@ export default class TheoryGraph {
 		}
 
 		var graphData=localStorage.getItem(parameterName);
-		drawGraph(JSON.parse(graphData!));
+		this.drawGraph(JSON.parse(graphData!));
 	}
 	
 	loadGraphByURIParameter()
 	{
 		var graphData=getParameterByName("uri");
-		drawGraph(JSON.parse(graphData!));
+		this.drawGraph(JSON.parse(graphData!));
 	}
 	
 	hideEdges(type: string, hideEdge: boolean)
@@ -1387,7 +1387,7 @@ export default class TheoryGraph {
                   clusterOptions.mass = totalMass;
                   return clusterOptions;
               },
-              clusterNodeProperties: {id: 'cluster_' +givenClusterId , borderWidth: 2, shape: 'database', color:"orange", label:name} as NodeOptions
+              clusterNodeProperties: {id: 'cluster_' +givenClusterId , borderWidth: 2, shape: 'database', color:"orange", label:name} as vis.NodeOptions
 			}
 			this.network.clustering.cluster(options);
 			this.actionLogger.addToStateHistory("cluster", {"clusterId": 'cluster_' +givenClusterId, "name": name, "nodes": nodeIds});
@@ -1428,7 +1428,7 @@ export default class TheoryGraph {
             }
         });
 		
-		$.get(jsonURL, drawGraph);
+		$.get(jsonURL, this.drawGraph.bind(this));
 	}
 
 	loadJSONGraph(data: IGraphJSONGraph | string)
@@ -1597,28 +1597,28 @@ export default class TheoryGraph {
 				
 				if(typeof nodesIn[i].shapeProperties=="undefined")
 				{
-					nodesIn[i].shapeProperties={};
+					(nodesIn[i] as any).shapeProperties={}; // TODO: A bunch of props are missing here
 				}
 				
 				if (typeof styleInfos.color!="undefined" && styleInfos.color!="") 
 				{
-					nodesIn[i].color.background=styleInfos.color;
+					(nodesIn[i].color as any).background=styleInfos.color;
 				}
 				if (typeof styleInfos.colorBorder!="undefined" && styleInfos.colorBorder!="") 
 				{
-					nodesIn[i].color.border=styleInfos.colorBorder;
+					(nodesIn[i].color as any).border=styleInfos.colorBorder;
 				}
 				if (typeof styleInfos.colorHighlightBorder!="undefined" && styleInfos.colorHighlightBorder!="") 
 				{
-					nodesIn[i].color.highlight.border=styleInfos.colorHighlightBorder;
+					(nodesIn[i].color as any).highlight.border=styleInfos.colorHighlightBorder;
 				}
 				if (typeof styleInfos.colorHighlight!="undefined" && styleInfos.colorHighlight!="") 
 				{
-					nodesIn[i].color.highlight.background=styleInfos.colorHighlight;
+					(nodesIn[i].color as any).highlight.background=styleInfos.colorHighlight;
 				}
 				if (typeof styleInfos.dashes!="undefined" && styleInfos.dashes==true) 
 				{
-					nodesIn[i].shapeProperties.borderDashes=[5,5];
+					nodesIn[i].shapeProperties!.borderDashes=[5,5];
 				}
 
 			}
@@ -1636,21 +1636,21 @@ export default class TheoryGraph {
 		{
 			if(edgesIn[i].style!=undefined && this.options.ARROW_STYLES[edgesIn[i].style!]!=undefined)
 			{
-				var styleInfos=this.options.ARROW_STYLES[edgesIn[i].style]!;
+				var styleInfos=this.options.ARROW_STYLES[edgesIn[i].style!]!;
 				edgesIn[i].arrows = {to:{enabled:styleInfos.directed}};
 				
 				if(styleInfos.circle==true)
 				{
-					edgesIn[i].arrows!.to.type="circle";
+					(edgesIn[i].arrows as any).to.type="circle";
 				}
 				else
 				{
-					edgesIn[i].arrows!.to.type="arrow";
+					(edgesIn[i].arrows as any).to.type="arrow";
 				}
 
 				if(styleInfos.smoothEdge==false)
 				{
-					edgesIn[i].smooth={enabled: false};
+					(edgesIn[i] as any).smooth={enabled: false};
 				}
 				
 				edgesIn[i].dashes=styleInfos.dashes;
@@ -1660,25 +1660,26 @@ export default class TheoryGraph {
 		}
 	}
 	
-	function addNodesAndEdges(data, status=200)
+	// TODO: Compare and unify with drawgraph
+	addNodesAndEdges(data: IGraphJSONGraph | string, status: number | string=200)
 	{
-		if(status!=200 && status!="success")
+		if(status!=200 && status!="success") // TODO: what kind of type is this? use either number or string
 		{
 			this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+status+')</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 	
-		if(data.length<20)
+		if(typeof data === 'string') // data.length < 20 TODO: WHAT?
 		{
-			statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
+			this.statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
 		
 		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
 		{
-			statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
+			this.statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
 			document.body.style.cursor = 'auto';
 			return;
 		}
@@ -1686,53 +1687,53 @@ export default class TheoryGraph {
 		var nodesJSON=data["nodes"];
 		var edgesJSON=data["edges"];
 		
-		ensureUniqueIds(nodesJSON);
-		ensureUniqueIds(edgesJSON);
+		this.ensureUniqueIds(nodesJSON);
+		this.ensureUniqueIds(edgesJSON);
 		
-		postprocessEdges(edgesJSON);
-		postprocessNodes(nodesJSON);
+		this.postprocessEdges(edgesJSON);
+		this.postprocessNodes(nodesJSON);
 
-		edges.update(edgesJSON);
-		nodes.update(nodesJSON);
+		this.edges.update(edgesJSON);
+		this.nodes.update(nodesJSON);
 		
-		originalEdges=originalEdges.concat(edgesJSON);
-		originalNodes=originalNodes.concat(nodesJSON);
+		this.originalEdges=this.originalEdges.concat(edgesJSON);
+		this.originalNodes=this.originalNodes.concat(nodesJSON);
 		
-		statusLogger.setStatusText("<font color=\"green\">Successfully recieved "+nodesJSON.length+" node(s) and "+edgesJSON.length+" edge(s)!</font>");
+		this.statusLogger.setStatusText("<font color=\"green\">Successfully recieved "+nodesJSON.length+" node(s) and "+edgesJSON.length+" edge(s)!</font>");
 		document.body.style.cursor = 'auto';
 	}
 	
-	this.addNode = function(node)
+	addNode(node: IGraphJSONNode)
 	{
-		originalNodes.push(node);
-		postprocessNodes([node]);
-		if(node["mathml"]!="")
+		this.originalNodes.push(node);
+		this.postprocessNodes([node]);
+		if(node["mathml"]!="") // TODO: More unclear node types
 		{
-			nodeToSVGMath(node);
+			this.nodeToSVGMath(node);
 		}
 
 		if(node["previewhtml"]!="")
 		{
 			nodeToSVGHTML(node);
 		}
-		nodes.update(node);
+		this.nodes.update(node);
 		
-		actionLoggerIn.addToStateHistory("addNode", {"node": node});
+		this.actionLogger.addToStateHistory("addNode", {"node": node});
 	}
 	
-	this.addEdge = function(edge)
+	addEdge(edge: IGraphJSONEdge)
 	{
-		originalEdges.push(edge);
-		postprocessEdges([edge]);
-		edges.update(edge);
+		this.originalEdges.push(edge);
+		this.postprocessEdges([edge]);
+		this.edges.update(edge);
 		
-		actionLoggerIn.addToStateHistory("addEdge", {"edge": edge});
+		this.actionLogger.addToStateHistory("addEdge", {"edge": edge});
 	}
 	
-	this.deleteEdges = function(edgeIds)
+	deleteEdges(edgeIds: vis.IdType[])
 	{
-		var deletedEdges=[];
-		originalEdges = originalEdges.filter(function(item) 
+		var deletedEdges: vis.Edge[] =[];
+		this.originalEdges = this.originalEdges.filter((item) => 
 		{
 			var keepEdge=true;
 			for(var i=0;i<edgeIds.length;i++)
@@ -1747,15 +1748,16 @@ export default class TheoryGraph {
 			return keepEdge;
 		});
 
-		edges.remove(edgeIds);
-		actionLoggerIn.addToStateHistory("deleteEdges", {"edges": deletedEdges});
+		this.edges.remove(edgeIds);
+		this.actionLogger.addToStateHistory("deleteEdges", {"edges": deletedEdges});
 	}
 	
-	this.deleteNodes = function(nodeIds, edgeIds=undefined)
+	deleteNodes(nodeIds: vis.IdType[], edgeIds?: vis.IdType[]=undefined)
 	{
-		var deletedNodes=[];
-		var deletedEdges=[];
-		originalNodes = originalNodes.filter(function(item) 
+		var deletedNodes: vis.Node[] = [];
+		var deletedEdges: vis.Edge[] = [];
+
+		this.originalNodes = this.originalNodes.filter((item) =>
 		{
 			var keepNode=true;
 			for(var i=0;i<nodeIds.length;i++)
@@ -1770,11 +1772,11 @@ export default class TheoryGraph {
 			return keepNode;
 		});
 		
-		nodes.remove(nodeIds);
+		this.nodes.remove(nodeIds);
 		
-		if(typeof edgeIds!="undefined")
+		if(edgeIds!== undefined)
 		{
-			originalEdges = originalEdges.filter(function(item) 
+			this.originalEdges = this.originalEdges.filter((item) => 
 			{
 				var keepEdge=true;
 				for(var i=0;i<edgeIds.length;i++)
@@ -1788,60 +1790,60 @@ export default class TheoryGraph {
 				}
 				return keepEdge;
 			});
+			this.edges.remove(edgeIds);
 		}
-		edges.remove(edgeIds);
-		actionLoggerIn.addToStateHistory("deleteNodes", {"nodes": deletedNodes,"edges":deletedEdges});
+		this.actionLogger.addToStateHistory("deleteNodes", {"nodes": deletedNodes,"edges":deletedEdges});
 	}
 	
-	this.saveEdge = function(edge)
+	saveEdge(edge: vis.Edge)
 	{
 		var oldEdge={};
-		postprocessEdges([edge]);
-		for(var i=0;i<originalEdges.length;i++)
+		this.postprocessEdges([edge]);
+		for(var i=0;i<this.originalEdges.length;i++)
 		{
-			if(originalEdges[i].id==edge.id)
+			if(this.originalEdges[i].id==edge.id)
 			{
-				oldEdge=originalEdges[i];
-				originalEdges[i]=edge;
+				oldEdge=this.originalEdges[i];
+				this.originalEdges[i]=edge;
 				break;
 			}
 		}
 
-		edges.update(edge);
-		actionLoggerIn.addToStateHistory("editEdge", {"newEdge": edge,"oldEdge":oldEdge});
+		this.edges.update(edge);
+		this.actionLogger.addToStateHistory("editEdge", {"newEdge": edge,"oldEdge":oldEdge});
 	}
 	
-	this.saveNode = function(node)
+	saveNode(node: vis.Node)
 	{
 		var oldNode={};
-		postprocessNodes([node]);
-		for(var i=0;i<originalNodes.length;i++)
+		this.postprocessNodes([node]);
+		for(var i=0;i<this.originalNodes.length;i++)
 		{
-			if(originalNodes[i].id==node.id)
+			if(this.originalNodes[i].id==node.id)
 			{
-				oldNode=originalNodes[i];
-				originalNodes[i]=node;
+				oldNode=this.originalNodes[i];
+				this.originalNodes[i]=node;
 				break;
 			}
 		}
 		
 		if(typeof node["mathml"]!="undefined" && node["mathml"]!="")
 		{
-			nodeToSVGMath(node);
+			this.nodeToSVGMath(node);
 		}
 		if(typeof node["previewhtml"]!="undefined" &&  node["previewhtml"]!="")
 		{
-			nodeToSVGHTML(node);
+			this.nodeToSVGHTML(node);
 		}
-		nodes.update(node);
-		actionLoggerIn.addToStateHistory("editNode", {"newNode": node,"oldNode":oldNode});
+		this.nodes.update(node);
+		this.actionLogger.addToStateHistory("editNode", {"newNode": node,"oldNode":oldNode});
 	}
 	
-	this.isUniqueId = function(id)
+	isUniqueId(id: vis.IdType)
 	{
-		for(var i=0;i<originalNodes.length;i++)
+		for(var i=0;i<this.originalNodes.length;i++)
 		{
-			if(originalNodes[i].id==id)
+			if(this.originalNodes[i].id==id)
 			{
 				return false;
 			}
@@ -1849,11 +1851,11 @@ export default class TheoryGraph {
 		return true;
 	}
 	
-	this.isUniqueEdgeId = function(id)
+	isUniqueEdgeId(id: vis.IdType)
 	{
-		for(var i=0;i<originalEdges.length;i++)
+		for(var i=0;i<this.originalEdges.length;i++)
 		{
-			if(originalEdges[i].id==id)
+			if(this.originalEdges[i].id==id)
 			{
 				return false;
 			}
@@ -1861,14 +1863,14 @@ export default class TheoryGraph {
 		return true;
 	}
 	
-	this.lazyLoadNodes=function(jsonURL)
+	lazyLoadNodes(jsonURL?: string)
 	{
 		if(jsonURL==undefined || jsonURL.length<3)
 		{
 			return;
 		}
 		
-		statusLogger.setStatusText("Downloading nodes...");
+		this.statusLogger.setStatusText("Downloading nodes...");
 		document.body.style.cursor = 'wait';
 		
 		$.ajaxSetup(
@@ -1877,73 +1879,73 @@ export default class TheoryGraph {
 			{
                 if (x.status == 0) 
 				{
-					statusLogger.setStatusText('<font color="red">Downloading nodes failed (Check Your Network)</font>');
+					this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (Check Your Network)</font>');
 					document.body.style.cursor = 'auto';
                 } 
                 else if (x.status == 404) 
 				{
-					statusLogger.setStatusText('<font color="red">Downloading nodes failed (Requested URL not found)</font>');
+					this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (Requested URL not found)</font>');
 					document.body.style.cursor = 'auto';
                 } 
 				else if (x.status == 500) 
 				{
-					statusLogger.setStatusText('<font color="red">Downloading nodes failed (Internel Server Error)</font>');
+					this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (Internel Server Error)</font>');
                     document.body.style.cursor = 'auto';
                 }  
 				else 
 				{
-					statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+x.status+')</font>');
+					this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+x.status+')</font>');
 					document.body.style.cursor = 'auto';
                 }
             }
         });
 		
-		$.get(jsonURL, addNodesAndEdges);
+		$.get(jsonURL, this.addNodesAndEdges.bind(this));
 	}
 	
-	function ensureUniqueIds(arrays)
+	ensureUniqueIds(arrays: Array<{id?: vis.IdType}>)
 	{
-		var idArray=[];
+		var idArray: number[]=[];
 		for(var i=0;i<arrays.length;i++)
 		{
-			if(idArray[arrays[i]["id"]]==undefined)
+			if(idArray[arrays[i]["id"] as number]==undefined)
 			{
-				idArray[arrays[i]["id"]]=1;
+				idArray[arrays[i]["id"] as number]=1;
 			}
 			else
 			{
 				arrays[i]["id"]+="_"+i;
-				idArray[arrays[i]["id"]]=1;
+				idArray[arrays[i]["id"] as number]=1;
 			}
 		}
 	}
 	
-	this.openCluster = function(nodeId)
+	openCluster(nodeId: vis.IdType)
 	{
-		if (network.isCluster(nodeId) == true) 
+		if (this.network.isCluster(nodeId) == true) 
 		{
-			var node = network.body.nodes[nodeId].options;
-              network.openCluster(nodeId);
+			var node = this.network.body.nodes[nodeId].label; //options.label
+              this.network.openCluster(nodeId);
 			  var toUpdate=[];
-			  for (var i=0;i<clusterPositions[nodeId][0].length;i++) 
+			  for (var i=0;i<this.clusterPositions[nodeId][0].length;i++) 
 			  {
-				  var id=clusterPositions[nodeId][0][i];
-				  toUpdate.push({id: id, x:clusterPositions[nodeId][1][id].x, y:clusterPositions[nodeId][1][id].y});
+				  var id=this.clusterPositions[nodeId][0][i];
+				  toUpdate.push({id: id, x:this.clusterPositions[nodeId][1][id].x, y:this.clusterPositions[nodeId][1][id].y});
 			  }
 			  
-			var index = allClusters.indexOf(nodeId);
+			var index = this.allClusters.indexOf(nodeId as string);
 			if (index > -1) 
 			{
-				allClusters.splice(index, 1);
+				this.allClusters.splice(index, 1);
 			}
 			
-			  actionLoggerIn.addToStateHistory("uncluster", {"clusterId": nodeId, "nodes": toUpdate, "name":node.label});
-			  nodes.update(toUpdate);
-			  network.redraw();
+			this.actionLogger.addToStateHistory("uncluster", {"clusterId": nodeId, "nodes": toUpdate, "name":node/*.label*/});
+			this.nodes.update(toUpdate);
+			this.network.redraw();
         }
 	}
 	
-	function estimateExtraSVGHeight(expression)
+	estimateExtraSVGHeight(expression: string): number
 	{
 		if(expression.indexOf("frac") == -1 && expression.indexOf("under") == -1  && expression.indexOf("over") == -1)
 		{
@@ -1957,12 +1959,12 @@ export default class TheoryGraph {
 	}
 	
 
-	function nodeToSVGHTML(node)
+	nodeToSVGHTML(node: vis.Node)
 	{
-		$('#'+options.external.prefix+'string_span').html(node["previewhtml"]);
-		var width=$('#'+options.external.prefix+'string_span').width();
-		var height=$('#'+options.external.prefix+'string_span').height();
-		$('#'+options.external.prefix+'string_span').html("");
+		$('#'+this.options.external.prefix+'string_span').html(node["previewhtml"]!);
+		var width=$('#'+this.options.external.prefix+'string_span').width()!;
+		var height=$('#'+this.options.external.prefix+'string_span').height()!;
+		$('#'+this.options.external.prefix+'string_span').html("");
 		var svg;
 		
 		if(node["shape"]=="image")
@@ -1988,17 +1990,17 @@ export default class TheoryGraph {
 		node["image"]="data:image/svg+xml;charset=utf-8,"+ encodeURIComponent(svg);
 	}
 
-	function nodeToSVGMath(node)
+	nodeToSVGMath(node: vis.Node)
 	{
-		$('#'+options.external.prefix+'string_span').html(node["mathml"]);
-		var width=$('#'+options.external.prefix+'string_span').width();
-		var height=$('#'+options.external.prefix+'string_span').height();
-		$('#'+options.external.prefix+'string_span').html("");
+		$('#'+this.options.external.prefix+'string_span').html(node["mathml"]!);
+		var width=$('#'+this.options.external.prefix+'string_span').width()!;
+		var height=$('#'+this.options.external.prefix+'string_span').height()!;
+		$('#'+this.options.external.prefix+'string_span').html("");
 		var svg;
 		
 		if(node["shape"]=="image")
 		{
-			var overallheight=height+estimateExtraSVGHeight(node["mathml"]);
+			var overallheight=height+this.estimateExtraSVGHeight(node["mathml"]!);
 			svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(width+16*1)+' '+(16*1+overallheight)+'" width="'+(width+16*1)+'px" height="'+(16*1+overallheight)+'px" preserveAspectRatio="none">' +
 			//svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMinYMin">' +
 			'<foreignObject x="8" y="8" width="'+(width+15)+'" height="'+overallheight+'">' +
@@ -2008,7 +2010,7 @@ export default class TheoryGraph {
 		}
 		else
 		{
-			svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+(30*1+width)+'px" height="'+(30*1+height+estimateExtraSVGHeight(node["mathml"]))+'px" preserveAspectRatio="none">' +
+			svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+(30*1+width)+'px" height="'+(30*1+height+this.estimateExtraSVGHeight(node["mathml"]!))+'px" preserveAspectRatio="none">' +
 			'<foreignObject x="15" y="13" width="100%" height="100%">' +
 			node["mathml"] +
 			'</foreignObject>' +
@@ -2017,137 +2019,135 @@ export default class TheoryGraph {
 		node["image"]="data:image/svg+xml;charset=utf-8,"+ encodeURIComponent(svg);
 	}
 	
-	function startConstruction(fixedPositions=false)
+	startConstruction(fixedPositions=false)
 	{	
-		var hideEdgesType={};
-		for(var j=0;j<edgesNameToHide.length;j++)
+		var hideEdgesType: {[id: string]: number}={};
+		for(var j=0;j<this.edgesNameToHide.length;j++)
 		{
-			var type=edgesNameToHide[j].type;
-			if(edgesNameToHide[j].hidden==true)
+			var type=this.edgesNameToHide[j].type;
+			if(this.edgesNameToHide[j].hidden==true)
 			{
 				hideEdgesType[type]=1;
 			}
 		}
 		
-		internalOptimizer = new Optimizer(originalNodes, originalEdges, hideEdgesType, statusLogger);
-		statusLogger.setStatusText("Constructing graph...");
+		this.internalOptimizer = new Optimizer(this.originalNodes, this.originalEdges, hideEdgesType, this.statusLogger);
+		this.statusLogger.setStatusText("Constructing graph...");
 		var processedNodes=0;
 		var nodesCount=0;
 		
-		for(var i=0;i<originalNodes.length;i++)
+		for(var i=0;i<this.originalNodes.length;i++)
 		{
-			if(originalNodes[i]["image"]!="" && originalNodes[i]["image"]!=undefined)
+			if(this.originalNodes[i]["image"]!="" && this.originalNodes[i]["image"]!=undefined)
 			{
 				nodesCount++;
 			}
 		}
 
-		for(var i=0;i<originalNodes.length;i++)
+		for(var i=0;i<this.originalNodes.length;i++)
 		{
-			hiddenNodes[originalNodes[i]["id"]]=false;
-			if(originalNodes[i]["image"]!="" && originalNodes[i]["image"]!=undefined)
+			this.hiddenNodes[this.originalNodes[i]["id"]!]=false;
+			if(this.originalNodes[i]["image"]!="" && this.originalNodes[i]["image"]!=undefined)
 			{
-				function callback(node,data, status)
+				var callback = ((node: vis.Node, data: any) =>
 				{
 					node["mathml"]=data;
-					nodeToSVGMath(node);
+					this.nodeToSVGMath(node);
 					processedNodes++;
 					if(processedNodes==nodesCount)
 					{
-						startRendering();
+						this.startRendering();
 					}
-				}
+				}).bind(this, this.originalNodes[i]) as JQuery.jqXHR.DoneCallback;
 
-				var callback2=callback.bind(null,originalNodes[i]);
-
-				$.get(originalNodes[i]["image"], callback2);
+				$.get(this.originalNodes[i]["image"] as string, callback);
 			}
 			else 
 			{
-				if(originalNodes[i]["mathml"]!=undefined && originalNodes[i]["mathml"].length>10 && originalNodes[i]["mathml"]!="")
+				if(this.originalNodes[i]["mathml"]!=undefined && this.originalNodes[i]["mathml"]!.length>10 && this.originalNodes[i]["mathml"]!="")
 				{
-					nodeToSVGMath(originalNodes[i]);
+					this.nodeToSVGMath(this.originalNodes[i]);
 				}
-				if(typeof originalNodes[i]["previewhtml"]!="undefined" &&  originalNodes[i]["previewhtml"]!="")
+				if(typeof this.originalNodes[i]["previewhtml"]!="undefined" &&  this.originalNodes[i]["previewhtml"]!="")
 				{
-					nodeToSVGHTML(originalNodes[i]);
+					this.nodeToSVGHTML(this.originalNodes[i]);
 				}
 			}
 		}
 		
 		if(nodesCount==0)
 		{
-			startRendering(fixedPositions);
+			this.startRendering(fixedPositions);
 		}
 	}
 	
 	// Called when the Visualization API is loaded.
-	function startRendering(fixedPositions) 
+	startRendering(fixedPositions?: boolean) 
 	{
 		if(typeof fixedPositions == "undefined")
 		{
 			fixedPositions=false;
 		}
-		statusLogger.setStatusText("Rendering graph...");
+		this.statusLogger.setStatusText("Rendering graph...");
 		if(fixedPositions==false)
 		{
-			var hideEdgesType={};
-			for(var j=0;j<edgesNameToHide.length;j++)
+			var hideEdgesType: {[id: string]: number}={};
+			for(var j=0;j<this.edgesNameToHide.length;j++)
 			{
-				var type=edgesNameToHide[j].type;
-				if(edgesNameToHide[j].hidden==true)
+				var type=this.edgesNameToHide[j].type;
+				if(this.edgesNameToHide[j].hidden==true)
 				{
-					hideEdgesType[type]=1;
+					hideEdgesType[type!]=1;
 				}
 			}
-			if(typeof options.THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
+			if(typeof this.options.THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof (this.options.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx === 'undefined' || (this.options.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx==1)
 			{
-				var opti=new Optimizer(originalNodes,originalEdges, hideEdgesType, statusLogger);
-				if(originalNodes.length+originalEdges.length>3000)
+				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
+				if(this.originalNodes.length+this.originalEdges.length>3000)
 				{
-					opti.weaklyHierarchicalLayout(500,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
+					opti.weaklyHierarchicalLayout(500,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
-				else if(originalNodes.length+originalEdges.length>2000)
+				else if(this.originalNodes.length+this.originalEdges.length>2000)
 				{
-					opti.weaklyHierarchicalLayout(700,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
+					opti.weaklyHierarchicalLayout(700,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else
 				{
-					opti.weaklyHierarchicalLayout(1000,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
+					opti.weaklyHierarchicalLayout(1000,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 			}
-			else if(options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==2)
+			else if((this.options.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx==2)
 			{
-				var opti=new Optimizer(originalNodes,originalEdges, hideEdgesType, statusLogger);
+				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
 				opti.GenerateRandomSolution();
-				if(originalNodes.length+originalEdges.length>3000)
+				if(this.originalNodes.length+this.originalEdges.length>3000)
 				{
-					opti.SolveUsingForces(200,document.getElementById(options.external.prefix+'nodeSpacingBox').value,200,{"meta":false},originalEdges);
+					opti.SolveUsingForces(200,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
 				}
-				else if(originalNodes.length+originalEdges.length>2000)
+				else if(this.originalNodes.length+this.originalEdges.length>2000)
 				{
-					opti.SolveUsingForces(400,document.getElementById(options.external.prefix+'nodeSpacingBox').value,200,{"meta":false},originalEdges);
+					opti.SolveUsingForces(400,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
 				}
 				else
 				{
-					opti.SolveUsingForces(600,document.getElementById(options.external.prefix+'nodeSpacingBox').value,200,{"meta":false},originalEdges);
+					opti.SolveUsingForces(600,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
 				}
 			}
-			else if(options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==4)
+			else if(this.options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==4)
 			{
-				var opti=new Optimizer(originalNodes,originalEdges, hideEdgesType, statusLogger);
+				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
 				opti.GenerateRandomSolution();
-				if(originalNodes.length+originalEdges.length>3000)
+				if(this.originalNodes.length+this.originalEdges.length>3000)
 				{
-					opti.waterDrivenLayout(200,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
+					opti.waterDrivenLayout(200,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
-				else if(originalNodes.length+originalEdges.length>2000)
+				else if(this.originalNodes.length+this.originalEdges.length>2000)
 				{
-					opti.waterDrivenLayout(400,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
+					opti.waterDrivenLayout(400,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else
 				{
-					opti.waterDrivenLayout(600,document.getElementById(options.external.prefix+'nodeSpacingBox').value);
+					opti.waterDrivenLayout(600,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 			}
 		}
@@ -2157,106 +2157,107 @@ export default class TheoryGraph {
 			originalEdges[i].hidden=false;
 		}
 		
-		for(var j=0;j<edgesNameToHide.length;j++)
+		for(var j=0;j<this.edgesNameToHide.length;j++)
 		{
-			for(var i=0;i<originalEdges.length;i++)
+			for(var i=0;i<this.originalEdges.length;i++)
 			{
-				var type=edgesNameToHide[j].type;
-				if(type==originalEdges[i]["style"] || ("graph"+type)==originalEdges[i]["style"] )
+				var type=this.edgesNameToHide[j].type;
+				if(type==this.originalEdges[i]["style"] || ("graph"+type)==this.originalEdges[i]["style"] )
 				{
-					originalEdges[i].hidden=edgesNameToHide[j].hidden;
+					this.originalEdges[i].hidden=this.edgesNameToHide[j].hidden;
 				}
 			}
 		}
 		
-		nodes = new vis.DataSet(originalNodes);
-		edges = new vis.DataSet(originalEdges);
+		this.nodes = new DataSet(this.originalNodes);
+		this.edges = new DataSet(this.originalEdges);
 		
 		// create a network
-		var container = document.getElementById(containerName);
+		var container = document.getElementById(this.containerName)!;
 		var data = 
 		{
-			nodes: nodes,
-			edges: edges
+			nodes: this.nodes,
+			edges: this.edges
 		};
 		
-		network = new vis.Network(container, data, options.THEORY_GRAPH_OPTIONS);
+		this.network = new Network(container, data, this.options.THEORY_GRAPH_OPTIONS);
 		//network.startSimulation(10); 
 		
-		if(options.THEORY_GRAPH_OPTIONS.physics.enabled==false)
+		if(this.options.THEORY_GRAPH_OPTIONS.physics.enabled==false)
 		{
 			document.body.style.cursor = 'auto';
-			statusLogger.setStatusText('<font color="green">Received '+originalNodes.length+' nodes</font>');
+			this.statusLogger.setStatusText('<font color="green">Received '+this.originalNodes.length+' nodes</font>');
 		}
 		
-		network.on('afterDrawing', function() 
+		this.network.on('afterDrawing', () =>
 		{	
-			if(that.onConstructionDone!=undefined)
+			if(this.onConstructionDone!=undefined)
 			{
-				var tmp=that.onConstructionDone;
-				that.onConstructionDone=undefined;;
+				var tmp=this.onConstructionDone;
+				this.onConstructionDone=undefined;
 				tmp();
 				
 			}
 		});
 		
 		// If the document is clicked somewhere
-		network.on("click", function (e) 
+		this.network.on("click", (e) =>
 		{
-			$("#"+options.external.prefix+"tooltip-container").hide(10);
+			$("#"+this.options.external.prefix+"tooltip-container").hide(10);
 			// If the clicked element is not the menu
-			if (!$(e.target).parents(".custom-menu").length > 0) 
+			if (!($(e.target).parents(".custom-menu").length > 0)) 
 			{
 				// Hide it
 				$(".custom-menu").hide(10);
 			}
-			if(that.manipulateSelectedRegion(e.pointer.canvas)==false)
+			if(this.manipulateSelectedRegion(e.pointer.canvas)==false)
 			{
-				that.selectRegion(e.pointer.canvas);
+				this.selectRegion(e.pointer.canvas);
 			}
 			
-			if(addNodeToRegion==true && allNodeRegions[addNodeRegionId].selected==false)
+			if(this.addNodeToRegion==true && this.allNodeRegions[this.addNodeRegionId as number].selected==false)
 			{
-				addNodeToRegion=false;
+				this.addNodeToRegion=false;
 				document.body.style.cursor = 'auto';
 			}
 		});
 		
 		// If the document is clicked somewhere
-		network.on("selectNode", function (e) 
+		this.network.on("selectNode", (e) => 
 		{
 			//console.log(e);
 			
-			if(that.manualFocus==true)
+			if(this.manualFocus==true)
 			{
-				that.focusOnNodes();
+				this.focusOnNodes();
 				return;
 			}
 			
-			if(addNodeToRegion==true && e.nodes.length>0 && allNodeRegions[addNodeRegionId].selected==true)
+			if(this.addNodeToRegion==true && e.nodes.length>0 && this.allNodeRegions[this.addNodeRegionId as number].selected==true)
 			{
 				for(var i=0;i<e.nodes.length;i++)
 				{
-					allNodeRegions[addNodeRegionId].nodeIds.push(e.nodes[i]);
+					this.allNodeRegions[this.addNodeRegionId as number].nodeIds.push(e.nodes[i]);
 				}
-				network.redraw();
+				this.network.redraw();
 			}
 		});
 
 		
 		// If the menu element is clicked
-		$(".custom-menu li").click(function()
+		// TODO: Global
+		$(".custom-menu li").click(() =>
 		{
-			var nodesFound=network.getSelectedNodes();
-			var selectedNode=network.body.nodes[nodesFound[0]];
+			var nodesFound=this.network.getSelectedNodes();
+			var selectedNode=this.network.body.nodes[nodesFound[0]];
 			
 			if (selectedNode==undefined)
 			{
-				for(var i=0;i<originalNodes.length;i++)
+				for(var i=0;i<this.originalNodes.length;i++)
 				{
-					if(originalNodes[i]["id"]==nodesFound[0])
+					if(this.originalNodes[i]["id"]==nodesFound[0])
 					{
-						selectedNode=originalNodes[i];
+						selectedNode=this.originalNodes[i];
 						break;
 					}
 				}
@@ -2268,13 +2269,13 @@ export default class TheoryGraph {
 			
 			
 			
-			var edgesFound=network.getSelectedEdges();
+			var edgesFound=this.network.getSelectedEdges();
 			var selectedEdge=undefined;
-			for(var i=0;i<originalEdges.length;i++)
+			for(var i=0;i<this.originalEdges.length;i++)
 			{
-				if(originalEdges[i]["id"]==edgesFound[0])
+				if(this.originalEdges[i]["id"]==edgesFound[0])
 				{
-					selectedEdge=originalEdges[i];
+					selectedEdge=this.originalEdges[i];
 					break;
 				}
 			}
@@ -2297,12 +2298,12 @@ export default class TheoryGraph {
 				switch($(this).attr("data-action")) 
 				{
 					// A case for each action
-					case "openWindow": window.open(options.serverUrl+selected["url"]); break;
-					case "showURL": alert(options.serverUrl+selected["url"]); break;
-					case "openCluster": that.openCluster(selected["id"]); break;
+					case "openWindow": window.open(this.options.serverUrl+selected["url"]); break;
+					case "showURL": alert(this.options.serverUrl+selected["url"]); break;
+					case "openCluster": this.openCluster(selected["id"]!); break;
 					case "inferType": alert("Not implemented yet!"); break;
 					case "showDecl": alert("Not implemented yet!"); break;
-					case "childNodes": that.lazyLoadNodes(selectedNode.childsURL) ; break;
+					case "childNodes": this.lazyLoadNodes(selectedNode.childsURL) ; break;
 				}
 			}
 			
@@ -2310,39 +2311,39 @@ export default class TheoryGraph {
 			$(".custom-menu").hide(10);
 		});
 		
-		network.on("oncontext", function (params) 
+		this.network.on("oncontext", (params) =>
 		{
-			$("#"+options.external.prefix+"tooltip-container").hide(10);
+			$("#"+this.options.external.prefix+"tooltip-container").hide(10);
 			$(".custom-menu").hide(10);
 			
-			var node=network.getNodeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
+			var node=this.network.getNodeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
 			
 			if(node!=undefined)
 			{
-				network.selectNodes([node]);
+				this.network.selectNodes([node]);
 				// Show contextmenu
 				$(".custom-menu").finish().show(10).
 				
 				// In the right position (the mouse)
 				css({
 					top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-					left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(options.external.prefix+"mainbox").offsetLeft + "px",
+					left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.options.external.prefix+"mainbox")!.offsetLeft + "px",
 				});
 				return;
 			}
 			
-			var edge=network.getEdgeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
+			var edge=this.network.getEdgeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
 			
 			if(typeof edge != undefined && edge!=undefined)
 			{
-				network.selectEdges([edge]);
+				this.network.selectEdges([edge]);
 				
 				var selectedEdge=undefined;
-				for(var i=0;i<originalEdges.length;i++)
+				for(var i=0;i<this.originalEdges.length;i++)
 				{
-					if(originalEdges[i]["id"]==edge)
+					if(this.originalEdges[i]["id"]==edge)
 					{
-						selectedEdge=originalEdges[i];
+						selectedEdge=this.originalEdges[i];
 						break;
 					}
 				}
@@ -2350,21 +2351,21 @@ export default class TheoryGraph {
 				if (selectedEdge!=undefined && typeof selectedEdge.clickText != "undefined")
 				{
 					// Show contextmenu
-					$("#"+options.external.prefix+"tooltip-container").finish().show(10).
+					$("#"+this.options.external.prefix+"tooltip-container").finish().show(10).
 					html(selectedEdge.clickText ).
 					// In the right position (the mouse)
 					css({
 						top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-						left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(options.external.prefix+"mainbox").offsetLeft + "px"
+						left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.options.external.prefix+"mainbox")!.offsetLeft + "px"
 					});
 				}
 			}
 			
 		});
 		
-		network.on("stabilizationIterationsDone", function (params) 
+		this.network.on("stabilizationIterationsDone", (params) =>
 		{
-			network.stopSimulation();
+			this.network.stopSimulation();
 			var options = 
 			{
 				physics: 
@@ -2372,9 +2373,9 @@ export default class TheoryGraph {
 					enabled: false
 				}
 			};
-			network.setOptions(options);
+			this.network.setOptions(options);
 			document.body.style.cursor = 'auto';
-			statusLogger.setStatusText('<font color="green">Received '+originalNodes.length+' nodes</font>');
+			this.statusLogger.setStatusText('<font color="green">Received '+this.originalNodes.length+' nodes</font>');
 		});
 		
 		
@@ -2396,22 +2397,22 @@ export default class TheoryGraph {
 			} 
 		});*/
 		
-		network.on("beforeDrawing", function (ctx) 
+		this.network.on("beforeDrawing", (ctx) => 
 		{
-			that.drawAllColoredRegions(ctx);
+			this.drawAllColoredRegions(ctx);
 		});
 		
-		network.on("afterDrawing", function (ctx) 
+		this.network.on("afterDrawing", (ctx) =>
 		{
-			that.drawAllColoredRegionsOnCanvas(ctx);
+			this.drawAllColoredRegionsOnCanvas(ctx);
 			
 		});
 		
-		network.once('initRedraw', function() 
+		this.network.once('initRedraw', () => 
 		{
-			if (lastClusterZoomLevel === 0) 
+			if (this.lastClusterZoomLevel === 0) 
 			{
-				lastClusterZoomLevel = network.getScale();
+				this.lastClusterZoomLevel = this.network.getScale();
 			}
 			document.body.style.cursor = 'auto';
 		});

@@ -1,3 +1,5 @@
+import {Options as VOptions, NodeOptions} from 'vis';
+
 // @ts-check
 import {getParameterByName} from './utils.js';
 
@@ -148,7 +150,7 @@ export class Options {
 	/**
 	 * Options for the TheoryGraph API
 	 */
-	readonly THEORY_GRAPH_OPTIONS = {
+	readonly THEORY_GRAPH_OPTIONS: VOptions = {
 		physics: {
 			enabled: false,
 			solver: "barnesHut",
@@ -169,7 +171,7 @@ export class Options {
 				useImageSize: true, // only for image and circularImage shapes
 				useBorderWithImage: true // only for image shape
 			}
-		},
+		} as NodeOptions,
 		edges: {
 			smooth: {
 				enabled: true,
