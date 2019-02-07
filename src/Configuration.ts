@@ -5,33 +5,32 @@ import { getParameterByName } from './utils.js';
 
 /**
  * Represents Options for TGView
- * @param {Partial<import('./types/options').ITGViewOptions>} external
  * @constructor
  */
-export class Options {
-	constructor(external: Partial<ITGViewOptions>) {
-		this.external = {
-			serverBaseURL: external.serverBaseURL || "/",
-			serverUrl: external.serverUrl,
+export class Configuration {
+	constructor(preferences: Partial<ITGViewOptions>) {
+		this.preferences = {
+			serverBaseURL: preferences.serverBaseURL || "/",
+			serverUrl: preferences.serverUrl,
 
-			isMathhub: external.isMathhub === undefined ? true : external.isMathhub,
-			viewOnlyMode: external.viewOnlyMode || false,
+			isMathhub: preferences.isMathhub === undefined ? true : preferences.isMathhub,
+			viewOnlyMode: preferences.viewOnlyMode || false,
 
-			source: external.source || getParameterByName(Options.graphDataURLSourceParameterNameTGView) || undefined,
-			type: external.type || getParameterByName(Options.graphDataURLTypeParameterNameTGView) || undefined,
-			graphdata: external.graphdata || getParameterByName(Options.graphDataURLDataParameterNameTGView) || undefined,
+			source: preferences.source || getParameterByName(Configuration.graphDataURLSourceParameterNameTGView) || undefined,
+			type: preferences.type || getParameterByName(Configuration.graphDataURLTypeParameterNameTGView) || undefined,
+			graphdata: preferences.graphdata || getParameterByName(Configuration.graphDataURLDataParameterNameTGView) || undefined,
 
-			highlight: external.highlight || getParameterByName(Options.graphDataURLHighlightParameterNameTGView) || undefined,
+			highlight: preferences.highlight || getParameterByName(Configuration.graphDataURLHighlightParameterNameTGView) || undefined,
 
-			mainContainer: external.mainContainer || "tgViewMainEle",
-			prefix: external.prefix || "tgview-",
+			mainContainer: preferences.mainContainer || "tgViewMainEle",
+			prefix: preferences.prefix || "tgview-",
 		}
 
 		/**
 		 * The base URL of all requests to the server
 		 * @type {string}
 		 */
-		this.serverBaseURL = this.external.serverBaseURL || "/";
+		this.serverBaseURL = this.preferences.serverBaseURL || "/";
 
 		/**
 		 * The url to items on the server
@@ -41,12 +40,12 @@ export class Options {
 		this.serverUrl = this.serverBaseURL || (window.location.protocol == "file:" ? "/" : "/mh/mmt/");
 
 		// if we have an external serverURL, use it
-		if (this.external.serverUrl !== undefined) {
-			this.serverUrl = this.external.serverUrl;
+		if (this.preferences.serverUrl !== undefined) {
+			this.serverUrl = this.preferences.serverUrl;
 		}
 
 		// if we are not on MathHub, the server url is '/'
-		if (!this.external.isMathhub) {
+		if (!this.preferences.isMathhub) {
 			this.serverUrl = '/';
 		}
 
@@ -62,7 +61,7 @@ export class Options {
 	}
 
 	/** Options that were set externally */
-	readonly external: ITGViewOptions
+	readonly preferences: ITGViewOptions
 
 	// TODO: Can one of these two be made private?
 	// or removed entirely?
@@ -100,7 +99,7 @@ export class Options {
 	/**
 	 * Options for the legend panel
 	 */
-	readonly LEGEND_PANEL_OPTIONS =
+	readonly LEGEND_PANEL_OPTIONS: vis.Options =
 		{
 			physics:
 			{
@@ -135,7 +134,7 @@ export class Options {
 					useImageSize: true,  // only for image and circularImage shapes
 					useBorderWithImage: true  // only for image shape
 				}
-			},
+			} as any,
 			edges:
 			{
 				smooth:
@@ -389,7 +388,7 @@ interface IStyleCommon {
 /**
  * A Style for an arrow
  */
-interface IArrowStyle extends IStyleCommon {
+export interface IArrowStyle extends IStyleCommon {
 	circle: boolean;
 	directed: boolean;
 	smoothEdge: boolean;
@@ -399,7 +398,7 @@ interface IArrowStyle extends IStyleCommon {
 /**
  * A Style for a node
  */
-interface INodeStyle extends IStyleCommon {
+export interface INodeStyle extends IStyleCommon {
 	shape: "square" | "circle" | "ellipse";
 }
 

@@ -1,57 +1,53 @@
 import $ from 'jquery';
 
-import { Options } from "../options";
+import { Configuration } from "../Configuration";
+import DOMConstruct from "./DOMConstruct";
 
 /**
  * Handles resizing of the window and main container
  * @class
  */
 export default class Resizer {
-	constructor(private optionsIn: Options) {
-		const mainElement = document.getElementById(optionsIn.external.mainContainer)!;	
-		$(mainElement).ready(() => {
-			this.checkResize();
-			window.setInterval(this.resizeMenuDiv.bind(this), 250);
-			$(window).resize(this.checkResize.bind(this));
-
+	constructor(private dom: DOMConstruct) {
+		this.dom.mainElement$.ready(() => {
+			this.doResize();
+			this.interval = window.setInterval(this.resizeMenuDiv.bind(this), 250);
+			$(window).resize(this.doResize.bind(this));
 		});
 	}
 
-	private widthTreeBefore=350;
-	private divW = 0;
+	private interval: number | undefined;
 
-	private resizeMenuDiv()
-	{	
-		var tree = document.getElementById(this.optionsIn.external.prefix+"theory_tree_div")!;
-
-		var currWidth = tree.offsetWidth;
-
-		if(this.widthTreeBefore != currWidth)
-		{
-			this.widthTreeBefore = currWidth;
-
-			var sideNav = document.getElementById(this.optionsIn.external.prefix+'mySidenav')!;
-
-			sideNav.style.width=(this.widthTreeBefore+16)+"px";
+	destroy() {
+		if (this.interval) {
+			window.clearInterval(this.interval);
+			this.interval = undefined;
 		}
 	}
 
-	private checkResize()
-	{
-		var theoryTree = document.getElementById(this.optionsIn.external.prefix+"theory_tree_div")!;
+	private widthTreeBefore = 350;
 
-		var w = $(theoryTree).width() || 0;
-		this.divW = w;
+	private resizeMenuDiv() {
+		const currWidth = this.dom.getElementById("theory_tree_div").offsetWidth;
 
-		var htmlCanvas = document.getElementById(this.optionsIn.external.prefix+'toolCanvas')!;
-		htmlCanvas.style.width=((window.innerWidth-36)|0)+"px";
-		htmlCanvas.style.height=((window.innerHeight-74)|0)+"px";
-		
-		htmlCanvas = document.getElementById(this.optionsIn.external.prefix+'mainbox')!;
-		htmlCanvas.style.width=((window.innerWidth-36)|0)+"px";
-		
-		htmlCanvas = document.getElementById(this.optionsIn.external.prefix+'wholeNetwork')!;
-		htmlCanvas.style.width=((window.innerWidth-36)|0)+"px";
-		htmlCanvas.style.height=((window.innerHeight-74)|0)+"px";
+		if (this.widthTreeBefore != currWidth) {
+			this.widthTreeBefore = currWidth;
+
+			var sideNav = this.dom.getElementById('mySidenav')!;
+			sideNav.style.width = (this.widthTreeBefore + 16) + "px";
+		}
+	}
+
+	private doResize() {
+		const htmlCanvas = this.dom.getElementById('toolCanvas');
+		htmlCanvas.style.width = ((window.innerWidth - 36) | 0) + "px";
+		htmlCanvas.style.height = ((window.innerHeight - 74) | 0) + "px";
+
+		const mainbox = this.dom.getElementById('mainbox')!;
+		mainbox.style.width = ((window.innerWidth - 36) | 0) + "px";
+
+		const wholeNetwork = this.dom.getElementById('wholeNetwork')!;
+		wholeNetwork.style.width = ((window.innerWidth - 36) | 0) + "px";
+		wholeNetwork.style.height = ((window.innerHeight - 74) | 0) + "px";
 	}
 }

@@ -1,41 +1,12 @@
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
 import {rainbow, getParameterByName, getStartToEnd} from '../utils';
 import StatusLogger from "../dom/StatusLogger";
-import ActionHistory from "./ActionHistory";
-import { Options } from "../options";
+import ActionHistory from "../core/ActionHistory";
+import { Configuration } from "../Configuration";
 import { IGraphJSONEdge, IGraphJSONNode, IGraphJSONGraph } from "../graph";
 import Optimizer from "../layout/Optimizer";
 import { Position, IdType, ClusterOptions, Network, DataSet } from "vis";
 import Clusterer from "../layout/Clusterer";
-
-
-declare module 'vis' {
-	interface NetworkNodes {
-		[index: number]: Node // options: hidden?
-		[index: string]: Node // options: hidden?
-	}
-	interface Network {
-		getConnectedNodes(nodeOrEdgeId: IdType, direction: string): IdType[];
-		body: { nodes: NetworkNodes };
-		canvas: {frame: {canvas: HTMLCanvasElement}};
-		clustering: Network;
-	}
-	/*
-	interface Node {
-		style?: string;
-		label?: string;
-		mathml?: string;
-		previewhtml?: string;
-		url?: string;
-		membership?: number;
-	}
-	interface Edge {
-		style?: string;
-		type?: string;
-		weight?: string;
-		url?: string;
-	}*/
-}
 
 interface INodeRegion extends vis.BoundingBox {
 	nodeIds: vis.IdType[];
@@ -60,8 +31,6 @@ interface IPositionWithId extends Partial<vis.Position> {
 	id: IdType;
 }
 
-type CleanedNode = vis.Node & IGraphJSONNode;
-type CleanedEdge = vis.Edge & IGraphJSONEdge;
 
 export default class TheoryGraph {
 	constructor(private readonly containerName: string, private readonly statusLogger: StatusLogger, private readonly actionLogger: ActionHistory){
@@ -71,9 +40,9 @@ export default class TheoryGraph {
 	}
 
 	/** the options of this theory graph */
-	private options: Options = undefined!;
+	private options: Configuration = undefined!;
 	/** Set the options of this theory graph */
-	setOptions(optionsIn: Options) {
+	setOptions(optionsIn: Configuration) {
 		if (this.options) {
 			throw new Error('Options should not be modified more than once');
 		}
@@ -263,7 +232,7 @@ export default class TheoryGraph {
 				}
 			}
 			this.moveRegionHold=false;
-			document.getElementById(this.options.external.mainContainer)!.style.cursor = 'auto';
+			document.getElementById(this.options.preferences.mainContainer)!.style.cursor = 'auto';
 			this.oldRegionPosition=coords;
 			selectRegion=true;
 			redraw=true;
@@ -286,7 +255,7 @@ export default class TheoryGraph {
 						this.moveRegionHold=true;
 						this.moveRegionId=i;
 						this.oldRegionPosition=coords;
-						document.getElementById(this.options.external.mainContainer)!.style.cursor = 'pointer';
+						document.getElementById(this.options.preferences.mainContainer)!.style.cursor = 'pointer';
 						selectRegion=true;
 						break;
 					}
@@ -294,7 +263,7 @@ export default class TheoryGraph {
 					{
 						this.addNodeRegionId=i;
 						this.addNodeToRegion=true;
-						document.getElementById(this.options.external.mainContainer)!.style.cursor = 'copy';
+						document.getElementById(this.options.preferences.mainContainer)!.style.cursor = 'copy';
 						selectRegion=true;
 						break;
 					}
@@ -1978,10 +1947,10 @@ export default class TheoryGraph {
 
 	nodeToSVGHTML(node: vis.Node)
 	{
-		$('#'+this.options.external.prefix+'string_span').html(node["previewhtml"]!);
-		var width=$('#'+this.options.external.prefix+'string_span').width()!;
-		var height=$('#'+this.options.external.prefix+'string_span').height()!;
-		$('#'+this.options.external.prefix+'string_span').html("");
+		$('#'+this.options.preferences.prefix+'string_span').html(node["previewhtml"]!);
+		var width=$('#'+this.options.preferences.prefix+'string_span').width()!;
+		var height=$('#'+this.options.preferences.prefix+'string_span').height()!;
+		$('#'+this.options.preferences.prefix+'string_span').html("");
 		var svg;
 		
 		if(node["shape"]=="image")
@@ -2009,10 +1978,10 @@ export default class TheoryGraph {
 
 	nodeToSVGMath(node: vis.Node)
 	{
-		$('#'+this.options.external.prefix+'string_span').html(node["mathml"]!);
-		var width=$('#'+this.options.external.prefix+'string_span').width()!;
-		var height=$('#'+this.options.external.prefix+'string_span').height()!;
-		$('#'+this.options.external.prefix+'string_span').html("");
+		$('#'+this.options.preferences.prefix+'string_span').html(node["mathml"]!);
+		var width=$('#'+this.options.preferences.prefix+'string_span').width()!;
+		var height=$('#'+this.options.preferences.prefix+'string_span').height()!;
+		$('#'+this.options.preferences.prefix+'string_span').html("");
 		var svg;
 		
 		if(node["shape"]=="image")
@@ -2122,15 +2091,15 @@ export default class TheoryGraph {
 				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
 				if(this.originalNodes.length+this.originalEdges.length>3000)
 				{
-					opti.weaklyHierarchicalLayout(500,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.weaklyHierarchicalLayout(500,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else if(this.originalNodes.length+this.originalEdges.length>2000)
 				{
-					opti.weaklyHierarchicalLayout(700,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.weaklyHierarchicalLayout(700,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else
 				{
-					opti.weaklyHierarchicalLayout(1000,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.weaklyHierarchicalLayout(1000,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 			}
 			else if((this.options.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx==2)
@@ -2139,15 +2108,15 @@ export default class TheoryGraph {
 				opti.GenerateRandomSolution();
 				if(this.originalNodes.length+this.originalEdges.length>3000)
 				{
-					opti.SolveUsingForces(200,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
+					opti.SolveUsingForces(200,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
 				}
 				else if(this.originalNodes.length+this.originalEdges.length>2000)
 				{
-					opti.SolveUsingForces(400,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
+					opti.SolveUsingForces(400,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
 				}
 				else
 				{
-					opti.SolveUsingForces(600,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
+					opti.SolveUsingForces(600,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
 				}
 			}
 			else if(this.options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==4)
@@ -2156,15 +2125,15 @@ export default class TheoryGraph {
 				opti.GenerateRandomSolution();
 				if(this.originalNodes.length+this.originalEdges.length>3000)
 				{
-					opti.waterDrivenLayout(200,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.waterDrivenLayout(200,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else if(this.originalNodes.length+this.originalEdges.length>2000)
 				{
-					opti.waterDrivenLayout(400,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.waterDrivenLayout(400,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else
 				{
-					opti.waterDrivenLayout(600,(document.getElementById(this.options.external.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.waterDrivenLayout(600,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 			}
 		}
@@ -2220,7 +2189,7 @@ export default class TheoryGraph {
 		// If the document is clicked somewhere
 		this.network.on("click", (e) =>
 		{
-			$("#"+this.options.external.prefix+"tooltip-container").hide(10);
+			$("#"+this.options.preferences.prefix+"tooltip-container").hide(10);
 			// If the clicked element is not the menu
 			if (!($(e.target).parents(".custom-menu").length > 0)) 
 			{
@@ -2330,7 +2299,7 @@ export default class TheoryGraph {
 		
 		this.network.on("oncontext", (params) =>
 		{
-			$("#"+this.options.external.prefix+"tooltip-container").hide(10);
+			$("#"+this.options.preferences.prefix+"tooltip-container").hide(10);
 			$(".custom-menu").hide(10);
 			
 			var node=this.network.getNodeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
@@ -2344,7 +2313,7 @@ export default class TheoryGraph {
 				// In the right position (the mouse)
 				css({
 					top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-					left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.options.external.prefix+"mainbox")!.offsetLeft + "px",
+					left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.options.preferences.prefix+"mainbox")!.offsetLeft + "px",
 				});
 				return;
 			}
@@ -2368,12 +2337,12 @@ export default class TheoryGraph {
 				if (selectedEdge!=undefined && typeof selectedEdge.clickText != "undefined")
 				{
 					// Show contextmenu
-					$("#"+this.options.external.prefix+"tooltip-container").finish().show(10).
+					$("#"+this.options.preferences.prefix+"tooltip-container").finish().show(10).
 					html(selectedEdge.clickText ).
 					// In the right position (the mouse)
 					css({
 						top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-						left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.options.external.prefix+"mainbox")!.offsetLeft + "px"
+						left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.options.preferences.prefix+"mainbox")!.offsetLeft + "px"
 					});
 				}
 			}

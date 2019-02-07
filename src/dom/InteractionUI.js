@@ -1,10 +1,10 @@
 import jQuery from 'jquery';
 import StatusLogger from "./StatusLogger";
-import { Options } from "../options";
-import TheoryGraph from "../core/TheoryGraph";
+import { Configuration } from "../Configuration";
+import TheoryGraph from "../graph/TheoryGraph";
 
 export default class InteractionUI {
-	constructor(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn: Options, actionLoggerIn: StatusLogger, wrapperIn) {
+	constructor(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn: Configuration, actionLoggerIn: StatusLogger, wrapperIn) {
 		this.actionLogger = actionLoggerIn;
 		this.options = optionsIn;
 		this.theoryGraph = theoryGraphIn;
@@ -13,7 +13,7 @@ export default class InteractionUI {
 	}
 
 	private readonly actionLogger: StatusLogger;
-	private readonly options: Options;
+	private readonly options: Configuration;
 	private readonly theoryGraph: TheoryGraph;
 	private readonly tgDomListenerIn: DOMLi
 	var tgDomListener=tgDomListenerIn;

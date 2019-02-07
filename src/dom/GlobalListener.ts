@@ -1,11 +1,11 @@
 import {default as $} from 'jquery';
 
-import TheoryGraph, { IRectangle } from "../core/TheoryGraph";
-import { Options } from "../options";
+import TheoryGraph, { IRectangle } from "../graph/TheoryGraph";
+import { Configuration } from "../Configuration";
 
 export default class TGViewDOMListener {
 
-	constructor(theoryGraphIn: TheoryGraph, optionsIn: Options) {
+	constructor(theoryGraphIn: TheoryGraph, optionsIn: Configuration) {
 		this.options = optionsIn;
 		this.theoryGraph = theoryGraphIn;
 
@@ -14,27 +14,27 @@ export default class TGViewDOMListener {
 			//recievedDataJSON = (e as any).data;
 		});
 
-		$("#"+this.options.external.mainContainer).bind("contextmenu", function(event) 
+		$("#"+this.options.preferences.mainContainer).bind("contextmenu", function(event) 
 		{
 			// TODO: Allow the real context menu with the help of cmd / ctrl or something which is insanely useful for debugging
 			// Avoid the real menu
 			event.preventDefault();
 		});
 
-		$("#"+this.options.external.mainContainer).ready(() => {
+		$("#"+this.options.preferences.mainContainer).ready(() => {
 			//$('button').button();
 			// Accordion
 			$(".accordion").accordion({ header: "h3" });
 			// Tabs
-			$('#'+this.options.external.prefix+'tabs').tabs();
+			$('#'+this.options.preferences.prefix+'tabs').tabs();
 			// Button Set
-			$("#"+this.options.external.prefix+"radio1").buttonset();
-			$( "#"+this.options.external.prefix+"methodCluster" ).selectmenu();
+			$("#"+this.options.preferences.prefix+"radio1").buttonset();
+			$( "#"+this.options.preferences.prefix+"methodCluster" ).selectmenu();
 			
-			this.canvasTools=document.getElementById(this.options.external.prefix+'toolCanvas')! as HTMLCanvasElement;
+			this.canvasTools=document.getElementById(this.options.preferences.prefix+'toolCanvas')! as HTMLCanvasElement;
 			this.ctxTools=this.canvasTools.getContext('2d')!;
 			this.rectTools = {};
-			this.containerTools = $("#"+this.options.external.prefix+"toolCanvas");
+			this.containerTools = $("#"+this.options.preferences.prefix+"toolCanvas");
 
 			var canvasOffset=this.containerTools.offset()!;
 			var offsetX=canvasOffset.left;
@@ -86,7 +86,7 @@ export default class TGViewDOMListener {
 		});
 	}
 
-	private readonly options: Options;
+	private readonly options: Configuration;
 	private readonly theoryGraph: TheoryGraph;
 	
 	private canvasTools: HTMLCanvasElement | undefined;
@@ -114,15 +114,15 @@ export default class TGViewDOMListener {
 	{
 		if(this.selectionMode==false)
 		{
-			$("#"+this.options.external.prefix+"toolCanvas").css("display","block");
+			$("#"+this.options.preferences.prefix+"toolCanvas").css("display","block");
 			this.selectionMode=true;
-			document.getElementById(this.options.external.prefix+'toolCanvas')!.style.cursor = "crosshair";
+			document.getElementById(this.options.preferences.prefix+'toolCanvas')!.style.cursor = "crosshair";
 		}
 		else
 		{
-			$("#"+this.options.external.prefix+"toolCanvas").css("display","none");
+			$("#"+this.options.preferences.prefix+"toolCanvas").css("display","none");
 			this.selectionMode=false;
-			document.getElementById(this.options.external.prefix+'toolCanvas')!.style.cursor = "auto";
+			document.getElementById(this.options.preferences.prefix+'toolCanvas')!.style.cursor = "auto";
 		}
 	}
 }

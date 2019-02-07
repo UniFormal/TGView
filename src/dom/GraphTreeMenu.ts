@@ -5,19 +5,19 @@ import 'jstree';
 // TODO: Import properly
 declare class TGViewContainerClass {}
 
-import { Options } from "../options";
+import { Configuration } from "../Configuration";
 import { ITGViewMenuEntry } from "../graph";
 
 export default class GraphTreeMenu {
 
-	constructor(wrapperIn: TGViewContainerClass, optionsIn: Options) {
+	constructor(wrapperIn: TGViewContainerClass, optionsIn: Configuration) {
 		this.wrapper = wrapperIn;
 		this.options = optionsIn;
 
 		// TODO: This is a global event handler
-		document.getElementById(this.options.external.mainContainer)!.onmousemove = this.handleMouseMove.bind(this);
+		document.getElementById(this.options.preferences.mainContainer)!.onmousemove = this.handleMouseMove.bind(this);
 
-		$('#'+this.options.external.prefix+'theory_tree').jstree(
+		$('#'+this.options.preferences.prefix+'theory_tree').jstree(
 			{
 				'core' : 
 				{
@@ -43,7 +43,7 @@ export default class GraphTreeMenu {
 
 			$.get(jsonURL, this.addTreeNodes.bind(this));
 		
-			$("#"+this.options.external.prefix+"theory_tree").on("select_node.jstree",
+			$("#"+this.options.preferences.prefix+"theory_tree").on("select_node.jstree",
 				(evt, data) =>
 				{
 					this.wrapper.lastGraphDataUsed=data.node.original.graphdata; // TODO: Fix me
@@ -61,7 +61,7 @@ export default class GraphTreeMenu {
 				}
 			);
 				
-			$("#"+this.options.external.prefix+"theory_tree").on("open_node.jstree",
+			$("#"+this.options.preferences.prefix+"theory_tree").on("open_node.jstree",
 				(evt, data) =>
 				{
 					$(".custom-menu-side").hide(10);
@@ -81,7 +81,7 @@ export default class GraphTreeMenu {
 	}
 
 	private wrapper: TGViewContainerClass;
-	private options: Options;
+	private options: Configuration;
 
 	private alreadyAdded: {[id: string]: boolean} = {};
 
@@ -102,7 +102,7 @@ export default class GraphTreeMenu {
 		// that is what poly-fills are for
 		if (event.pageX == null && event.clientX != null) 
 		{
-			eventDoc = (event.target && (event.target as any).ownerDocument) || document.getElementById(this.options.external.mainContainer)!;
+			eventDoc = (event.target && (event.target as any).ownerDocument) || document.getElementById(this.options.preferences.mainContainer)!;
 			doc = eventDoc.documentElement;
 			body = eventDoc.body;
 
@@ -136,7 +136,7 @@ export default class GraphTreeMenu {
 				"children": child,
 				"state" : {"opened": !childNodes[i].hasChildren}
 			};
-			$('#'+this.options.external.prefix+'theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log("Child created");});
+			$('#'+this.options.preferences.prefix+'theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log("Child created");});
 		}
 	}
 }

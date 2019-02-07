@@ -1,4 +1,5 @@
-import { Options } from "../options";
+import { Configuration } from "../Configuration";
+import DOMConstruct from "./DOMConstruct";
 
 /**
  * Represents a class that can log to something
@@ -7,20 +8,22 @@ import { Options } from "../options";
  * @class
  */
 export default class StatusLogger {
-	constructor(logElement: string, optionsIn: Options)
+	constructor(private dom: DOMConstruct, logElementId: string)
 	{
-		this.logTo = logElement;
+		this.statusbar = this.dom.getElementById(logElementId);
 	}
 
-	private logTo: string;
+	private statusbar: HTMLElement;
+	destroy() {
+		// reset the cursor of the status bar
+		this.setStatusCursor('auto');
+	}
+
 	setStatusText(text: string) {
-		var statusbar = document.getElementById(this.logTo);
-		if (!statusbar) return;
-		statusbar.innerHTML=text;
+		this.statusbar.innerHTML=text;
 	}
 
 	setStatusCursor(cursor: 'wait' | 'auto'){
-		// TODO: Set the cursor only for the mainElement
-		document.body.style.cursor = cursor || "auto";
+		this.dom.mainElement.style.cursor = cursor || "auto";
 	}
 }
