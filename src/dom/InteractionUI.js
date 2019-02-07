@@ -1,7 +1,7 @@
 import jQuery from 'jquery';
 import StatusLogger from "./StatusLogger";
 import { Options } from "../options";
-import TheoryGraph from "../core/theoryGraph";
+import TheoryGraph from "../core/TheoryGraph";
 
 export default class InteractionUI {
 	constructor(theoryGraphIn, tgDomListenerIn, statusLoggerIn, optionsIn: Options, actionLoggerIn: StatusLogger, wrapperIn) {

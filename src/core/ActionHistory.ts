@@ -1,4 +1,4 @@
-import TheoryGraph from './theoryGraph';
+import TheoryGraph from './TheoryGraph';
 
 /**
  * Represents a History of actions that occured

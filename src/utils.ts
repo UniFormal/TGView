@@ -2,32 +2,24 @@
  * Sets the current browser location to given url
  * @param curLoc URL to set location to 
  */
-export function setLocation(curLoc: string)
-{
-	try 
-	{
+export function setLocation(curLoc: string): void {
+	try {
 		history.pushState(null, document.title, curLoc);
-		return false;
-	} 
-	catch(e) 
-	{
-		
+	} catch (e) {
+		location.hash = '#' + curLoc;
 	}
-	location.hash = '#' + curLoc;
 }
-	
+
 /**
  * Gets a random CSS color
  */
-export function getRandomColor(): string 
-{
-  var letters = '0123456789ABCDEF';
-  var color = '#';
-  for (var i = 0; i < 6; i++) 
-  {
-	color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
+export function getRandomColor(): string {
+	var letters = '0123456789ABCDEF';
+	var color = '#';
+	for (var i = 0; i < 6; i++) {
+		color += letters[Math.floor(Math.random() * 16)];
+	}
+	return color;
 }
 
 
@@ -43,7 +35,7 @@ export function rainbow(numOfSteps: number, step: number) {
 	var i = ~~(h * 6);
 	var f = h * 6 - i;
 	var q = 1 - f;
-	switch(i % 6){
+	switch (i % 6) {
 		case 0: r = 1; g = f; b = 0; break;
 		case 1: r = q; g = 1; b = 0; break;
 		case 2: r = 0; g = 1; b = f; break;
@@ -61,15 +53,13 @@ export function rainbow(numOfSteps: number, step: number) {
  * @param name Name of parameter to extract 
  * @param url URL to extract parameter from, defaults to the current url
  */
-export function getParameterByName(name: string, url?: string): string | null
-{
-	if (!url) 
-	{
+export function getParameterByName(name: string, url?: string): string | null {
+	if (!url) {
 		url = window.location.href;
 	}
 	name = name.replace(/[\[\]]/g, "\\$&");
-	var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-	results = regex.exec(url);
+	var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)")
+	var results = regex.exec(url);
 	if (!results) return null;
 	if (!results[2]) return '';
 	return decodeURIComponent(results[2].replace(/\+/g, " "));
@@ -80,7 +70,6 @@ export function getParameterByName(name: string, url?: string): string | null
  * @param start Starting point
  * @param theLen Length, possibly negative
  */
-export function getStartToEnd(start: number, theLen: number) : {start: number, end: number}
-{
-	return theLen > 0 ? {start: start, end: start + theLen} : {start: start + theLen, end: start};
+export function getStartToEnd(start: number, theLen: number): { start: number, end: number } {
+	return theLen > 0 ? { start: start, end: start + theLen } : { start: start + theLen, end: start };
 }

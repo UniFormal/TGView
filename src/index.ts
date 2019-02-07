@@ -1,25 +1,7 @@
-import Clusterer from "./layout/Clusterer";
-import Optimizer from "./layout/Optimizer";
+/** @file The main entry point to TGView */
 
-import StatusLogger from "./dom/StatusLogger";
-import Resizer from "./dom/Resizer";
-import DOMCreator from "./dom/DOMCreator";
-import TGViewDOMListener from "./dom/GlobalListener";
+import {default as TGViewClass} from "./core/TGView";
 
-const tgview = {
-    layout: {
-        Clusterer: Clusterer,
-        Optimizer: Optimizer,
-    },
-    dom: {
-        DOMCreator: DOMCreator,
-        GlobalListener: TGViewDOMListener,
-        Resizer: Resizer,
-        StatusLogger: StatusLogger,
-    },
-    core: {
-
-    }
-}
-
-export default tgview;
+// export the TGView as Default
+const TGView = TGViewClass;
+export default TGView;

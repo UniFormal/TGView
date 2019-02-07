@@ -1,7 +1,7 @@
-import {Options as VOptions, NodeOptions} from 'vis';
+import { Options as VOptions, NodeOptions } from 'vis';
 
 // @ts-check
-import {getParameterByName} from './utils.js';
+import { getParameterByName } from './utils.js';
 
 /**
  * Represents Options for TGView
@@ -22,7 +22,7 @@ export class Options {
 			graphdata: external.graphdata || getParameterByName(Options.graphDataURLDataParameterNameTGView) || undefined,
 
 			highlight: external.highlight || getParameterByName(Options.graphDataURLHighlightParameterNameTGView) || undefined,
-			
+
 			mainContainer: external.mainContainer || "tgViewMainEle",
 			prefix: external.prefix || "tgview-",
 		}
@@ -58,7 +58,7 @@ export class Options {
 
 		// URL parts for getting graphdata, construction looks like:
 		// graphDataURL + graphDataURLTypeParameterName + concreteTypeValue + "&" + graphDataURLDataParameterName + concreteGraphdataValue
-		this.graphDataURL = this.serverUrl + ":jgraph/json?";		
+		this.graphDataURL = this.serverUrl + ":jgraph/json?";
 	}
 
 	/** Options that were set externally */
@@ -68,7 +68,7 @@ export class Options {
 	// or removed entirely?
 
 	/** the server base url */
-	readonly serverBaseURL: string; 
+	readonly serverBaseURL: string;
 
 	/** the server url */
 	readonly serverUrl: string;
@@ -100,52 +100,52 @@ export class Options {
 	/**
 	 * Options for the legend panel
 	 */
-	readonly LEGEND_PANEL_OPTIONS = 
-	{
-		physics:
+	readonly LEGEND_PANEL_OPTIONS =
 		{
-			enabled: false,
-			stabilization: false
-		},
-		interaction:
-		{
-			dragNodes: false,
-			dragView: false,
-			hideEdgesOnDrag: false,
-			hideNodesOnDrag: false,
-			hover: false,
-			hoverConnectedEdges: false,
-			keyboard: {
+			physics:
+			{
 				enabled: false,
-				speed: { x: 10, y: 10, zoom: 0.02 },
-				bindToWindow: true
+				stabilization: false
 			},
-			multiselect: false,
-			navigationButtons: false,
-			selectable: false,
-			selectConnectedEdges: false,
-			tooltipDelay: 300,
-			zoomView: false
-		},
-		nodes:
-		{
-			physics: false,
-			shapeProperties:
+			interaction:
 			{
-				useImageSize: true,  // only for image and circularImage shapes
-				useBorderWithImage: true  // only for image shape
-			}
-		},
-		edges:
-		{
-			smooth:
+				dragNodes: false,
+				dragView: false,
+				hideEdgesOnDrag: false,
+				hideNodesOnDrag: false,
+				hover: false,
+				hoverConnectedEdges: false,
+				keyboard: {
+					enabled: false,
+					speed: { x: 10, y: 10, zoom: 0.02 },
+					bindToWindow: true
+				},
+				multiselect: false,
+				navigationButtons: false,
+				selectable: false,
+				selectConnectedEdges: false,
+				tooltipDelay: 300,
+				zoomView: false
+			},
+			nodes:
 			{
-				enabled: true,
-				type: "straightCross",
-				roundness: 0.3
-			}
-		},
-	};
+				physics: false,
+				shapeProperties:
+				{
+					useImageSize: true,  // only for image and circularImage shapes
+					useBorderWithImage: true  // only for image shape
+				}
+			},
+			edges:
+			{
+				smooth:
+				{
+					enabled: true,
+					type: "straightCross",
+					roundness: 0.3
+				}
+			},
+		};
 
 	/**
 	 * Options for the TheoryGraph API
@@ -178,7 +178,7 @@ export class Options {
 				type: "straightCross",
 				roundness: 0.3
 			}
-		}, 
+		},
 		/*manipulation: {
 			addNode: addNodeCallback,
 			editNode: editNodeCallback,
@@ -199,7 +199,7 @@ export class Options {
 	/**
 	 * Styles for all available arrow types
      */
-	readonly ARROW_STYLES: {[id: string]: IArrowStyle} = {
+	readonly ARROW_STYLES: { [id: string]: IArrowStyle } = {
 		include: {
 			color: "#cccccc",
 			colorHighlight: "#cccccc",
@@ -271,7 +271,7 @@ export class Options {
 	/**
 	 * Styles of all available nodes
 	 */
-	readonly NODE_STYLES: {[id: string]: INodeStyle} = {
+	readonly NODE_STYLES: { [id: string]: INodeStyle } = {
 		model: {
 			shape: "square",
 			color: "#DDDDDD",
@@ -360,66 +360,54 @@ export class Options {
  * Options that an be passed to TGView
  */
 export interface ITGViewOptions {
-    serverBaseURL: string;
-    serverUrl?: string;
+	serverBaseURL: string;
+	serverUrl?: string;
 
-    isMathhub: boolean;
-    viewOnlyMode: boolean;
+	isMathhub: boolean;
+	viewOnlyMode: boolean;
 
-    source?: string; // TODO: This should be something like "uri" | "html" | undefined
-    type?: string;
-    graphdata?: string;
-    highlight?: string;
+	source?: string; // TODO: This should be something like "uri" | "html" | undefined
+	type?: string;
+	graphdata?: string;
+	highlight?: string;
 
-    mainContainer: string;
-    prefix: string; // TODO: Rename this to elementPrefix
+	mainContainer: string;
+	prefix: string; // TODO: Rename this to elementPrefix
 }
-
-/**
- * options for the legend panel
- * TODO: Define this in terms of library
- */
-interface ILegendPanelOptions {}
-
-/**
- * options for the underlying theory graph
- * TODO: Define this in terms of the library
-*/
-interface ITheoryGraphOptions {}
 
 /** Common Style properties for both arrow and nodes */
 interface IStyleCommon {
-    color: string;
-    colorBorder?: string;
-    colorHover?: string;
-    colorHighlight: string;
-    colorHighlightBorder?: string;
-    dashes: boolean;
-    alias: string;
+	color: string;
+	colorBorder?: string;
+	colorHover?: string;
+	colorHighlight: string;
+	colorHighlightBorder?: string;
+	dashes: boolean;
+	alias: string;
 }
 
 /**
  * A Style for an arrow
  */
 interface IArrowStyle extends IStyleCommon {
-    circle: boolean;
-    directed: boolean;
-    smoothEdge: boolean;
-    width: number;
+	circle: boolean;
+	directed: boolean;
+	smoothEdge: boolean;
+	width: number;
 }
 
 /**
  * A Style for a node
  */
 interface INodeStyle extends IStyleCommon {
-    shape: "square" | "circle" | "ellipse";
+	shape: "square" | "circle" | "ellipse";
 }
 
 /**
  * A Graph Type as available in the MMT Menu
  */
 interface IGraphMenuEntry {
-    id: string;
-    menuText: string;
-    tooltip: string;
+	id: string;
+	menuText: string;
+	tooltip: string;
 }

@@ -1,6 +1,6 @@
 import {default as $} from 'jquery';
 
-import TheoryGraph, { IRectangle } from "../core/theoryGraph";
+import TheoryGraph, { IRectangle } from "../core/TheoryGraph";
 import { Options } from "../options";
 
 export default class TGViewDOMListener {

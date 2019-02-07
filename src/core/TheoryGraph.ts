@@ -20,6 +20,7 @@ declare module 'vis' {
 		canvas: {frame: {canvas: HTMLCanvasElement}};
 		clustering: Network;
 	}
+	/*
 	interface Node {
 		style?: string;
 		label?: string;
@@ -33,7 +34,7 @@ declare module 'vis' {
 		type?: string;
 		weight?: string;
 		url?: string;
-	}
+	}*/
 }
 
 interface INodeRegion extends vis.BoundingBox {
@@ -59,40 +60,53 @@ interface IPositionWithId extends Partial<vis.Position> {
 	id: IdType;
 }
 
-export default class TheoryGraph {
-	constructor(containerNameIn: string, statusLoggerIn: StatusLogger, actionLoggerIn: ActionHistory){
-		this.statusLogger = statusLoggerIn;
-		this.containerName = containerNameIn;
-		this.actionLogger = actionLoggerIn;
+type CleanedNode = vis.Node & IGraphJSONNode;
+type CleanedEdge = vis.Edge & IGraphJSONEdge;
 
+export default class TheoryGraph {
+	constructor(private readonly containerName: string, private readonly statusLogger: StatusLogger, private readonly actionLogger: ActionHistory){
 		this.removeRegionImg.src = "img/delete_region.png";
 		this.moveRegionImg.src = "img/move_region.png";
 		this.addNodeToRegionImg.src = "img/add_region.png";
 	}
 
-	private options: Options = undefined!; // HACK HACK HACK
-	private readonly statusLogger: StatusLogger;
-	private readonly actionLogger: ActionHistory;
-	private readonly containerName: string;
+	/** the options of this theory graph */
+	private options: Options = undefined!;
+	/** Set the options of this theory graph */
+	setOptions(optionsIn: Options) {
+		if (this.options) {
+			throw new Error('Options should not be modified more than once');
+		}
 
-	private originalNodes: vis.Node[] = []; // TODO: CustomNode
-	private originalEdges: vis.Edge[] = []; // TODO: CustomEdge
+		this.options = optionsIn;
+	}
 
-	private network: vis.Network = undefined!;
+	// we store the nodes and edges in three ways:
 
-	private nodes: vis.DataSet<vis.Node> = undefined!;
-	private edges: vis.DataSet<vis.Edge> = undefined!;
-	
+	// 1. in 'original' form, as a 'save' state we can revert to
+	// and access very quickly
+	private originalNodes: CleanedNode[] = [];
+	private originalEdges: CleanedEdge[] = [];
+
+	// 2. in 'dataset' form, that represent the current editor state
+	private nodes: vis.DataSet<CleanedNode> = null!;
+	private edges: vis.DataSet<CleanedEdge> = null!;
+
+	// 3. Inside of the network itself (essentially synced with 2.)
+	private network: vis.Network = null!;
+
+
+	/** a counter used to create clusters */
 	private clusterId = 0;
+	
 	private lastClusterZoomLevel = 0;
 
-	private zoomClusters: any[] = []; // TODO: Fix me
+	private zoomClusters: {id: string, scale: number}[] = [];
 	private allClusters: string[] = [];
 	private clusterPositions: {[id: string]: [vis.IdType[], {
 		[index: number]: Position
 		[index: string]: Position
 	}]} = {}
-	
 	
 	private hiddenNodes: {
 		[id: number]: boolean
@@ -121,10 +135,6 @@ export default class TheoryGraph {
 	private readonly removeRegionImg = new Image();
 	private readonly moveRegionImg = new Image();
 	private readonly addNodeToRegionImg = new Image();
-	
-	setOptions(optionsIn: Options) {
-		this.options = optionsIn;
-	}
 
 	focusOnNodes(nodeIds?: vis.IdType[]) {
 		this.network.getSelectedNodes()
@@ -135,14 +145,9 @@ export default class TheoryGraph {
 			nodeIds = this.network.getSelectedNodes();
 		}
 		
-		if(nodeIds==undefined || nodeIds.length==0)
-		{
-			return;
-		}
+		if(nodeIds==undefined || nodeIds.length==0) { return; }
 		
 		nodesToShow=nodesToShow.concat(nodeIds);
-		
-		//var positions=network.getPositions();
 		var edgesToShow:vis.IdType[]=[];
 
 		for(var i=0;i<nodeIds.length;i++)
@@ -910,7 +915,7 @@ export default class TheoryGraph {
 		this.drawGraph(JSON.parse(graphData!));
 	}
 	
-	loadGraphByURIParameter()
+	loadGraphByURIParameter(_?: string)
 	{
 		var graphData=getParameterByName("uri");
 		this.drawGraph(JSON.parse(graphData!));
