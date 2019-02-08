@@ -4,20 +4,17 @@ import StatusLogger from "../dom/StatusLogger";
 import ActionHistory from "../core/ActionHistory";
 import { Configuration } from "../Configuration";
 import { IGraphJSONEdge, IGraphJSONNode, IGraphJSONGraph } from "../graph";
-import Optimizer from "../layout/Optimizer";
 import { Position, IdType, ClusterOptions, Network, DataSet } from "vis";
-import Clusterer from "../layout/Clusterer";
+import { CleanEdge, CleanNode, ensureUniqueIds } from "./visgraph";
+import DOMConstruct from "../dom/DOMConstruct";
+import Clusterer from "./layout/Clusterer";
+import Optimizer from "./layout/Optimizer";
 
 interface INodeRegion extends vis.BoundingBox {
-	nodeIds: vis.IdType[];
+	nodeIds: string;
 	selected: boolean;
-
 	color: string;
-
-	mappedNodes: {
-		[index: number]: number
-		[index: string]: number
-	}
+	mappedNodes: Record<string, number>;
 }
 
 export interface IRectangle {
@@ -28,86 +25,103 @@ export interface IRectangle {
 }
 
 interface IPositionWithId extends Partial<vis.Position> {
-	id: IdType;
+	id: string;
 }
 
 
 export default class TheoryGraph {
-	constructor(private readonly containerName: string, private readonly statusLogger: StatusLogger, private readonly actionLogger: ActionHistory){
+	constructor(private readonly config: Configuration, private readonly dom: DOMConstruct, private readonly containerName: string, private readonly statusLogger: StatusLogger, private readonly actionLogger: ActionHistory){
 		this.removeRegionImg.src = "img/delete_region.png";
 		this.moveRegionImg.src = "img/move_region.png";
 		this.addNodeToRegionImg.src = "img/add_region.png";
-	}
-
-	/** the options of this theory graph */
-	private options: Configuration = undefined!;
-	/** Set the options of this theory graph */
-	setOptions(optionsIn: Configuration) {
-		if (this.options) {
-			throw new Error('Options should not be modified more than once');
-		}
-
-		this.options = optionsIn;
 	}
 
 	// we store the nodes and edges in three ways:
 
 	// 1. in 'original' form, as a 'save' state we can revert to
 	// and access very quickly
-	private originalNodes: CleanedNode[] = [];
-	private originalEdges: CleanedEdge[] = [];
+	private originalNodes: CleanNode[] = [];
+	private originalEdges: CleanEdge[] = [];
 
 	// 2. in 'dataset' form, that represent the current editor state
-	private nodes: vis.DataSet<CleanedNode> = null!;
-	private edges: vis.DataSet<CleanedEdge> = null!;
+	private nodes: vis.DataSet<CleanNode> = null!;
+	private edges: vis.DataSet<CleanEdge> = null!;
 
 	// 3. Inside of the network itself (essentially synced with 2.)
 	private network: vis.Network = null!;
 
 
-	/** a counter used to create clusters */
+	//
+	// CLUSTER INFO
+	//
+
+	/** a counter to generate unique cluster ids */
 	private clusterId = 0;
-	
+
+	/** the ids of all clusters */
+	private allClusters: string[] = [];
+
+	/** the positions of nodes within clusters */
+	private clusterPositions: Record<string, [string, Record<string, Position>]> = {};
+
+	/** last zoom level used for clusters */
 	private lastClusterZoomLevel = 0;
 
+	/** the zoom levels of all clusters */
 	private zoomClusters: {id: string, scale: number}[] = [];
-	private allClusters: string[] = [];
-	private clusterPositions: {[id: string]: [vis.IdType[], {
-		[index: number]: Position
-		[index: string]: Position
-	}]} = {}
-	
-	private hiddenNodes: {
-		[id: number]: boolean
-		[id: string]: boolean
-	} = {};
+
+	/** all hidden nodes */	
+	private hiddenNodes: Record<string, boolean> = {};
+
+	/** edges that are hidden */
 	private edgesNameToHide: vis.Edge[]=[];
 
+	/** callback that is called when construction is done */
 	onConstructionDone: (() => void) | undefined;
+
+	/** boolean to set manual focus mode */
 	manualFocus: boolean = false;
-	
-	private allManuallyHiddenNodes: {nodes: vis.Node[], edges: vis.Edge[]}[] = [];
+
+	/** regions of selected nodes */
 	private allNodeRegions: INodeRegion[] = [];
 
-
 	
+	/** nodes which have been manually hidden */
+	private allManuallyHiddenNodes: {nodes: CleanNode[], edges: CleanEdge[]}[] = [];	
+
 	private moveRegionHold=false;
 	private moveRegionId=0;
-	private oldRegionPosition:{x?: number, y?: number}={}; // TODO: Fix my type
+	private oldRegionPosition: Position | undefined; // TODO: Fix my type
 
 	private addNodeToRegion=false;
 	private addNodeRegionId: IdType | undefined;
 
+	
 	private internalOptimizer: Optimizer | undefined;
 
 
+	// image caches
 	private readonly removeRegionImg = new Image();
 	private readonly moveRegionImg = new Image();
 	private readonly addNodeToRegionImg = new Image();
 
-	focusOnNodes(nodeIds?: vis.IdType[]) {
-		this.network.getSelectedNodes()
+	destroy() {
+		if (this.internalOptimizer) {
+			this.internalOptimizer.destroy();
+			this.internalOptimizer = undefined;
+		}
+		
+		this.allNodeRegions = [];
+		this.allManuallyHiddenNodes = [];
+		this.edgesNameToHide = [];
+		this.onConstructionDone = undefined;
+		this.hiddenNodes = {};
+		this.clusterPositions = {};
 
+		this.zoomClusters = [];
+	}
+
+	focusOnNodes(nodeIds?: vis.IdType[]) {
 		var nodesToShow: vis.IdType[] = [];
 		if (typeof nodeIds == "undefined")
 		{
@@ -121,7 +135,7 @@ export default class TheoryGraph {
 
 		for(var i=0;i<nodeIds.length;i++)
 		{
-			var middleNodePos=this.network.body.nodes[nodeIds[i]];
+			var middleNodePos=this.network.getPositions(nodeIds[i]);
 			var connectedEdges=this.network.getConnectedEdges(nodeIds[i]);
 			
 			edgesToShow=edgesToShow.concat(connectedEdges);
@@ -232,7 +246,7 @@ export default class TheoryGraph {
 				}
 			}
 			this.moveRegionHold=false;
-			document.getElementById(this.options.preferences.mainContainer)!.style.cursor = 'auto';
+			document.getElementById(this.config.preferences.mainContainer)!.style.cursor = 'auto';
 			this.oldRegionPosition=coords;
 			selectRegion=true;
 			redraw=true;
@@ -255,7 +269,7 @@ export default class TheoryGraph {
 						this.moveRegionHold=true;
 						this.moveRegionId=i;
 						this.oldRegionPosition=coords;
-						document.getElementById(this.options.preferences.mainContainer)!.style.cursor = 'pointer';
+						document.getElementById(this.config.preferences.mainContainer)!.style.cursor = 'pointer';
 						selectRegion=true;
 						break;
 					}
@@ -263,7 +277,7 @@ export default class TheoryGraph {
 					{
 						this.addNodeRegionId=i;
 						this.addNodeToRegion=true;
-						document.getElementById(this.options.preferences.mainContainer)!.style.cursor = 'copy';
+						document.getElementById(this.config.preferences.mainContainer)!.style.cursor = 'copy';
 						selectRegion=true;
 						break;
 					}
@@ -1273,10 +1287,15 @@ export default class TheoryGraph {
 	
 	clusterUsingColor()
 	{
-		var internalClusterer = new Clusterer(this.originalNodes, this.originalEdges, this.statusLogger); // TODO: Match originalNodes type
-		var membership=internalClusterer.cluster();
 		
-		var clusteredNodes: vis.IdType[][] =[];
+		// TODO: Re-workt the clusterer and make sure that this returns valid data
+
+		// run the clustering algorithm and then remove the clusterer
+		const internalClusterer = new Clusterer(this.originalNodes, this.originalEdges, this.statusLogger);
+		const membership = internalClusterer.cluster();
+		internalClusterer.destroy();
+		
+		var clusteredNodes: string[][] =[];
 		var usedClusters=[];
 		
 		for(var i=0;i<membership.length;i++)
@@ -1293,7 +1312,7 @@ export default class TheoryGraph {
 				
 		for(var i=0;i<membership.length;i++)
 		{
-			this.originalNodes[i].membership=membership[i];
+			this.originalNodes[i].membership=membership[i]; // TODO: Clean node should get an optional membership thingy
 		}
 		
 		this.startRendering();
@@ -1438,8 +1457,8 @@ export default class TheoryGraph {
 
 		this.addUsedButNotDefinedNodes();
 		
-		this.ensureUniqueIds(this.originalNodes); // TODO: Fix types here
-		this.ensureUniqueIds(this.originalEdges); // TODO: Fix types here
+		this.originalNodes = ensureUniqueIds(this.originalNodes);
+		// this.originalEdges = ensureUniqueIds(this.originalEdges) // TODO: Do edges have ids
 		
 		this.postprocessEdges();
 		this.postprocessNodes();
@@ -1536,112 +1555,6 @@ export default class TheoryGraph {
 				this.originalNodes.push(addNode);
 				mappedNodes[this.originalEdges[i].to as number]=addNode;
 				console.log("Border-Node: "+nodeLabel+" ("+this.originalEdges[i].to+")");
-			}
-		}
-	}
-	
-	postprocessNodes(nodesIn?: vis.Node[])
-	{	
-		// TODO: Node types
-		if(typeof nodesIn =="undefined" )
-		{
-			nodesIn=this.originalNodes;
-		}
-		
-		for(var i=0;i<nodesIn.length;i++)
-		{
-			if(nodesIn[i].style!=undefined && this.options.NODE_STYLES[nodesIn[i].style!]!=undefined)
-			{
-				var styleInfos=this.options.NODE_STYLES[nodesIn[i].style!]!;
-
-				if(styleInfos.shape=="ellipse" || styleInfos.shape=="circle")
-				{
-					if((nodesIn[i].previewhtml!=undefined && nodesIn[i].previewhtml!="" && nodesIn[i].previewhtml!.length>10) || (nodesIn[i].mathml!=undefined && nodesIn[i].mathml!="" && nodesIn[i].mathml!.length>10))
-						nodesIn[i].shape="circularImage";
-					else
-						nodesIn[i].shape="ellipse";
-				}
-				else if(styleInfos.shape=="square")
-				{
-					if((nodesIn[i].previewhtml!=undefined && nodesIn[i].previewhtml!="" && nodesIn[i].previewhtml!.length>10) || (nodesIn[i].mathml!=undefined && nodesIn[i].mathml!="" && nodesIn[i].mathml!.length>10))
-						nodesIn[i].shape="image";
-					else
-						nodesIn[i].shape="square";
-				}
-				else
-				{
-					if((nodesIn[i].previewhtml!=undefined && nodesIn[i].previewhtml!="" && nodesIn[i].previewhtml!.length>10) || (nodesIn[i].mathml!=undefined && nodesIn[i].mathml!="" && nodesIn[i].mathml!.length>10))
-						nodesIn[i].shape="image";
-					else
-						nodesIn[i].shape=styleInfos.shape;
-				}
-				
-				if(typeof nodesIn[i].color=="undefined")
-				{
-					nodesIn[i].color={highlight:{}};
-				}
-				
-				if(typeof nodesIn[i].shapeProperties=="undefined")
-				{
-					(nodesIn[i] as any).shapeProperties={}; // TODO: A bunch of props are missing here
-				}
-				
-				if (typeof styleInfos.color!="undefined" && styleInfos.color!="") 
-				{
-					(nodesIn[i].color as any).background=styleInfos.color;
-				}
-				if (typeof styleInfos.colorBorder!="undefined" && styleInfos.colorBorder!="") 
-				{
-					(nodesIn[i].color as any).border=styleInfos.colorBorder;
-				}
-				if (typeof styleInfos.colorHighlightBorder!="undefined" && styleInfos.colorHighlightBorder!="") 
-				{
-					(nodesIn[i].color as any).highlight.border=styleInfos.colorHighlightBorder;
-				}
-				if (typeof styleInfos.colorHighlight!="undefined" && styleInfos.colorHighlight!="") 
-				{
-					(nodesIn[i].color as any).highlight.background=styleInfos.colorHighlight;
-				}
-				if (typeof styleInfos.dashes!="undefined" && styleInfos.dashes==true) 
-				{
-					nodesIn[i].shapeProperties!.borderDashes=[5,5];
-				}
-
-			}
-		}
-	}
-	
-	postprocessEdges(edgesIn?: vis.Edge[])
-	{
-		if(typeof edgesIn =="undefined" )
-		{
-			edgesIn=this.originalEdges;
-		}
-		
-		for(var i=0;i<edgesIn.length;i++)
-		{
-			if(edgesIn[i].style!=undefined && this.options.ARROW_STYLES[edgesIn[i].style!]!=undefined)
-			{
-				var styleInfos=this.options.ARROW_STYLES[edgesIn[i].style!]!;
-				edgesIn[i].arrows = {to:{enabled:styleInfos.directed}};
-				
-				if(styleInfos.circle==true)
-				{
-					(edgesIn[i].arrows as any).to.type="circle";
-				}
-				else
-				{
-					(edgesIn[i].arrows as any).to.type="arrow";
-				}
-
-				if(styleInfos.smoothEdge==false)
-				{
-					(edgesIn[i] as any).smooth={enabled: false};
-				}
-				
-				edgesIn[i].dashes=styleInfos.dashes;
-				edgesIn[i].width=styleInfos.width;
-				edgesIn[i].color={color:styleInfos.color, highlight:styleInfos.colorHighlight, hover:styleInfos.colorHover};
 			}
 		}
 	}
@@ -1889,23 +1802,6 @@ export default class TheoryGraph {
 		$.get(jsonURL, this.addNodesAndEdges.bind(this));
 	}
 	
-	ensureUniqueIds(arrays: Array<{id?: vis.IdType}>)
-	{
-		var idArray: number[]=[];
-		for(var i=0;i<arrays.length;i++)
-		{
-			if(idArray[arrays[i]["id"] as number]==undefined)
-			{
-				idArray[arrays[i]["id"] as number]=1;
-			}
-			else
-			{
-				arrays[i]["id"]+="_"+i;
-				idArray[arrays[i]["id"] as number]=1;
-			}
-		}
-	}
-	
 	openCluster(nodeId: vis.IdType)
 	{
 		if (this.network.isCluster(nodeId) == true) 
@@ -1947,10 +1843,10 @@ export default class TheoryGraph {
 
 	nodeToSVGHTML(node: vis.Node)
 	{
-		$('#'+this.options.preferences.prefix+'string_span').html(node["previewhtml"]!);
-		var width=$('#'+this.options.preferences.prefix+'string_span').width()!;
-		var height=$('#'+this.options.preferences.prefix+'string_span').height()!;
-		$('#'+this.options.preferences.prefix+'string_span').html("");
+		$('#'+this.config.preferences.prefix+'string_span').html(node["previewhtml"]!);
+		var width=$('#'+this.config.preferences.prefix+'string_span').width()!;
+		var height=$('#'+this.config.preferences.prefix+'string_span').height()!;
+		$('#'+this.config.preferences.prefix+'string_span').html("");
 		var svg;
 		
 		if(node["shape"]=="image")
@@ -1978,10 +1874,10 @@ export default class TheoryGraph {
 
 	nodeToSVGMath(node: vis.Node)
 	{
-		$('#'+this.options.preferences.prefix+'string_span').html(node["mathml"]!);
-		var width=$('#'+this.options.preferences.prefix+'string_span').width()!;
-		var height=$('#'+this.options.preferences.prefix+'string_span').height()!;
-		$('#'+this.options.preferences.prefix+'string_span').html("");
+		$('#'+this.config.preferences.prefix+'string_span').html(node["mathml"]!);
+		var width=$('#'+this.config.preferences.prefix+'string_span').width()!;
+		var height=$('#'+this.config.preferences.prefix+'string_span').height()!;
+		$('#'+this.config.preferences.prefix+'string_span').html("");
 		var svg;
 		
 		if(node["shape"]=="image")
@@ -2086,54 +1982,54 @@ export default class TheoryGraph {
 					hideEdgesType[type!]=1;
 				}
 			}
-			if(typeof this.options.THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof (this.options.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx === 'undefined' || (this.options.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx==1)
+			if(typeof this.config.THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof (this.config.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx === 'undefined' || (this.config.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx==1)
 			{
 				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
 				if(this.originalNodes.length+this.originalEdges.length>3000)
 				{
-					opti.weaklyHierarchicalLayout(500,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.weaklyHierarchicalLayout(500,(document.getElementById(this.config.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else if(this.originalNodes.length+this.originalEdges.length>2000)
 				{
-					opti.weaklyHierarchicalLayout(700,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.weaklyHierarchicalLayout(700,(document.getElementById(this.config.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else
 				{
-					opti.weaklyHierarchicalLayout(1000,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.weaklyHierarchicalLayout(1000,(document.getElementById(this.config.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 			}
-			else if((this.options.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx==2)
+			else if((this.config.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx==2)
 			{
 				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
 				opti.GenerateRandomSolution();
 				if(this.originalNodes.length+this.originalEdges.length>3000)
 				{
-					opti.SolveUsingForces(200,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
+					opti.SolveUsingForces(200,(document.getElementById(this.config.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
 				}
 				else if(this.originalNodes.length+this.originalEdges.length>2000)
 				{
-					opti.SolveUsingForces(400,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
+					opti.SolveUsingForces(400,(document.getElementById(this.config.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
 				}
 				else
 				{
-					opti.SolveUsingForces(600,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
+					opti.SolveUsingForces(600,(document.getElementById(this.config.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value,200,{"meta":false},this.originalEdges);
 				}
 			}
-			else if(this.options.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==4)
+			else if(this.config.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==4)
 			{
 				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
 				opti.GenerateRandomSolution();
 				if(this.originalNodes.length+this.originalEdges.length>3000)
 				{
-					opti.waterDrivenLayout(200,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.waterDrivenLayout(200,(document.getElementById(this.config.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else if(this.originalNodes.length+this.originalEdges.length>2000)
 				{
-					opti.waterDrivenLayout(400,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.waterDrivenLayout(400,(document.getElementById(this.config.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 				else
 				{
-					opti.waterDrivenLayout(600,(document.getElementById(this.options.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
+					opti.waterDrivenLayout(600,(document.getElementById(this.config.preferences.prefix+'nodeSpacingBox') as HTMLInputElement).value);
 				}
 			}
 		}
@@ -2159,17 +2055,16 @@ export default class TheoryGraph {
 		this.edges = new DataSet(this.originalEdges);
 		
 		// create a network
-		var container = document.getElementById(this.containerName)!;
 		var data = 
 		{
 			nodes: this.nodes,
 			edges: this.edges
 		};
 		
-		this.network = new Network(container, data, this.options.THEORY_GRAPH_OPTIONS);
+		this.network = new Network(this.dom.getElementById(this.containerName), data, this.config.THEORY_GRAPH_OPTIONS);
 		//network.startSimulation(10); 
 		
-		if(this.options.THEORY_GRAPH_OPTIONS.physics.enabled==false)
+		if(this.config.THEORY_GRAPH_OPTIONS.physics.enabled==false)
 		{
 			this.statusLogger.setStatusCursor('auto');
 			this.statusLogger.setStatusText('<font color="green">Received '+this.originalNodes.length+' nodes</font>');
@@ -2189,7 +2084,7 @@ export default class TheoryGraph {
 		// If the document is clicked somewhere
 		this.network.on("click", (e) =>
 		{
-			$("#"+this.options.preferences.prefix+"tooltip-container").hide(10);
+			$("#"+this.config.preferences.prefix+"tooltip-container").hide(10);
 			// If the clicked element is not the menu
 			if (!($(e.target).parents(".custom-menu").length > 0)) 
 			{
@@ -2284,8 +2179,8 @@ export default class TheoryGraph {
 				switch($(this).attr("data-action")) 
 				{
 					// A case for each action
-					case "openWindow": window.open(this.options.serverUrl+selected["url"]); break;
-					case "showURL": alert(this.options.serverUrl+selected["url"]); break;
+					case "openWindow": window.open(this.config.serverUrl+selected["url"]); break;
+					case "showURL": alert(this.config.serverUrl+selected["url"]); break;
 					case "openCluster": this.openCluster(selected["id"]!); break;
 					case "inferType": alert("Not implemented yet!"); break;
 					case "showDecl": alert("Not implemented yet!"); break;
@@ -2299,7 +2194,7 @@ export default class TheoryGraph {
 		
 		this.network.on("oncontext", (params) =>
 		{
-			$("#"+this.options.preferences.prefix+"tooltip-container").hide(10);
+			$("#"+this.config.preferences.prefix+"tooltip-container").hide(10);
 			$(".custom-menu").hide(10);
 			
 			var node=this.network.getNodeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
@@ -2313,7 +2208,7 @@ export default class TheoryGraph {
 				// In the right position (the mouse)
 				css({
 					top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-					left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.options.preferences.prefix+"mainbox")!.offsetLeft + "px",
+					left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.config.preferences.prefix+"mainbox")!.offsetLeft + "px",
 				});
 				return;
 			}
@@ -2337,12 +2232,12 @@ export default class TheoryGraph {
 				if (selectedEdge!=undefined && typeof selectedEdge.clickText != "undefined")
 				{
 					// Show contextmenu
-					$("#"+this.options.preferences.prefix+"tooltip-container").finish().show(10).
+					$("#"+this.config.preferences.prefix+"tooltip-container").finish().show(10).
 					html(selectedEdge.clickText ).
 					// In the right position (the mouse)
 					css({
 						top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-						left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.options.preferences.prefix+"mainbox")!.offsetLeft + "px"
+						left: params["pointer"]["DOM"]["x"]*1+16+document.getElementById(this.config.preferences.prefix+"mainbox")!.offsetLeft + "px"
 					});
 				}
 			}

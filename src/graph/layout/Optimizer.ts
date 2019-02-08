@@ -1,19 +1,22 @@
-import LayoutBase, { IEdgeIgnorance, INode } from "./Base";
-import { IGraphJSONNode, IGraphJSONEdge } from "../graph";
-import StatusLogger from "../dom/StatusLogger";
-
+import LayoutBase, { IEdgeIgnorance, LayoutNode } from "./Base";
+import { CleanNode, CleanEdge } from "../visgraph";
+import StatusLogger from "../../dom/StatusLogger";
 export default class Optimizer extends LayoutBase {
-    constructor(nodes: IGraphJSONNode[], edges: IGraphJSONEdge[], ignoreByType: IEdgeIgnorance, logger: StatusLogger) {
+    constructor(nodes: CleanNode[], edges: CleanEdge[], ignoreByType: IEdgeIgnorance, logger: StatusLogger) {
         super(nodes, edges, logger, ignoreByType);
     }
 
     private readonly DependencyWidth: number = 30;
     private readonly DependencyHeight: number = 30;
 	
-    private OverAllColision: number = -1; // is it even used?
     private field: {[key: number]: number}={};
 	private myWidth = 12000;
 	private myHeight=12000;
+
+	destroy() {
+		super.destroy();
+		this.field = {};
+	}
 	
 	GenerateRandomSolution()
 	{
@@ -31,7 +34,7 @@ export default class Optimizer extends LayoutBase {
 		this.field[ y * this.myWidth + x ] = value;
 	}
 	
-	private InsertNodeAtGoodPosition(n: INode, lines: HelperLine[], iterations = 5 )
+	private InsertNodeAtGoodPosition(n: LayoutNode, lines: HelperLine[], iterations = 5 )
 	{
 		var xOffset = this.DependencyWidth / 2;
 		var yOffset = this.DependencyHeight / 2;
@@ -115,45 +118,6 @@ export default class Optimizer extends LayoutBase {
 		}
 	}
 
-    
-    // BEGIN UNUSED BLOCK
-    // TODO: Figure out if this can go
-	private CalculateFitness()
-	{
-		if( this.OverAllColision != -1 )
-		{
-			return;
-		}
-
-		this.OverAllColision = 0;
-
-		var xOffset = this.DependencyWidth / 2;
-		var yOffset = this.DependencyHeight / 2;
-
-        var nodes: INode[] = []; // added
-        var lines: HelperLine[] = []
-		for(var i=0;i< this.myAllNodes.length;i++ )
-		{
-			nodes = this.myAllNodes[i].connectedNodes;
-			if( nodes != undefined && nodes.length != 0 )
-			{
-				for(var j=0;j< nodes.length;j++ )
-				{
-					if( this.myAllNodes[i].x > nodes[j].x )
-					{
-						lines.push( new HelperLine( nodes[j].x + xOffset, nodes[j].y + yOffset, this.myAllNodes[i].x + xOffset, this.myAllNodes[i].y + yOffset ) );
-					}
-					else
-					{
-						lines.push( new HelperLine( this.myAllNodes[i].x + xOffset, this.myAllNodes[i].y + yOffset, nodes[j].x + xOffset, nodes[j].y + yOffset ) );
-					}
-				}
-			}
-		}
-
-		this.OverAllColision += this.GetAllLineColision( lines );
-	}
-
     /**
      * Checks if two vectors are clockwise or counterclockwise
      */
@@ -167,48 +131,14 @@ export default class Optimizer extends LayoutBase {
 
 		return (val > 0) ? 1 : 2; // clock or counterclock wise
 	}
-
-	private GetAllLineColision( lines: HelperLine[] ): number
-	{
-		var colision = 0;
-
-		for( var i = 0; i < lines.length; i++ )
-		{
-			for(var j=i+1;j< lines.length;j++ )
-			{
-				var currLine=lines[j];
-				if( (currLine.xEnd == lines[ i ].xEnd || currLine.xStart == lines[ i ].xEnd || currLine.xEnd == lines[ i ].xStart
-					 || currLine.xStart == lines[ i ].xStart)
-					&& (currLine.yEnd == lines[ i ].yEnd || currLine.yStart == lines[ i ].yEnd || currLine.yEnd == lines[ i ].yStart
-						|| currLine.yStart == lines[ i ].yStart) )
-				{
-					continue;
-				}
-
-				if( this.ccw( currLine.xStart, currLine.yStart, currLine.xEnd, currLine.yEnd, lines[ i ].xStart, lines[ i ].yStart )
-					!= this.ccw( currLine.xStart, currLine.yStart, currLine.xEnd, currLine.yEnd, lines[ i ].xEnd, lines[ i ].yEnd )
-					&& this.ccw( lines[ i ].xStart, lines[ i ].yStart, lines[ i ].xEnd, lines[ i ].yEnd, currLine.xStart, currLine.yStart )
-					!= this.ccw( lines[ i ].xStart, lines[ i ].yStart, lines[ i ].xEnd, lines[ i ].yEnd, currLine.xEnd, currLine.yEnd ) )
-				{
-					colision++;
-				}
-			}
-
-		}
-
-		return colision;
-    }
-    
-    // END UNUSED BLOCK
-
 	
-	private findRandomPath(startNode?: INode): INode[] | undefined
+	private findRandomPath(startNode?: LayoutNode): LayoutNode[] | undefined
 	{
 		if(startNode===undefined)
             return undefined;
         
 		var nodesToprocess=[startNode];
-		var currentPath: INode[] =[];
+		var currentPath: LayoutNode[] =[];
 		while(nodesToprocess.length>0)
 		{
 			var n=nodesToprocess.pop()!;
@@ -257,7 +187,7 @@ export default class Optimizer extends LayoutBase {
 		return currentPath;
 	}
 	
-	waterDrivenLayout(iterations: number, spacingValue: number, gravity=200, ignoreEdgesByType: IEdgeIgnorance, edgesIn: IGraphJSONEdge[])
+	waterDrivenLayout(iterations: number, spacingValue: number, gravity=200, ignoreEdgesByType: IEdgeIgnorance, edgesIn: CleanEdge[])
 	{
 		if(typeof edgesIn!="undefined")
 		{
@@ -345,7 +275,7 @@ export default class Optimizer extends LayoutBase {
 		var distClusterCenter=40*spacingValue;
 		var distNodes=40*spacingValue;
 		
-		var nodesOrderedByEdges: INode[][]=[];
+		var nodesOrderedByEdges: LayoutNode[][]=[];
 		var maxEdgesDif=0;
 		var maxNode=this.myAllNodes[0];
 		for( var j = 0; j < this.myAllNodes.length; j++ )

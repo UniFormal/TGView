@@ -21,10 +21,33 @@ export type DirtyNode = Partial<CleanNode>;
 export type CleanNode = vis.Node & IGraphJSONNode;
 
 /**
- * Applies a nodes style
+ * Cleans up a user-provided node and applies the appropriate style
+ * @param nodeIn 
+ * @param NODE_STYLES 
  */
-export function applyNodeStyle(node: DirtyNode, NODE_STYLES: Record<string, INodeStyle>): CleanNode {
-	const style = NODE_STYLES[node.style || ''];
+export function cleanNode(nodeIn: DirtyNode, NODE_STYLES: Record<string, INodeStyle>): CleanNode {
+	const node: CleanNode = {
+		// all the properties with constant defaults
+		style: 'no-style-provided',
+		shape: 'square',
+		label: '',
+		previewhtml: '',
+		mathml: '',
+		x: NaN,
+		y: NaN,
+		url: '',
+		childsURL: '',
+
+		// the input
+		...nodeIn,
+
+		// all the fields with a default based on the input
+		id: (nodeIn.id !== undefined ? nodeIn.id : 'no-id-provided').toString(),
+	};
+
+	const style = NODE_STYLES[node.style];
+
+	// style, shape, id, label, previewhtml, mathml, url, x, y, childsURL
 	
 	if(node.style !== undefined && style) {
 		// clean the shape info
@@ -56,7 +79,7 @@ export function applyNodeStyle(node: DirtyNode, NODE_STYLES: Record<string, INod
 	}
 
 	// assume it is clean now and we have added the missing properties
-	return node as CleanNode;
+	return node;
 }
 
 
@@ -64,11 +87,23 @@ export type DirtyEdge = Partial<CleanEdge>;
 export type CleanEdge = vis.Edge & IGraphJSONEdge;
 
 /**
- * Applies an edges style
- * @param edge 
- * @param ARROW_STYLES 
+ * Cleans up a user-provided edge and applies the appropriate style
+ * @param nodeIn 
+ * @param NODE_STYLES 
  */
-export function applyEdgeStyle(edge: DirtyEdge, ARROW_STYLES: Record<string, IArrowStyle>): CleanEdge {
+export function cleanEdge(edgeIn: DirtyEdge, ARROW_STYLES: Record<string, IArrowStyle>): CleanEdge {
+	const edge: CleanEdge = {
+		from: 'none',
+		to: 'none',
+		style: 'no-style-provided',
+		clickText: '',
+		weight: '',
+		url: '',
+
+		// the input
+		...edgeIn
+	};
+
 	const style = ARROW_STYLES[edge.style || ''];
 	if (edge.style && style) {
 		edge.arrows = {
@@ -88,5 +123,30 @@ export function applyEdgeStyle(edge: DirtyEdge, ARROW_STYLES: Record<string, IAr
 			hover: style.colorHover
 		}
 	}
-	return edge as CleanEdge;
+	return edge;
+}
+
+/**
+ * Ensures that all Ids with array are unique
+ * @param array 
+ */
+export function ensureUniqueIds<T extends {id?: string}>(array: Array<T>): Array<T> {
+	const knownIds = new Set<string>();
+	
+	return array.map((e, i) => {
+		if (e.id == undefined) {
+
+			// if we have an already known id
+			// add a unique prefix to it to make sure it becomes unique
+			if (knownIds.has(e.id)) {
+				e.id += '_' + i;
+			}
+
+			// and store that we had this id
+			knownIds.add(e.id);
+		}
+		
+		// return the element
+		return e;
+	});
 }

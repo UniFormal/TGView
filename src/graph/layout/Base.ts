@@ -1,25 +1,29 @@
-import StatusLogger from "../dom/StatusLogger";
-import { IGraphJSONEdge, IGraphJSONNode } from "../graph";
+import { CleanNode, CleanEdge } from "../visgraph";
+import { IGraphJSONNode } from "../../graph";
+import StatusLogger from "../../dom/StatusLogger";
 
 export default class LayoutBase {
-	constructor(nodes: IGraphJSONNode[], edges: IGraphJSONEdge[], loggerIn: StatusLogger, ignoreEdgesByType?: IEdgeIgnorance) {
-		this.logger = loggerIn;
-		this.myAllNodes = nodes.map(GraphNode2Node); // TODO: Check if we do not already have the extra props
+	constructor(nodes: CleanNode[], edges: CleanEdge[], protected readonly logger: StatusLogger, ignoreEdgesByType?: IEdgeIgnorance) {
+		this.myAllNodes = nodes.map(CleanNode2LayoutNode); // TODO: Check if we do not already have the extra props
 		this.edgesCount = edges.length;
 
 		this.mapEdgesIntoNodes(edges, ignoreEdgesByType);
 		this.identifySubgraphs();
 	}
 
-	protected readonly logger: StatusLogger;
-	protected myAllNodes: INode[];
+	protected myAllNodes: LayoutNode[];
 	protected edgesCount: number;
 	protected countNodesInGraph : number[] = [];
+
+	destroy() {
+		this.myAllNodes = [];
+		this.countNodesInGraph = [];
+	}
 	
-	protected mapEdgesIntoNodes(edges: IGraphJSONEdge[], ignoreEdgesByType?: IEdgeIgnorance)
+	protected mapEdgesIntoNodes(edges: CleanEdge[], ignoreEdgesByType?: IEdgeIgnorance)
 	{
 		this.logger.setStatusText("Mapping Edges to Nodes...");
-		var mappedNodes: {[key: string]: INode} = {};
+		var mappedNodes: {[key: string]: LayoutNode} = {};
 
 		for(var i=0;i< this.myAllNodes.length;i++ )
 		{
@@ -66,7 +70,7 @@ export default class LayoutBase {
 	{
 		this.logger.setStatusText("Identify Subgraphs...");
 		
-		var nodesToCheck: INode[] = [];
+		var nodesToCheck: LayoutNode[] = [];
 		var graphNumber = 1;
 
 		// iterate over all the nodes
@@ -103,13 +107,13 @@ export default class LayoutBase {
 
 export type IEdgeIgnorance = {[tp: string]: boolean};
 
-export interface INode extends IGraphJSONNode {
+export interface LayoutNode extends IGraphJSONNode {
 	graphNumber: number;
 	hidden: boolean;
-	toConnected: INode[];
-	fromConnected: INode[];
-	connectedNodes: INode[];
-	connectedNodesById: {[id: string]: INode};
+	toConnected: LayoutNode[];
+	fromConnected: LayoutNode[];
+	connectedNodes: LayoutNode[];
+	connectedNodesById: {[id: string]: LayoutNode};
 	modularityPart: number;
 	idx: number;
 
@@ -124,7 +128,7 @@ export interface INode extends IGraphJSONNode {
 	forcesFixed: boolean;
 	membership?: boolean; // TODO: Figure out what this is
 }
-function GraphNode2Node(node: IGraphJSONNode): INode {
+function CleanNode2LayoutNode(node: CleanNode): LayoutNode {
 	return {
 		graphNumber: -1,
 		hidden: false,

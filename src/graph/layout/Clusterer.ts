@@ -1,9 +1,9 @@
-import StatusLogger from "../dom/StatusLogger";
-import { IGraphJSONEdge, IGraphJSONNode } from "../graph";
 import LayoutBase from "./Base";
+import { CleanNode, CleanEdge } from "../visgraph";
+import StatusLogger from "../../dom/StatusLogger";
 
 export default class Clusterer extends LayoutBase {
-	constructor(nodes: IGraphJSONNode[], edges: IGraphJSONEdge[], loggerIn: StatusLogger) {
+	constructor(nodes: CleanNode[], edges: CleanEdge[], loggerIn: StatusLogger) {
 		super(nodes, edges, loggerIn)
 	}
 	

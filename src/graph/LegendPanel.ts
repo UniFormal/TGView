@@ -4,7 +4,7 @@ import DOMConstruct from '../dom/DOMConstruct';
 import { Configuration } from '../Configuration';
 import StatusLogger from '../dom/StatusLogger';
 
-import {CleanNode, DirtyNode, DirtyEdge, CleanEdge, applyNodeStyle, applyEdgeStyle} from './visgraph';
+import {CleanNode, DirtyNode, DirtyEdge, CleanEdge, cleanNode, cleanEdge} from './visgraph';
 
 export default class LegendPanel {
 	
@@ -105,8 +105,8 @@ export default class LegendPanel {
 			});
 		}
 		
-		this.originalEdges.push(...edgesToAdd.map(e => applyEdgeStyle(e, this.config.ARROW_STYLES)));
-		this.originalNodes.push(...nodesToAdd.map(n => applyNodeStyle(n, this.config.NODE_STYLES)));
+		this.originalEdges.push(...edgesToAdd.map(e => cleanEdge(e, this.config.ARROW_STYLES)));
+		this.originalNodes.push(...nodesToAdd.map(n => cleanNode(n, this.config.NODE_STYLES)));
 		
 		this.startRendering();
 	}

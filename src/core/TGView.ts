@@ -24,7 +24,7 @@ export default class TGView {
 
 		// create history logger and initialize it with the theory graph
 		this.actionHistory = new ActionHistory();
-		this.theoryGraph = new TheoryGraph(this.config.preferences.prefix + "mynetwork", this.statusLogger, this.actionHistory); // TODO: Consider passing options into theorygraph directly
+		this.theoryGraph = new TheoryGraph(this.config, this.config.preferences.prefix + "mynetwork", this.statusLogger, this.actionHistory);
 		this.actionHistory.init(this.theoryGraph);
 
 		// create remaining dom
@@ -35,7 +35,6 @@ export default class TGView {
 
 		// update the theory graph
 		this.theoryGraph.onConstructionDone = this.updateNetworkOnFirstCall.bind(this);
-		this.theoryGraph.setOptions(this.config);
 
 		// and initialize all the things
 		this.init();
@@ -107,7 +106,7 @@ export default class TGView {
 		this.statusLogger.destroy();
 		this.resizer.destroy();
 		this.dom.destroy();
-		this.config.destroy();
+		// this.config.destroy();
 	}
 
 	/**
