@@ -136,7 +136,7 @@ export default class TGView {
 
 			setLocation(newURL);
 		} else {
-			this.theoryGraph!.getGraph(graphdata);
+			this.theoryGraph.getGraph(graphdata);
 		}
 	}
 

@@ -16,8 +16,8 @@ export default class LayoutBase {
 	protected countNodesInGraph : number[] = [];
 
 	destroy() {
-		this.myAllNodes = [];
-		this.countNodesInGraph = [];
+		// this.myAllNodes = [];
+		// this.countNodesInGraph = [];
 	}
 	
 	protected mapEdgesIntoNodes(edges: CleanEdge[], ignoreEdgesByType?: IEdgeIgnorance)

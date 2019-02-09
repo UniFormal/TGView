@@ -51,12 +51,12 @@ export function cleanNode(nodeIn: DirtyNode, NODE_STYLES: Record<string, INodeSt
 		label: '',
 		previewhtml: '',
 		mathml: '',
-		x: NaN,
-		y: NaN,
+		x: 0,
+		y: 0,
 		url: '',
 		childsURL: '',
 
-		membership: NaN,
+		membership: 0,
 
 		options: {
 			hidden: false,
