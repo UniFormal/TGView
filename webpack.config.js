@@ -9,6 +9,7 @@ module.exports = {
     rules: [
       // source maps from typescript work
       { test: /\.js$/, loader: 'source-map-loader', enforce: 'pre' },
+      
       // load typescript outside of node_modules
       {
         test: /\.tsx?$/,
