@@ -6,19 +6,20 @@
   "types": "./lib/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && webpack --mode production",
     "install": "tsc",
+    "start": "webpack-serve",
     "clean": "rm -rf lib/ dist/",
     "lint": "tslint -p tsconfig.json"
   },
   "devDependencies": {
     "css-loader": "^2.1.0",
+    "file-loader": "^3.0.1",
     "html-webpack-plugin": "^3.2.0",
     "source-map-loader": "^0.2.4",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",
     "tslint": "^5.12.1",
-    "url-loader": "^1.1.2",
     "webpack": "^4.29.1",
     "webpack-cli": "^3.2.3",
     "webpack-serve": "^2.0.3"
@@ -28,10 +29,10 @@
     "@types/jqueryui": "^1.12.7",
     "@types/jstree": "^3.3.37",
     "@types/vis": "^4.21.10",
-    "typescript": "^3.3.1",
     "jquery": "^3.3.1",
     "jqueryui": "^1.11.1",
     "jstree": "^3.3.7",
+    "typescript": "^3.3.1",
     "vis": "~4.18.1"
   }
 }
