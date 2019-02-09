@@ -8,30 +8,30 @@ import TheoryGraph from "../graph/TheoryGraph.js";
 import { setLocation, getParameterByName } from "../utils.js";
 import DOMConstruct from "../dom/DOMConstruct.js";
 import LegendPanel from "../graph/LegendPanel.js";
-import TGViewDOMListener from "../dom/GlobalListener.js";
+import GlobalListener from "../dom/GlobalListener.js";
 import InteractionUI from "../dom/InteractionUI.js";
 import GraphTreeMenu from "../dom/GraphTreeMenu.js";
 
 export default class TGView {
 	constructor(preferences: Partial<ITGViewOptions>) {
 		// parse options and create dom
-		this.config = new Configuration(preferences);
-		this.dom = new DOMConstruct(this.config);
+		this.config = new Configuration(preferences); // DONE
+		this.dom = new DOMConstruct(this.config); // DONE
 
 		// initialize basic UI components
-		this.resizer = new Resizer(this.dom);
-		this.statusLogger = new StatusLogger(this.dom, "statusBar");
+		this.resizer = new Resizer(this.dom);  // DONE
+		this.statusLogger = new StatusLogger(this.dom, "statusBar");  // DONE
 
 		// create history logger and initialize it with the theory graph
-		this.actionHistory = new ActionHistory();
-		this.theoryGraph = new TheoryGraph(this.config, this.dom, "mynetwork", this.statusLogger, this.actionHistory);
+		this.actionHistory = new ActionHistory(); // DONE
+		this.theoryGraph = new TheoryGraph(this.config, this.dom, "mynetwork", this.statusLogger, this.actionHistory); // DONE
 		this.actionHistory.init(this.theoryGraph);
 
 		// create remaining dom
-		this.legendPanel = new LegendPanel(this.dom, "mynetworkLegend", this.config, this.statusLogger);
-		this.tgDomListener = new TGViewDOMListener(this.theoryGraph, this.config);
+		this.legendPanel = new LegendPanel(this.dom, "mynetworkLegend", this.config, this.statusLogger); // DONE
+		this.tgDomListener = new GlobalListener(this.theoryGraph, this.config, this.dom, this); // DONE
 		this.ui = new InteractionUI(this.theoryGraph, this.tgDomListener, this.statusLogger, this.config, this.actionHistory, this);
-		this.treeMenu = new GraphTreeMenu(this, this.config);
+		this.treeMenu = new GraphTreeMenu(this.config, this.dom, this); // DONE
 
 		// update the theory graph
 		this.theoryGraph.onConstructionDone = this.updateNetworkOnFirstCall.bind(this);
@@ -50,12 +50,12 @@ export default class TGView {
 	private theoryGraph: TheoryGraph;
 
 	private legendPanel: LegendPanel;
-	private tgDomListener: TGViewDOMListener;
+	private tgDomListener: GlobalListener;
 	private ui: InteractionUI;
 	private treeMenu: GraphTreeMenu;
 
-	private recievedDataJSON: string = "";
-	private lastGraphDataUsed = "";
+	recievedDataJSON: string = "";
+	lastGraphDataUsed = "";
 	private lastGraphTypeUsed = "";
 
 	/**

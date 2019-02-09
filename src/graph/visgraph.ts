@@ -6,7 +6,7 @@ declare module 'vis' {
 		[index: string]: CleanNode
 	}
 	interface Network {
-		getConnectedNodes(nodeOrEdgeId: IdType, direction: string): string[];
+		getConnectedNodes(nodeOrEdgeId: IdType, direction: string): IdType[];
 		body: { nodes: NetworkNodes };
 		canvas: {frame: {canvas: HTMLCanvasElement}};
 		clustering: Network;
@@ -16,7 +16,12 @@ declare module 'vis' {
 	}
 }
 
-export type DirtyNode = Partial<vis.Node & IGraphJSONNode>;
+export interface IDirtyGraph {
+	nodes?: DirtyNode[],
+	edges?: DirtyEdge[],
+}
+
+export type DirtyNode = Partial<CleanNode>;
 export type CleanNode = vis.Node & IGraphJSONNode & NodeRuntimeProps;
 
 interface NodeRuntimeProps {
@@ -26,6 +31,11 @@ interface NodeRuntimeProps {
 	options: Partial<CleanNode>,
 
 	membership: number;
+
+	widthConstraint?: {
+		minimum: number;
+		maximum: number;
+	}
 }
 
 /**

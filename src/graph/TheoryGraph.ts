@@ -5,7 +5,7 @@ import ActionHistory from "../core/ActionHistory";
 import { Configuration } from "../Configuration";
 import { IGraphJSONEdge, IGraphJSONNode, IGraphJSONGraph } from "../graph";
 import { Position, IdType, ClusterOptions, Network, DataSet } from "vis";
-import { CleanEdge, CleanNode, ensureUniqueIds, cleanNode, cleanEdge, DirtyEdge, DirtyNode } from "./visgraph";
+import { CleanEdge, CleanNode, ensureUniqueIds, cleanNode, cleanEdge, DirtyEdge, DirtyNode, IDirtyGraph } from "./visgraph";
 import DOMConstruct from "../dom/DOMConstruct";
 import Clusterer from "./layout/Clusterer";
 import Optimizer from "./layout/Optimizer";
@@ -107,19 +107,32 @@ export default class TheoryGraph {
 	destroy() {
 		this.dom.$(".custom-menu li").off('click');
 
-		if (this.internalOptimizer) {
-			this.internalOptimizer.destroy();
-			this.internalOptimizer = undefined;
-		}
+		this.originalNodes = [];
+		this.originalEdges = [];
+
+		if (this.edges) { this.edges.clear(); }
+		this.edges = null!;
+
+		if (this.nodes) { this.nodes.clear(); }
+		this.nodes = null!;
 		
-		this.allNodeRegions = [];
-		this.allManuallyHiddenNodes = [];
+		if (this.network) {
+			this.network.destroy();
+			this.network = null!;
+		}
+
+		this.allClusters = [];
+		this.clusterPositions = {};
+		this.zoomClusters = [];
+		this.hiddenNodes = {};
 		this.edgesNameToHide = [];
 		this.onConstructionDone = undefined;
-		this.hiddenNodes = {};
-		this.clusterPositions = {};
+		this.allNodeRegions = [];
+		this.allManuallyHiddenNodes = [];
 
-		this.zoomClusters = [];
+		if (this.internalOptimizer) {
+			this.internalOptimizer.destroy();
+		}
 	}
 
 	focusOnNodes(nodeIds?: string[]) {
@@ -140,8 +153,8 @@ export default class TheoryGraph {
 			var connectedEdges=this.network.getConnectedEdges(nodeIds[i]);
 			
 			edgesToShow=edgesToShow.concat(connectedEdges);
-			var toNodes=this.network.getConnectedNodes(nodeIds[i],"to");
-			var fromNodes=this.network.getConnectedNodes(nodeIds[i],"from");
+			var toNodes=this.network.getConnectedNodes(nodeIds[i],"to").map(e => e.toString());
+			var fromNodes=this.network.getConnectedNodes(nodeIds[i],"from").map(e => e.toString());
 			
 			if(nodeIds.length==1)
 			{
@@ -1457,7 +1470,7 @@ export default class TheoryGraph {
 		$.get(jsonURL, this.drawGraph.bind(this));
 	}
 
-	loadJSONGraph(data: IGraphJSONGraph | string)
+	loadJSONGraph(data: string | IDirtyGraph)
 	{
 		if(typeof data === 'string') // data.length < 20 TODO: WHAT?
 		{
@@ -1476,7 +1489,7 @@ export default class TheoryGraph {
 		this.loadDataSet(data.nodes, data.edges, true);
 	}
 	
-	drawGraph(data: string | IGraphJSONGraph, status: number | string=200)
+	drawGraph(data: string | IDirtyGraph, status: number | string=200)
 	{
 		if(status!=200 && status!="success") 
 		{
@@ -1577,7 +1590,7 @@ export default class TheoryGraph {
 	}
 	
 	// TODO: Compare and unify with drawgraph
-	addNodesAndEdges(data: IGraphJSONGraph | string, status: number | string=200)
+	addNodesAndEdges(data: IDirtyGraph | string, status: number | string=200)
 	{
 		if(status!=200 && status!="success") // TODO: what kind of type is this? use either number or string
 		{
@@ -1616,7 +1629,7 @@ export default class TheoryGraph {
 		this.statusLogger.setStatusCursor('auto');
 	}
 	
-	addNode(nodeIn: IGraphJSONNode)
+	addNode(nodeIn: DirtyNode)
 	{
 		let node = cleanNode(nodeIn, this.config.NODE_STYLES)
 
@@ -1635,7 +1648,7 @@ export default class TheoryGraph {
 		this.actionLogger.addToStateHistory("addNode", {"node": node});
 	}
 	
-	addEdge(edgeIn: IGraphJSONEdge)
+	addEdge(edgeIn: DirtyEdge)
 	{
 		const edge = cleanEdge(edgeIn, this.config.ARROW_STYLES);
 		this.originalEdges.push(edge);

@@ -126,7 +126,7 @@ export interface LayoutNode extends IGraphJSONNode {
 	dispY: number,
 
 	forcesFixed: boolean;
-	membership?: boolean; // TODO: Figure out what this is
+	membership?: number;
 }
 function CleanNode2LayoutNode(node: CleanNode): LayoutNode {
 	return {

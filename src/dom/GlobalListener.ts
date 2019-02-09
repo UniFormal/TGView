@@ -2,43 +2,43 @@ import {default as $} from 'jquery';
 
 import TheoryGraph, { IRectangle } from "../graph/TheoryGraph";
 import { Configuration } from "../Configuration";
+import TGView from "../core/TGView";
+import DOMConstruct from "./DOMConstruct";
 
-export default class TGViewDOMListener {
+export default class GlobalListener {
 
-	constructor(theoryGraphIn: TheoryGraph, optionsIn: Configuration) {
-		this.options = optionsIn;
-		this.theoryGraph = theoryGraphIn;
+	constructor(private readonly theoryGraph: TheoryGraph, private readonly config: Configuration, private readonly dom: DOMConstruct, private readonly wrapper: TGView) {
+		this.onMessage = this.onMessage.bind(this);
 
-		this.bindEvent(window as any as Node, 'message', function(e: Event){
-			// TODO: This is a typo and should be fixed. Also this is broken by scoping of variables
-			//recievedDataJSON = (e as any).data;
-		});
-
-		$("#"+this.options.preferences.mainContainer).bind("contextmenu", function(event) 
+		$(window).bind('message', this.onMessage);
+		
+		this.dom.mainElement$.bind("contextmenu", (event) => 
 		{
-			// TODO: Allow the real context menu with the help of cmd / ctrl or something which is insanely useful for debugging
-			// Avoid the real menu
+			// if the ctrl key or the meta key are pressed
+			// show the default context menu 
+			if (event.ctrlKey || event.metaKey) {
+				event.stopImmediatePropagation();
+				return;
+			}
+
+			// else prevent it from showing
 			event.preventDefault();
 		});
 
-		$("#"+this.options.preferences.mainContainer).ready(() => {
+		this.dom.mainElement$.ready(() => {
 			//$('button').button();
 			// Accordion
-			$(".accordion").accordion({ header: "h3" });
+			this.dom.$(".accordion").accordion({ header: "h3" });
 			// Tabs
-			$('#'+this.options.preferences.prefix+'tabs').tabs();
+			this.dom.$$('tabs').tabs();
 			// Button Set
-			$("#"+this.options.preferences.prefix+"radio1").buttonset();
-			$( "#"+this.options.preferences.prefix+"methodCluster" ).selectmenu();
+			this.dom.$$("radio1").buttonset();
+			this.dom.$$("methodCluster").selectmenu();
 			
-			this.canvasTools=document.getElementById(this.options.preferences.prefix+'toolCanvas')! as HTMLCanvasElement;
+			this.canvasTools=this.dom.getElementById<HTMLCanvasElement>('toolCanvas');
 			this.ctxTools=this.canvasTools.getContext('2d')!;
 			this.rectTools = {};
-			this.containerTools = $("#"+this.options.preferences.prefix+"toolCanvas");
-
-			var canvasOffset=this.containerTools.offset()!;
-			var offsetX=canvasOffset.left;
-			var offsetY=canvasOffset.top;
+			this.containerTools = this.dom.$$("toolCanvas");
 			
 			this.containerTools.on("mousemove", (e) => {
 
@@ -86,8 +86,30 @@ export default class TGViewDOMListener {
 		});
 	}
 
-	private readonly options: Configuration;
-	private readonly theoryGraph: TheoryGraph;
+	destroy() {
+		// undo all the event handlers
+		$(window).unbind('message', this.onMessage);
+		this.dom.mainElement$.unbind('contextmenu');
+
+		// 
+		if (this.containerTools) {
+			this.containerTools.off('mousemove');
+			this.containerTools.off('mousedown');
+			this.containerTools.off('mouseup');
+		}
+
+		// destroy the ui
+		this.dom.$(".accordion").accordion('destroy');
+		this.dom.$$('tabs').tabs('destroy');
+		this.dom.$$("radio1").buttonset('destroy');
+		this.dom.$$("methodCluster").selectmenu('destroy');
+
+		// reset a couple of variables
+		this.canvasTools = undefined;
+		this.ctxTools = undefined;
+		this.rectTools = {};
+		this.containerTools = undefined;
+	}
 	
 	private canvasTools: HTMLCanvasElement | undefined;
 	private ctxTools: CanvasRenderingContext2D | undefined;
@@ -96,33 +118,23 @@ export default class TGViewDOMListener {
 	private containerTools: JQuery<HTMLElement> | undefined;
 	private selectionMode = false;
 
-
-	// addEventListener support for IE8
-	// TODO: Do we really need this?
-	private bindEvent(element: Node, eventName: string, eventHandler: EventListener) {
-		if (element.addEventListener)
-		{
-			element.addEventListener(eventName, eventHandler, false);
-		}
-		else if ((element as any).attachEvent) 
-		{
-			(element as any).attachEvent('on' + eventName, eventHandler);
-		}
+	private onMessage(e: JQuery.TriggeredEvent<Window>) {
+		this.wrapper.recievedDataJSON = (e.originalEvent as any).data;
 	}
 		
 	private switchSelectionMode()
 	{
 		if(this.selectionMode==false)
 		{
-			$("#"+this.options.preferences.prefix+"toolCanvas").css("display","block");
+			$("#"+this.config.preferences.prefix+"toolCanvas").css("display","block");
 			this.selectionMode=true;
-			document.getElementById(this.options.preferences.prefix+'toolCanvas')!.style.cursor = "crosshair";
+			document.getElementById(this.config.preferences.prefix+'toolCanvas')!.style.cursor = "crosshair";
 		}
 		else
 		{
-			$("#"+this.options.preferences.prefix+"toolCanvas").css("display","none");
+			$("#"+this.config.preferences.prefix+"toolCanvas").css("display","none");
 			this.selectionMode=false;
-			document.getElementById(this.options.preferences.prefix+'toolCanvas')!.style.cursor = "auto";
+			document.getElementById(this.config.preferences.prefix+'toolCanvas')!.style.cursor = "auto";
 		}
 	}
 }

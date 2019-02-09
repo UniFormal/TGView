@@ -1,6 +1,5 @@
 import $ from 'jquery';
 
-import { Configuration } from "../Configuration";
 import DOMConstruct from "./DOMConstruct";
 
 /**
@@ -9,10 +8,12 @@ import DOMConstruct from "./DOMConstruct";
  */
 export default class Resizer {
 	constructor(private dom: DOMConstruct) {
+		this.doResize = this.doResize.bind(this);
+		this.resizeMenuDiv = this.resizeMenuDiv.bind(this);
 		this.dom.mainElement$.ready(() => {
 			this.doResize();
-			this.interval = window.setInterval(this.resizeMenuDiv.bind(this), 250);
-			$(window).resize(this.doResize.bind(this));
+			this.interval = window.setInterval(this.resizeMenuDiv, 250);
+			$(window).resize(this.doResize);
 		});
 	}
 
@@ -23,6 +24,8 @@ export default class Resizer {
 			window.clearInterval(this.interval);
 			this.interval = undefined;
 		}
+
+		$(window).off('resize', this.doResize);
 	}
 
 	private widthTreeBefore = 350;

@@ -1,89 +1,92 @@
 import {default as $} from 'jquery';
 import 'jstree';
 
-// import TGViewContainerClass from "../core/wrapper";
-// TODO: Import properly
-declare class TGViewContainerClass {}
-
 import { Configuration } from "../Configuration";
 import { ITGViewMenuEntry } from "../graph";
+import TGView from "../core/TGView";
+import DOMConstruct from "./DOMConstruct";
 
 export default class GraphTreeMenu {
 
-	constructor(wrapperIn: TGViewContainerClass, optionsIn: Configuration) {
-		this.wrapper = wrapperIn;
-		this.options = optionsIn;
+	constructor(private readonly config: Configuration, private readonly dom: DOMConstruct, private readonly wrapper: TGView) {
+		this.handleMouseMove = this.handleMouseMove.bind(this);
 
-		// TODO: This is a global event handler
-		document.getElementById(this.options.preferences.mainContainer)!.onmousemove = this.handleMouseMove.bind(this);
+		this.dom.mainElement.onmousemove = this.handleMouseMove;
 
-		$('#'+this.options.preferences.prefix+'theory_tree').jstree(
+		this.dom.$$('theory_tree').jstree(
+		{
+			'core' : 
 			{
-				'core' : 
+				"check_callback" : true,
+				"themes" : { "stripes" : false,"icons":false },
+			},	
+			"types" : 
+			{
+				"default" : 
 				{
-					"check_callback" : true,
-					"themes" : { "stripes" : false,"icons":false },
-				},	
-				"types" : 
-				{
-					"default" : 
-					{
-					  "valid_children" : ["default","file"]
-					}
-				 },
-		
-				"plugins" : 
-				[
-					"contextmenu", "dnd", "search",
-					"state", "types", "wholerow"
-				]
-			}); 
-
-			var jsonURL="https://neuralocean.de/graph/test/menu.json" || this.options.menuEntriesURL;
-
-			$.get(jsonURL, this.addTreeNodes.bind(this));
-		
-			$("#"+this.options.preferences.prefix+"theory_tree").on("select_node.jstree",
-				(evt, data) =>
-				{
-					this.wrapper.lastGraphDataUsed=data.node.original.graphdata; // TODO: Fix me
-					var y = this.currentMouseY - 8;
-					var x = this.currentMouseX + 4;
-		
-					// TODO: no-globals
-					$(".custom-menu-side").finish().show(10).
-					// In the right position (the mouse)
-					css({
-						top: y + "px",
-						left: x + "px",
-					});
-					evt.preventDefault();
+					"valid_children" : ["default","file"]
 				}
-			);
-				
-			$("#"+this.options.preferences.prefix+"theory_tree").on("open_node.jstree",
-				(evt, data) =>
+				},
+	
+			"plugins" : 
+			[
+				"contextmenu", "dnd", "search",
+				"state", "types", "wholerow"
+			]
+		}); 
+
+		var jsonURL="https://neuralocean.de/graph/test/menu.json" || this.config.menuEntriesURL;
+
+		$.get(jsonURL, this.addTreeNodes.bind(this));
+	
+		this.dom.$$("theory_tree").on("select_node.jstree",
+			(evt, data) =>
+			{
+				this.wrapper.lastGraphDataUsed=data.node.original.graphdata; // TODO: Fix me
+				var y = this.currentMouseY - 8;
+				var x = this.currentMouseX + 4;
+	
+				// TODO: no-globals
+				$(".custom-menu-side").finish().show(10).
+				// In the right position (the mouse)
+				css({
+					top: y + "px",
+					left: x + "px",
+				});
+				evt.preventDefault();
+			}
+		);
+			
+		this.dom.$("theory_tree").on("open_node.jstree",
+			(evt, data) =>
+			{
+				$(".custom-menu-side").hide(10);
+				this.lazyParent=data.node.id;
+				data.node.children=[];
+				if(this.alreadyAdded[this.lazyParent]!=true)
 				{
-					$(".custom-menu-side").hide(10);
-					this.lazyParent=data.node.id;
-					data.node.children=[];
-					if(this.alreadyAdded[this.lazyParent]!=true)
-					{
-						console.log(data.node);
-						console.log(this.lazyParent+" added: "+this.alreadyAdded[this.lazyParent]);
-						var jsonURL=this.options.menuEntriesURL+data.node.serverId;
-						//var jsonURL="http://neuralocean.de/graph/test/menu.json";
-						//this.alreadyAdded[lazyParent]=true;
-						$.get(jsonURL, this.addTreeNodes.bind(this));
-					}
+					console.log(data.node);
+					console.log(this.lazyParent+" added: "+this.alreadyAdded[this.lazyParent]);
+					var jsonURL=this.config.menuEntriesURL+data.node.serverId;
+					//var jsonURL="http://neuralocean.de/graph/test/menu.json";
+					//this.alreadyAdded[lazyParent]=true;
+					$.get(jsonURL, this.addTreeNodes.bind(this));
 				}
-			);
+			}
+		);
 	}
 
-	private wrapper: TGViewContainerClass;
-	private options: Configuration;
+	destroy() {
+		this.dom.mainElement.onmousemove = null;
 
-	private alreadyAdded: {[id: string]: boolean} = {};
+		// remove jstree + handlers
+		const tree = this.dom.$$('theory_tree');
+		tree.jstree(true).destroy();
+		tree.off('select_node.jstree');
+		tree.off('open_node.jstree');
+	}
+
+	private alreadyAdded: Record<string, boolean> = {};
 
 	private lazyParent = "#";
 	private currentMouseX = 0;
@@ -102,7 +105,7 @@ export default class GraphTreeMenu {
 		// that is what poly-fills are for
 		if (event.pageX == null && event.clientX != null) 
 		{
-			eventDoc = (event.target && (event.target as any).ownerDocument) || document.getElementById(this.options.preferences.mainContainer)!;
+			eventDoc = (event.target && (event.target as any).ownerDocument) || document.getElementById(this.config.preferences.mainContainer)!;
 			doc = eventDoc.documentElement;
 			body = eventDoc.body;
 
@@ -136,7 +139,7 @@ export default class GraphTreeMenu {
 				"children": child,
 				"state" : {"opened": !childNodes[i].hasChildren}
 			};
-			$('#'+this.options.preferences.prefix+'theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log("Child created");});
+			$('#'+this.config.preferences.prefix+'theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log("Child created");});
 		}
 	}
 }
