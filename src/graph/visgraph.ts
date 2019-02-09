@@ -3,7 +3,7 @@ import { INodeStyle, IArrowStyle } from "../Configuration";
 
 declare module 'vis' {
 	interface NetworkNodes {
-		[index: string]: CleanNode
+		[index: string]: CleanNode & Position
 	}
 	interface Network {
 		getConnectedNodes(nodeOrEdgeId: IdType, direction: string): IdType[];
@@ -51,8 +51,6 @@ export function cleanNode(nodeIn: DirtyNode, NODE_STYLES: Record<string, INodeSt
 		label: '',
 		previewhtml: '',
 		mathml: '',
-		x: 0,
-		y: 0,
 		url: '',
 		childsURL: '',
 

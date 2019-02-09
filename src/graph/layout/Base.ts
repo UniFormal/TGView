@@ -16,8 +16,8 @@ export default class LayoutBase {
 	protected countNodesInGraph : number[] = [];
 
 	destroy() {
-		// this.myAllNodes = [];
-		// this.countNodesInGraph = [];
+		this.myAllNodes = [];
+		this.countNodesInGraph = [];
 	}
 	
 	protected mapEdgesIntoNodes(edges: CleanEdge[], ignoreEdgesByType?: IEdgeIgnorance)
@@ -108,6 +108,9 @@ export default class LayoutBase {
 export type IEdgeIgnorance = Record<string, boolean>;
 
 export interface LayoutNode extends IGraphJSONNode {
+	x: number,
+	y: number,
+
 	graphNumber: number;
 	hidden: boolean;
 	toConnected: LayoutNode[];
@@ -129,6 +132,9 @@ export interface LayoutNode extends IGraphJSONNode {
 	membership?: number;
 }
 function CleanNode2LayoutNode(node: CleanNode): LayoutNode {
+	if (node.x === undefined  || node.y === undefined) {
+		console.warn('Node '+node.id+' is missing x or y, using (0, 0)');
+	}
 	return {
 		graphNumber: -1,
 		hidden: false,
@@ -151,6 +157,9 @@ function CleanNode2LayoutNode(node: CleanNode): LayoutNode {
 		
 		dispX: 0,
 		dispY: 0,
+
+		x: 0,
+		y: 0,
 
 		// this is at the end so that if we already have some extra props
 		// they get used

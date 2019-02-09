@@ -3,7 +3,6 @@ import {rainbow, getParameterByName, getStartToEnd} from '../utils';
 import StatusLogger from "../dom/StatusLogger";
 import ActionHistory from "../core/ActionHistory";
 import { Configuration } from "../Configuration";
-import { IGraphJSONEdge, IGraphJSONNode, IGraphJSONGraph } from "../graph";
 import { Position, IdType, ClusterOptions, Network, DataSet } from "vis";
 import { CleanEdge, CleanNode, ensureUniqueIds, cleanNode, cleanEdge, DirtyEdge, DirtyNode, IDirtyGraph } from "./visgraph";
 import DOMConstruct from "../dom/DOMConstruct";

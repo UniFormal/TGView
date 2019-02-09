@@ -44,9 +44,9 @@ interface IGraphJSONNode {
     /** url for showing node */
     url: string;
     /** x position of the node */
-    x: number;
+    x?: number;
     /** y position of the node */
-    y: number;
+    y?: number;
     /** url to download children from */
     childsURL: string;   
 }
