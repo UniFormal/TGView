@@ -1,6 +1,6 @@
 {
-  "name": "webpack-typescript",
-  "version": "1.0.0",
+  "name": "tgview",
+  "version": "0.0.1",
   "main": "./src/index.ts",
   "license": "MIT",
   "scripts": {
