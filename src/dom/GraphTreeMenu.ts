@@ -4,7 +4,7 @@ import 'jstree';
 
 import { Configuration } from '../Configuration';
 import { ITGViewMenuEntry } from '../graph';
-import TGView from '../core/TGView';
+import TGView from '..';
 import DOMConstruct from './DOMConstruct';
 
 export default class GraphTreeMenu {

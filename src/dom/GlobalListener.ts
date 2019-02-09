@@ -2,7 +2,7 @@ import {default as $} from 'jquery';
 
 import TheoryGraph, { IRectangle } from '../graph/TheoryGraph';
 import { Configuration } from '../Configuration';
-import TGView from '../core/TGView';
+import TGView from '..';
 import DOMConstruct from './DOMConstruct';
 
 export default class GlobalListener {
