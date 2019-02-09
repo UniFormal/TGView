@@ -1441,7 +1441,7 @@ export default class TheoryGraph {
 		// TODO: This is really unsafe if other stuff is on the page
 		$.ajaxSetup(
 		{
-            error: function(x, e) 
+            error: (x, e) =>
 			{
                 if (x.status == 0) 
 				{

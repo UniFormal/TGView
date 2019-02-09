@@ -140,7 +140,7 @@ export default class GraphTreeMenu {
 				"children": child,
 				"state" : {"opened": !childNodes[i].hasChildren}
 			};
-			$('#'+this.config.preferences.prefix+'theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log("Child created");});
+			this.dom.$$('theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log("Child created");});
 		}
 	}
 }
