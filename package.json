@@ -1,7 +1,7 @@
 {
   "name": "webpack-typescript",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./src/index.ts",
   "license": "MIT",
   "scripts": {
     "start": "webpack-serve",
@@ -12,10 +12,13 @@
     "@types/jqueryui": "^1.12.7",
     "@types/jstree": "^3.3.37",
     "@types/vis": "^4.21.10",
+    "css-loader": "^2.1.0",
     "html-webpack-plugin": "^3.2.0",
     "source-map-loader": "^0.2.4",
+    "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",
     "typescript": "^3.3.1",
+    "url-loader": "^1.1.2",
     "webpack": "^4.29.1",
     "webpack-cli": "^3.2.3",
     "webpack-serve": "^2.0.3"

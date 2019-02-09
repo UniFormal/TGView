@@ -106,7 +106,7 @@ export default class GraphTreeMenu {
 		// that is what poly-fills are for
 		if (event.pageX == null && event.clientX != null) 
 		{
-			eventDoc = (event.target && (event.target as any).ownerDocument) || document.getElementById(this.config.preferences.mainContainer)!;
+			eventDoc = (event.target && (event.target as any).ownerDocument) || this.dom.mainElement;
 			doc = eventDoc.documentElement;
 			body = eventDoc.body;
 

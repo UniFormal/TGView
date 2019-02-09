@@ -23,7 +23,7 @@ export class Configuration {
 			highlight: preferences.highlight || getParameterByName(Configuration.graphDataURLHighlightParameterNameTGView) || undefined,
 
 			mainContainer: preferences.mainContainer || "tgViewMainEle",
-			prefix: preferences.prefix || "tgview-",
+			prefix: preferences.prefix || "custom-prefix-",
 		}
 
 		/**
