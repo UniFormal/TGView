@@ -1,7 +1,7 @@
 import { Options as VOptions, NodeOptions } from 'vis';
 
 // @ts-check
-import { getParameterByName } from './utils.js';
+import { getParameterByName } from './utils';
 
 /**
  * Represents Options for TGView

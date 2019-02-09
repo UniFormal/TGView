@@ -1,3 +1,5 @@
+import 'jqueryui'
+
 import TGView from "../core/TGView";
 import GlobalListener from "./GlobalListener";
 import StatusLogger from "./StatusLogger";

@@ -30,10 +30,12 @@ export default class GlobalListener {
 			// Accordion
 			this.dom.$(".accordion").accordion({ header: "h3" });
 			// Tabs
-			this.dom.$$('tabs').tabs();
+			// TODO: Does not exist
+			// this.dom.$$('tabs').tabs();
 			// Button Set
-			this.dom.$$("radio1").buttonset();
-			this.dom.$$("methodCluster").selectmenu();
+			// TODO: Does not exist
+			//this.dom.$$("radio1").buttonset();
+			// this.dom.$$("methodCluster").selectmenu();
 			
 			this.canvasTools=this.dom.getElementById<HTMLCanvasElement>('toolCanvas');
 			this.ctxTools=this.canvasTools.getContext('2d')!;
@@ -100,7 +102,7 @@ export default class GlobalListener {
 
 		// destroy the ui
 		this.dom.$(".accordion").accordion('destroy');
-		this.dom.$$('tabs').tabs('destroy');
+		// this.dom.$$('tabs').tabs('destroy');
 		this.dom.$$("radio1").buttonset('destroy');
 		this.dom.$$("methodCluster").selectmenu('destroy');
 

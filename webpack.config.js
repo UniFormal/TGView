@@ -2,7 +2,7 @@ const path = require('path');
 const HTMLPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: './src/index.ts',
+  entry: './entry.ts',
   mode: 'development',
   devtool: 'inline-source-map',
   module: {
@@ -19,8 +19,8 @@ module.exports = {
     extensions: [ '.tsx', '.ts', '.js' ]
   },
   output: {
-    library: 'tgview',
-    libraryTarget: 'umd',
+    // library: 'tgview',
+   // libraryTarget: 'umd',
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
     devtoolModuleFilenameTemplate: '[absolute-resource-path]'

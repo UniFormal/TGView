@@ -1,4 +1,5 @@
 import {default as $} from 'jquery';
+(window as any).jQuery = $;
 import 'jstree';
 
 import { Configuration } from "../Configuration";

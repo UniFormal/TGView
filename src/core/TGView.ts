@@ -1,16 +1,16 @@
 import { default as $ } from "jquery";
 
-import { ITGViewOptions, Configuration } from "../Configuration.js";
-import StatusLogger from "../dom/StatusLogger.js";
-import Resizer from "../dom/Resizer.js";
-import ActionHistory from "./ActionHistory.js";
-import TheoryGraph from "../graph/TheoryGraph.js";
-import { setLocation, getParameterByName } from "../utils.js";
-import DOMConstruct from "../dom/DOMConstruct.js";
-import LegendPanel from "../graph/LegendPanel.js";
-import GlobalListener from "../dom/GlobalListener.js";
-import InteractionUI from "../dom/InteractionUI.js";
-import GraphTreeMenu from "../dom/GraphTreeMenu.js";
+import { ITGViewOptions, Configuration } from "../Configuration";
+import StatusLogger from "../dom/StatusLogger";
+import Resizer from "../dom/Resizer";
+import ActionHistory from "./ActionHistory";
+import TheoryGraph from "../graph/TheoryGraph";
+import { setLocation, getParameterByName } from "../utils";
+import DOMConstruct from "../dom/DOMConstruct";
+import LegendPanel from "../graph/LegendPanel";
+import GlobalListener from "../dom/GlobalListener";
+import InteractionUI from "../dom/InteractionUI";
+import GraphTreeMenu from "../dom/GraphTreeMenu";
 
 export default class TGView {
 	constructor(preferences: Partial<ITGViewOptions>) {
