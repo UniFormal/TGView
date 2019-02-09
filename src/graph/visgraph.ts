@@ -1,5 +1,5 @@
-import { IGraphJSONNode, IGraphJSONEdge } from "../graph";
-import { INodeStyle, IArrowStyle } from "../Configuration";
+import { IGraphJSONNode, IGraphJSONEdge } from '../graph';
+import { INodeStyle, IArrowStyle } from '../Configuration';
 
 declare module 'vis' {
 	interface NetworkNodes {

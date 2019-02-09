@@ -1,4 +1,4 @@
-import { Configuration } from "../Configuration";
+import { Configuration } from '../Configuration';
 import JQuery from 'jquery';
 
 // TODO: Instead of using the DomPrefix all over the code assign the important element inside of this class

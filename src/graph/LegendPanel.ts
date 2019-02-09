@@ -45,8 +45,8 @@ export default class LegendPanel {
 
 		for(var i=0;i<usedNodeTypes.length;i++)
 		{
-			var label="Node";
-			if(typeof this.config.NODE_STYLES[usedNodeTypes[i]] !== "undefined")
+			var label='Node';
+			if(typeof this.config.NODE_STYLES[usedNodeTypes[i]] !== 'undefined')
 			{
 				label=this.config.NODE_STYLES[usedNodeTypes[i]].alias;
 			}
@@ -63,16 +63,16 @@ export default class LegendPanel {
 		
 		for(var i=0;i<usedEdgeTypes.length;i++)
 		{
-			var label="Default Edge";
+			var label='Default Edge';
 			var edgeType=usedEdgeTypes[i];
-			if(typeof this.config.ARROW_STYLES[edgeType] !== "undefined")
+			if(typeof this.config.ARROW_STYLES[edgeType] !== 'undefined')
 			{
 				label=this.config.ARROW_STYLES[edgeType].alias;
 			}
 			else
 			{
-				edgeType=usedEdgeTypes[i].replace(/graph/i, "");
-				if(typeof this.config.ARROW_STYLES[edgeType] !== "undefined")
+				edgeType=usedEdgeTypes[i].replace(/graph/i, '');
+				if(typeof this.config.ARROW_STYLES[edgeType] !== 'undefined')
 				{
 					label=this.config.ARROW_STYLES[edgeType].alias;
 				}
@@ -80,7 +80,7 @@ export default class LegendPanel {
 			
 			nodesToAdd.push({
 				id: (200000+i)+'',
-				label:"N",
+				label:'N',
 				widthConstraint: {
 					minimum: this.smallNodeSize, 
 					maximum: this.smallNodeSize
@@ -89,7 +89,7 @@ export default class LegendPanel {
 			
 			nodesToAdd.push({
 				id: (210000+i)+'',
-				label:"N", 
+				label:'N', 
 				widthConstraint: {
 					minimum: this.smallNodeSize,
 					maximum: this.smallNodeSize
@@ -112,7 +112,7 @@ export default class LegendPanel {
 	}
 
 	private startRendering() {
-		this.statusLogger.setStatusText("Rendering Legend...");
+		this.statusLogger.setStatusText('Rendering Legend...');
 		
 		this.nodes = new vis.DataSet(this.originalNodes);
 		this.edges = new vis.DataSet(this.originalEdges);
@@ -121,7 +121,7 @@ export default class LegendPanel {
 		this.network = new vis.Network(this.container, { nodes: this.nodes, edges: this.edges }, this.config.LEGEND_PANEL_OPTIONS);
 		//network.startSimulation(10); 
 		
-		this.network.on("stabilizationIterationsDone", () => 
+		this.network.on('stabilizationIterationsDone', () => 
 		{
 			this.network!.stopSimulation();
 			var options = 
@@ -135,11 +135,11 @@ export default class LegendPanel {
 			this.statusLogger.setStatusCursor('auto');
 		});
 		
-		this.network.once("beforeDrawing",() => 
+		this.network.once('beforeDrawing',() => 
 		{
 			this.positionNodes();
 			this.network!.fit();
-			this.statusLogger.setStatusText("");
+			this.statusLogger.setStatusText('');
 		});
 	}
 

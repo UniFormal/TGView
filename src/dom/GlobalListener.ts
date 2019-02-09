@@ -1,9 +1,9 @@
 import {default as $} from 'jquery';
 
-import TheoryGraph, { IRectangle } from "../graph/TheoryGraph";
-import { Configuration } from "../Configuration";
-import TGView from "../core/TGView";
-import DOMConstruct from "./DOMConstruct";
+import TheoryGraph, { IRectangle } from '../graph/TheoryGraph';
+import { Configuration } from '../Configuration';
+import TGView from '../core/TGView';
+import DOMConstruct from './DOMConstruct';
 
 export default class GlobalListener {
 
@@ -12,7 +12,7 @@ export default class GlobalListener {
 
 		$(window).bind('message', this.onMessage);
 		
-		this.dom.mainElement$.bind("contextmenu", (event) => 
+		this.dom.mainElement$.bind('contextmenu', (event) => 
 		{
 			// if the ctrl key or the meta key are pressed
 			// show the default context menu 
@@ -28,7 +28,7 @@ export default class GlobalListener {
 		this.dom.mainElement$.ready(() => {
 			//$('button').button();
 			// Accordion
-			this.dom.$(".accordion").accordion({ header: "h3" });
+			this.dom.$('.accordion').accordion({ header: 'h3' });
 			// Tabs
 			// TODO: Does not exist
 			// this.dom.$$('tabs').tabs();
@@ -40,9 +40,9 @@ export default class GlobalListener {
 			this.canvasTools=this.dom.getElementById<HTMLCanvasElement>('toolCanvas');
 			this.ctxTools=this.canvasTools.getContext('2d')!;
 			this.rectTools = {};
-			this.containerTools = this.dom.$$("toolCanvas");
+			this.containerTools = this.dom.$$('toolCanvas');
 			
-			this.containerTools.on("mousemove", (e) => {
+			this.containerTools.on('mousemove', (e) => {
 
 				if (this.dragTools==true && this.selectionMode==true) 
 				{ 
@@ -51,17 +51,17 @@ export default class GlobalListener {
 
 					this.ctxTools!.clearRect(0, 0, this.canvasTools!.width, this.canvasTools!.height);
 					this.ctxTools!.setLineDash([5]);
-					this.ctxTools!.strokeStyle = "rgb(0, 102, 0)";
+					this.ctxTools!.strokeStyle = 'rgb(0, 102, 0)';
 					this.ctxTools!.strokeRect(this.rectTools.startX!, this.rectTools.startY!, this.rectTools.w!, this.rectTools.h!);
 					this.ctxTools!.setLineDash([]);
-					this.ctxTools!.fillStyle = "rgba(0, 255, 0, 0.2)";
+					this.ctxTools!.fillStyle = 'rgba(0, 255, 0, 0.2)';
 					this.ctxTools!.fillRect(this.rectTools.startX!, this.rectTools.startY!, this.rectTools.w!, this.rectTools.h!);
 					console.log(this.rectTools.startX,this.rectTools.startY, this.rectTools.w, this.rectTools.h);
 				}
 				
 			});
 
-			this.containerTools.on("mousedown", (e) => {
+			this.containerTools.on('mousedown', (e) => {
 				if (this.selectionMode==true) 
 				{ 
 					this.rectTools = {
@@ -75,7 +75,7 @@ export default class GlobalListener {
 				}
 			}); 
 
-			this.containerTools.on("mouseup", (e) =>
+			this.containerTools.on('mouseup', (e) =>
 			{
 				if (this.dragTools==true) 
 				{ 
@@ -101,10 +101,10 @@ export default class GlobalListener {
 		}
 
 		// destroy the ui
-		this.dom.$(".accordion").accordion('destroy');
+		this.dom.$('.accordion').accordion('destroy');
 		// this.dom.$$('tabs').tabs('destroy');
-		this.dom.$$("radio1").buttonset('destroy');
-		this.dom.$$("methodCluster").selectmenu('destroy');
+		this.dom.$$('radio1').buttonset('destroy');
+		this.dom.$$('methodCluster').selectmenu('destroy');
 
 		// reset a couple of variables
 		this.canvasTools = undefined;
@@ -128,15 +128,15 @@ export default class GlobalListener {
 	{
 		if(this.selectionMode==false)
 		{
-			$("#"+this.config.preferences.prefix+"toolCanvas").css("display","block");
+			$('#'+this.config.preferences.prefix+'toolCanvas').css('display','block');
 			this.selectionMode=true;
-			document.getElementById(this.config.preferences.prefix+'toolCanvas')!.style.cursor = "crosshair";
+			document.getElementById(this.config.preferences.prefix+'toolCanvas')!.style.cursor = 'crosshair';
 		}
 		else
 		{
-			$("#"+this.config.preferences.prefix+"toolCanvas").css("display","none");
+			$('#'+this.config.preferences.prefix+'toolCanvas').css('display','none');
 			this.selectionMode=false;
-			document.getElementById(this.config.preferences.prefix+'toolCanvas')!.style.cursor = "auto";
+			document.getElementById(this.config.preferences.prefix+'toolCanvas')!.style.cursor = 'auto';
 		}
 	}
 }

@@ -43,7 +43,7 @@ export function rainbow(numOfSteps: number, step: number) {
 		case 4: r = f; g = 0; b = 1; break;
 		case 5: r = 1; g = 0; b = q; break;
 	}
-	var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+	var c = '#' + ('00' + (~ ~(r * 255)).toString(16)).slice(-2) + ('00' + (~ ~(g * 255)).toString(16)).slice(-2) + ('00' + (~ ~(b * 255)).toString(16)).slice(-2);
 	return (c);
 }
 
@@ -57,12 +57,12 @@ export function getParameterByName(name: string, url?: string): string | null {
 	if (!url) {
 		url = window.location.href;
 	}
-	name = name.replace(/[\[\]]/g, "\\$&");
-	var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)")
+	name = name.replace(/[\[\]]/g, '\\$&');
+	var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)')
 	var results = regex.exec(url);
 	if (!results) return null;
 	if (!results[2]) return '';
-	return decodeURIComponent(results[2].replace(/\+/g, " "));
+	return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
 /**

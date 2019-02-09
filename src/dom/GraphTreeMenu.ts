@@ -2,10 +2,10 @@ import {default as $} from 'jquery';
 (window as any).jQuery = $;
 import 'jstree';
 
-import { Configuration } from "../Configuration";
-import { ITGViewMenuEntry } from "../graph";
-import TGView from "../core/TGView";
-import DOMConstruct from "./DOMConstruct";
+import { Configuration } from '../Configuration';
+import { ITGViewMenuEntry } from '../graph';
+import TGView from '../core/TGView';
+import DOMConstruct from './DOMConstruct';
 
 export default class GraphTreeMenu {
 
@@ -18,29 +18,29 @@ export default class GraphTreeMenu {
 		{
 			'core' : 
 			{
-				"check_callback" : true,
-				"themes" : { "stripes" : false,"icons":false },
+				'check_callback' : true,
+				'themes' : { 'stripes' : false,'icons':false },
 			},	
-			"types" : 
+			'types' : 
 			{
-				"default" : 
+				'default' : 
 				{
-					"valid_children" : ["default","file"]
+					'valid_children' : ['default','file']
 				}
 				},
 	
-			"plugins" : 
+			'plugins' : 
 			[
-				"contextmenu", "dnd", "search",
-				"state", "types", "wholerow"
+				'contextmenu', 'dnd', 'search',
+				'state', 'types', 'wholerow'
 			]
 		}); 
 
-		var jsonURL="https://neuralocean.de/graph/test/menu.json" || this.config.menuEntriesURL;
+		var jsonURL='https://neuralocean.de/graph/test/menu.json' || this.config.menuEntriesURL;
 
 		$.get(jsonURL, this.addTreeNodes.bind(this));
 	
-		this.dom.$$("theory_tree").on("select_node.jstree",
+		this.dom.$$('theory_tree').on('select_node.jstree',
 			(evt, data) =>
 			{
 				this.wrapper.lastGraphDataUsed=data.node.original.graphdata; // TODO: Fix me
@@ -48,26 +48,26 @@ export default class GraphTreeMenu {
 				var x = this.currentMouseX + 4;
 	
 				// TODO: no-globals
-				$(".custom-menu-side").finish().show(10).
+				$('.custom-menu-side').finish().show(10).
 				// In the right position (the mouse)
 				css({
-					top: y + "px",
-					left: x + "px",
+					top: y + 'px',
+					left: x + 'px',
 				});
 				evt.preventDefault();
 			}
 		);
 			
-		this.dom.$("theory_tree").on("open_node.jstree",
+		this.dom.$('theory_tree').on('open_node.jstree',
 			(evt, data) =>
 			{
-				$(".custom-menu-side").hide(10);
+				$('.custom-menu-side').hide(10);
 				this.lazyParent=data.node.id;
 				data.node.children=[];
 				if(this.alreadyAdded[this.lazyParent]!=true)
 				{
 					console.log(data.node);
-					console.log(this.lazyParent+" added: "+this.alreadyAdded[this.lazyParent]);
+					console.log(this.lazyParent+' added: '+this.alreadyAdded[this.lazyParent]);
 					var jsonURL=this.config.menuEntriesURL+data.node.serverId;
 					//var jsonURL="http://neuralocean.de/graph/test/menu.json";
 					//this.alreadyAdded[lazyParent]=true;
@@ -89,7 +89,7 @@ export default class GraphTreeMenu {
 
 	private alreadyAdded: Record<string, boolean> = {};
 
-	private lazyParent = "#";
+	private lazyParent = '#';
 	private currentMouseX = 0;
 	private currentMouseY = 0;
 
@@ -126,21 +126,21 @@ export default class GraphTreeMenu {
 	{
 		var childNodes=data;
 		console.log(childNodes);
-		console.log(this.lazyParent+";");
+		console.log(this.lazyParent+';');
 		for(var i=0;i<childNodes.length;i++)
 		{
-			var child=(childNodes[i].hasChildren==true) ? [{"id":"placeholder"}] : undefined;
+			var child=(childNodes[i].hasChildren==true) ? [{'id':'placeholder'}] : undefined;
 			var node=
 			{ 
-				"text" : childNodes[i].menuText, 
-				"id" : childNodes[i].id+Math.floor(Math.random() * 5000),
-				"serverId" : childNodes[i].id,
-				"graphdata": childNodes[i].uri, 
-				"typeGraph": childNodes[i].type, 
-				"children": child,
-				"state" : {"opened": !childNodes[i].hasChildren}
+				'text' : childNodes[i].menuText, 
+				'id' : childNodes[i].id+Math.floor(Math.random() * 5000),
+				'serverId' : childNodes[i].id,
+				'graphdata': childNodes[i].uri, 
+				'typeGraph': childNodes[i].type, 
+				'children': child,
+				'state' : {'opened': !childNodes[i].hasChildren}
 			};
-			this.dom.$$('theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log("Child created");});
+			this.dom.$$('theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log('Child created');});
 		}
 	}
 }

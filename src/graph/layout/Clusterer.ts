@@ -1,6 +1,6 @@
-import LayoutBase from "./Base";
-import { CleanNode, CleanEdge } from "../visgraph";
-import StatusLogger from "../../dom/StatusLogger";
+import LayoutBase from './Base';
+import { CleanNode, CleanEdge } from '../visgraph';
+import StatusLogger from '../../dom/StatusLogger';
 
 export default class Clusterer extends LayoutBase {
 	constructor(nodes: CleanNode[], edges: CleanEdge[], loggerIn: StatusLogger) {
@@ -12,7 +12,7 @@ export default class Clusterer extends LayoutBase {
 		var memberships: IMembership[] = [];
 		for(var i=0;i<populationSize;i++)
 		{
-			memberships.push({"data": [], "modularity":0});
+			memberships.push({'data': [], 'modularity':0});
 			memberships[i].data=this.generateRandomSolution();
 			memberships[i].modularity=this.calculateModularity(memberships[i].data);
 		}
@@ -20,7 +20,7 @@ export default class Clusterer extends LayoutBase {
 		
 		for(var round=0;round<rounds;round++)
 		{
-			console.log("round: "+round+"/"+rounds);
+			console.log('round: '+round+'/'+rounds);
 			for(var i=1;i<populationSize;i++)
 			{
 				for(var j=0;j<iterationsPerMutation;j++)
@@ -48,7 +48,7 @@ export default class Clusterer extends LayoutBase {
 			console.log(memberships[0].modularity);
 			console.log(memberships[1].modularity);
 			console.log(memberships[2].modularity);
-			console.log(" ");
+			console.log(' ');
 			
 			for(var i=(populationSize/2)|0;i<populationSize;i++)
 			{
@@ -126,7 +126,7 @@ export default class Clusterer extends LayoutBase {
 		var clusterUsed=[];
 		for(var i=0;i<membership2.length;i++)
 		{
-			if(typeof clusterUsed[membership2[i]] !== "undefined")
+			if(typeof clusterUsed[membership2[i]] !== 'undefined')
 			{
 				continue;
 			}
@@ -140,7 +140,7 @@ export default class Clusterer extends LayoutBase {
 		
 		for(var i=0;i<membership2.length;i++)
 		{
-			if(typeof allClusterUsing[membership2[i]] !=="undefined")
+			if(typeof allClusterUsing[membership2[i]] !=='undefined')
 			{
 				newMembership[i]=membership2[i]+maxMember1Cluster;
 			}
@@ -207,7 +207,7 @@ export default class Clusterer extends LayoutBase {
 		
 		for(var i=0;i<membershipIn.length;i++)
 		{
-			if(typeof clusterUsed[membershipIn[i]] !== "undefined")
+			if(typeof clusterUsed[membershipIn[i]] !== 'undefined')
 			{
 				continue;
 			}
@@ -239,7 +239,7 @@ export default class Clusterer extends LayoutBase {
 		{
 			if(membership[nodeIdx]==membership[i] && nodeIdx!=i)
 			{
-				var isConnected=( typeof this.myAllNodes[nodeIdx].connectedNodesById[this.myAllNodes[i].id] === "undefined" ? 0 : 1);
+				var isConnected=( typeof this.myAllNodes[nodeIdx].connectedNodesById[this.myAllNodes[i].id] === 'undefined' ? 0 : 1);
 				var tmp=isConnected-this.myAllNodes[nodeIdx].connectedNodes.length*this.myAllNodes[i].connectedNodes.length/numberOfLinks2;
 				
 				oldModularity-=tmp;
@@ -250,7 +250,7 @@ export default class Clusterer extends LayoutBase {
 		{
 			if(membership[i]==membership[nodeIdx] && nodeIdx!=i)
 			{
-				var isConnected=( typeof this.myAllNodes[i].connectedNodesById[this.myAllNodes[nodeIdx].id] === "undefined" ? 0 : 1);
+				var isConnected=( typeof this.myAllNodes[i].connectedNodesById[this.myAllNodes[nodeIdx].id] === 'undefined' ? 0 : 1);
 				var tmp=isConnected-this.myAllNodes[i].connectedNodes.length*this.myAllNodes[nodeIdx].connectedNodes.length/numberOfLinks2;
 				
 				oldModularity-=tmp;
@@ -262,7 +262,7 @@ export default class Clusterer extends LayoutBase {
 		{
 			if(membership[nodeIdx]==membership[i] && nodeIdx!=i)
 			{
-				var isConnected=( typeof this.myAllNodes[nodeIdx].connectedNodesById[this.myAllNodes[i].id] === "undefined" ? 0 : 1);
+				var isConnected=( typeof this.myAllNodes[nodeIdx].connectedNodesById[this.myAllNodes[i].id] === 'undefined' ? 0 : 1);
 				var tmp=isConnected-this.myAllNodes[nodeIdx].connectedNodes.length*this.myAllNodes[i].connectedNodes.length/numberOfLinks2;
 				
 				oldModularity+=tmp;
@@ -273,7 +273,7 @@ export default class Clusterer extends LayoutBase {
 		{
 			if(membership[i]==membership[nodeIdx] && nodeIdx!=i)
 			{
-				var isConnected=( typeof this.myAllNodes[i].connectedNodesById[this.myAllNodes[nodeIdx].id] === "undefined" ? 0 : 1);
+				var isConnected=( typeof this.myAllNodes[i].connectedNodesById[this.myAllNodes[nodeIdx].id] === 'undefined' ? 0 : 1);
 				var tmp=isConnected-this.myAllNodes[i].connectedNodes.length*this.myAllNodes[nodeIdx].connectedNodes.length/numberOfLinks2;
 				
 				oldModularity+=tmp;
@@ -292,7 +292,7 @@ export default class Clusterer extends LayoutBase {
 			{
 				if(membership[i] == membership[j] && i!=j)
 				{
-					var isConnected=( typeof this.myAllNodes[i].connectedNodesById[this.myAllNodes[j].id] === "undefined" ? 0 : 1);
+					var isConnected=( typeof this.myAllNodes[i].connectedNodesById[this.myAllNodes[j].id] === 'undefined' ? 0 : 1);
 					//console.log("isConnected "+isConnected);
 					//console.log(myAllNodes[i]);
 					var tmp=isConnected-this.myAllNodes[i].connectedNodes.length*this.myAllNodes[j].connectedNodes.length/numberOfLinks2;

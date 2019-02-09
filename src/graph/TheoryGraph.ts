@@ -1,13 +1,13 @@
 // import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
 import {rainbow, getParameterByName, getStartToEnd} from '../utils';
-import StatusLogger from "../dom/StatusLogger";
-import ActionHistory from "../core/ActionHistory";
-import { Configuration } from "../Configuration";
-import { Position, IdType, ClusterOptions, Network, DataSet } from "vis";
-import { CleanEdge, CleanNode, ensureUniqueIds, cleanNode, cleanEdge, DirtyEdge, DirtyNode, IDirtyGraph } from "./visgraph";
-import DOMConstruct from "../dom/DOMConstruct";
-import Clusterer from "./layout/Clusterer";
-import Optimizer from "./layout/Optimizer";
+import StatusLogger from '../dom/StatusLogger';
+import ActionHistory from '../core/ActionHistory';
+import { Configuration } from '../Configuration';
+import { Position, IdType, ClusterOptions, Network, DataSet } from 'vis';
+import { CleanEdge, CleanNode, ensureUniqueIds, cleanNode, cleanEdge, DirtyEdge, DirtyNode, IDirtyGraph } from './visgraph';
+import DOMConstruct from '../dom/DOMConstruct';
+import Clusterer from './layout/Clusterer';
+import Optimizer from './layout/Optimizer';
 
 import {default as $} from 'jquery';
 
@@ -29,9 +29,9 @@ type IPositionWithId = Pick<CleanNode, 'id'> & Partial<Pick<CleanNode, 'x' | 'y'
 
 export default class TheoryGraph {
 	constructor(private readonly config: Configuration, private readonly dom: DOMConstruct, private readonly containerName: string, private readonly statusLogger: StatusLogger, private readonly actionLogger: ActionHistory){
-		this.removeRegionImg.src = "img/delete_region.png";
-		this.moveRegionImg.src = "img/move_region.png";
-		this.addNodeToRegionImg.src = "img/add_region.png";
+		this.removeRegionImg.src = 'img/delete_region.png';
+		this.moveRegionImg.src = 'img/move_region.png';
+		this.addNodeToRegionImg.src = 'img/add_region.png';
 	}
 
 	// we store the nodes and edges in three ways:
@@ -92,7 +92,7 @@ export default class TheoryGraph {
 	private oldRegionPosition: Position | undefined; // TODO: Fix my type
 
 	private addNodeToRegion=false;
-	private addNodeRegionId: IdType | undefined;
+	private addNodeRegionId: vis.IdType | undefined;
 
 	
 	private internalOptimizer: Optimizer | undefined;
@@ -104,7 +104,7 @@ export default class TheoryGraph {
 	private readonly addNodeToRegionImg = new Image();
 
 	destroy() {
-		this.dom.$(".custom-menu li").off('click');
+		this.dom.$('.custom-menu li').off('click');
 
 		this.originalNodes = [];
 		this.originalEdges = [];
@@ -136,7 +136,7 @@ export default class TheoryGraph {
 
 	focusOnNodes(nodeIds?: string[]) {
 		var nodesToShow: string[] = [];
-		if (typeof nodeIds == "undefined")
+		if (typeof nodeIds == 'undefined')
 		{
 			nodeIds = this.network.getSelectedNodes().map(e => e.toString());
 		}
@@ -152,8 +152,8 @@ export default class TheoryGraph {
 			var connectedEdges=this.network.getConnectedEdges(nodeIds[i]);
 			
 			edgesToShow=edgesToShow.concat(connectedEdges);
-			var toNodes=this.network.getConnectedNodes(nodeIds[i],"to").map(e => e.toString());
-			var fromNodes=this.network.getConnectedNodes(nodeIds[i],"from").map(e => e.toString());
+			var toNodes=this.network.getConnectedNodes(nodeIds[i],'to').map(e => e.toString());
+			var fromNodes=this.network.getConnectedNodes(nodeIds[i],'from').map(e => e.toString());
 			
 			if(nodeIds.length==1)
 			{
@@ -230,7 +230,7 @@ export default class TheoryGraph {
 		}
 		this.nodes.update(newNodePositions); // TODO: Fix nodes type
 		
-		this.statusLogger.setStatusText("");
+		this.statusLogger.setStatusText('');
 		
 		var edgesToHide=[];
 		for(var i=0;i<this.originalEdges.length;i++)
@@ -260,9 +260,9 @@ export default class TheoryGraph {
 			var positions=this.network.getPositions(this.allNodeRegions[this.moveRegionId].nodeIds);
 			for(var i=0;i<this.allNodeRegions[this.moveRegionId].nodeIds.length;i++)
 			{
-				if(typeof this.allNodeRegions[this.moveRegionId].nodeIds[i] != "undefined")
+				if(typeof this.allNodeRegions[this.moveRegionId].nodeIds[i] != 'undefined')
 				{
-					updateNodes.push({"id":this.allNodeRegions[this.moveRegionId].nodeIds[i] ,"x":this.network.body.nodes[this.allNodeRegions[this.moveRegionId].nodeIds[i]].x+difX, "y":this.network.body.nodes[this.allNodeRegions[this.moveRegionId].nodeIds[i]].y+difY});
+					updateNodes.push({'id':this.allNodeRegions[this.moveRegionId].nodeIds[i] ,'x':this.network.body.nodes[this.allNodeRegions[this.moveRegionId].nodeIds[i]].x+difX, 'y':this.network.body.nodes[this.allNodeRegions[this.moveRegionId].nodeIds[i]].y+difY});
 				}
 			}
 			this.moveRegionHold=false;
@@ -446,7 +446,7 @@ export default class TheoryGraph {
 	{
 		for(var j=0;j<this.allNodeRegions.length;j++)
 		{
-			if(typeof this.allNodeRegions[j].mappedNodes[id]=="undefined" && this.intersectRect(box, this.allNodeRegions[j])==true)
+			if(typeof this.allNodeRegions[j].mappedNodes[id]=='undefined' && this.intersectRect(box, this.allNodeRegions[j])==true)
 			{
 				return j;
 			}
@@ -468,7 +468,7 @@ export default class TheoryGraph {
 			var countAvg=0;
 			for(var j=0;j<this.allNodeRegions.length;j++)
 			{	
-				if(typeof this.allNodeRegions[j].mappedNodes[this.originalNodes[i].id]!="undefined")
+				if(typeof this.allNodeRegions[j].mappedNodes[this.originalNodes[i].id]!='undefined')
 				{
 					avgX+=(this.allNodeRegions[j].left+this.allNodeRegions[j].right)/2;
 					avgY+=(this.allNodeRegions[j].top+this.allNodeRegions[j].bottom)/2;
@@ -481,7 +481,7 @@ export default class TheoryGraph {
 			
 			for(var j=0;j<this.allNodeRegions.length;j++)
 			{	
-				if(typeof this.allNodeRegions[j].mappedNodes[this.originalNodes[i].id]=="undefined" && this.intersectRect(box, this.allNodeRegions[j])==true)
+				if(typeof this.allNodeRegions[j].mappedNodes[this.originalNodes[i].id]=='undefined' && this.intersectRect(box, this.allNodeRegions[j])==true)
 				{
 					var minDirection=0;
 					var minDistance; 
@@ -555,7 +555,7 @@ export default class TheoryGraph {
 								newX=this.allNodeRegions[intersectingRegion].left-width/1.8;
 							}
 						} 
-						newPositions.push({"x":newX, "id":this.originalNodes[i].id});
+						newPositions.push({'x':newX, 'id':this.originalNodes[i].id});
 					}
 					else if(minDirection==1)
 					{
@@ -571,7 +571,7 @@ export default class TheoryGraph {
 								newX=this.allNodeRegions[intersectingRegion].right+width/1.8;
 							}
 						} 
-						newPositions.push({"x":newX, "id":this.originalNodes[i].id});
+						newPositions.push({'x':newX, 'id':this.originalNodes[i].id});
 					}
 					else if(minDirection==2)
 					{
@@ -587,7 +587,7 @@ export default class TheoryGraph {
 								newY=this.allNodeRegions[intersectingRegion].top-height/1.8;
 							}
 						} 
-						newPositions.push({"y":newY, "id":this.originalNodes[i].id});
+						newPositions.push({'y':newY, 'id':this.originalNodes[i].id});
 					}
 					else if(minDirection==3)
 					{
@@ -603,7 +603,7 @@ export default class TheoryGraph {
 								newY=this.allNodeRegions[intersectingRegion].bottom+height/1.8;
 							}
 						} 
-						newPositions.push({"y":newY, "id":this.originalNodes[i].id});
+						newPositions.push({'y':newY, 'id':this.originalNodes[i].id});
 					}
 				}
 			}
@@ -612,11 +612,11 @@ export default class TheoryGraph {
 		for(var i=0;i<newPositions.length;i++)
 		{
 			var position = newPositions[i];
-			if(typeof position.x != "undefined")
+			if(typeof position.x != 'undefined')
 			{
 				this.network.body.nodes[newPositions[i].id].x=position.x;
 			}
-			if(typeof position.y != "undefined")
+			if(typeof position.y != 'undefined')
 			{
 				this.network.body.nodes[newPositions[i].id].y=position.y;
 			}
@@ -636,19 +636,19 @@ export default class TheoryGraph {
 		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
 			var curNode = this.originalNodes[i];
-			if(curNode["style"]==type)
+			if(curNode['style']==type)
 			{
 				nodeIds.push(curNode.id);
 			}
 			
 		}
-		this.actionLogger.addToStateHistory("select", {"nodes": nodeIds});
+		this.actionLogger.addToStateHistory('select', {'nodes': nodeIds});
 		this.network.selectNodes(nodeIds);
 	}
 	
 	selectEdgesById(edgeIds: vis.IdType[])
 	{
-		this.actionLogger.addToStateHistory("selectEdges", {"edges": edgeIds});
+		this.actionLogger.addToStateHistory('selectEdges', {'edges': edgeIds});
 		this.network.selectEdges(edgeIds);
 	}
 	
@@ -658,13 +658,13 @@ export default class TheoryGraph {
 		for (var i = 0; i < this.originalEdges.length; i++) 
 		{
 			var currEdge = this.originalEdges[i];
-			if(currEdge["style"]==type)
+			if(currEdge['style']==type)
 			{
 				edgeIds.push(currEdge.id);
 			}
 			
 		}
-		this.actionLogger.addToStateHistory("selectEdges", {"edges": edgeIds});
+		this.actionLogger.addToStateHistory('selectEdges', {'edges': edgeIds});
 		this.network.selectEdges(edgeIds);
 	}
 	
@@ -673,7 +673,7 @@ export default class TheoryGraph {
 		var usedNodeTypes: string[] =[];
 		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
-			if(typeof this.originalNodes[i]["style"]!="undefined" && usedNodeTypes.indexOf(this.originalNodes[i].style!)==-1)
+			if(typeof this.originalNodes[i]['style']!='undefined' && usedNodeTypes.indexOf(this.originalNodes[i].style!)==-1)
 			{
 				usedNodeTypes.push(this.originalNodes[i].style);
 			}
@@ -686,9 +686,9 @@ export default class TheoryGraph {
 		var usedEdgeTypes=[];
 		for (var i = 0; i < this.originalEdges.length; i++) 
 		{
-			if(typeof this.originalEdges[i]["style"]!="undefined" && usedEdgeTypes.indexOf(this.originalEdges[i]["style"]!)==-1)
+			if(typeof this.originalEdges[i]['style']!='undefined' && usedEdgeTypes.indexOf(this.originalEdges[i]['style']!)==-1)
 			{
-				usedEdgeTypes.push(this.originalEdges[i]["style"]!);
+				usedEdgeTypes.push(this.originalEdges[i]['style']!);
 			}
 		}
 		return usedEdgeTypes;
@@ -696,68 +696,68 @@ export default class TheoryGraph {
 	
 	graphToIFrameString(parameterName: string | undefined, onlySelected: boolean | undefined, compressionRate: number | undefined)
 	{
-		if (typeof parameterName == "undefined")
+		if (typeof parameterName == 'undefined')
 		{
-			parameterName="tgviewGraphData_"+Math.floor((new Date()).getTime() / 1000)+"_"+Math.floor(Math.random() * 1000);
+			parameterName='tgviewGraphData_'+Math.floor((new Date()).getTime() / 1000)+'_'+Math.floor(Math.random() * 1000);
 		}
 		
-		if (typeof onlySelected == "undefined")
+		if (typeof onlySelected == 'undefined')
 		{
 			onlySelected=false;
 		}
 
-		if (typeof compressionRate == "undefined")
+		if (typeof compressionRate == 'undefined')
 		{
 			compressionRate=0;
 		}
 		
 		//TODO: what is this?, looks like an unsafe eval() being called somewhere
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+this.generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=iframe&uri="+parameterName, "id":parameterName};
+		return {'storage':'localStorage.setItem(\''+parameterName+'\', \''+this.generateCompressedJSON(onlySelected, compressionRate).split('\'').join('\\\'')+'\');', 'uri':location.protocol + '//' + location.host + location.pathname+'?source=iframe&uri='+parameterName, 'id':parameterName};
 	}
 	
 	graphToLocalStorageString(parameterName: string | undefined, onlySelected: boolean | undefined, compressionRate: number | undefined)
 	{
-		if (typeof parameterName == "undefined")
+		if (typeof parameterName == 'undefined')
 		{
-			parameterName="tgviewGraphData_"+Math.floor((new Date()).getTime() / 1000)+"_"+Math.floor(Math.random() * 1000);
+			parameterName='tgviewGraphData_'+Math.floor((new Date()).getTime() / 1000)+'_'+Math.floor(Math.random() * 1000);
 		}
 		
-		if (typeof onlySelected == "undefined")
+		if (typeof onlySelected == 'undefined')
 		{
 			onlySelected=false;
 		}
 
-		if (typeof compressionRate == "undefined")
+		if (typeof compressionRate == 'undefined')
 		{
 			compressionRate=0;
 		}
 		
-		return {"storage":"localStorage.setItem('"+parameterName+"', '"+this.generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+parameterName, "name":parameterName};
+		return {'storage':'localStorage.setItem(\''+parameterName+'\', \''+this.generateCompressedJSON(onlySelected, compressionRate).split('\'').join('\\\'')+'\');', 'uri':location.protocol + '//' + location.host + location.pathname+'?source=param&uri='+parameterName, 'name':parameterName};
 	}
 	
 	graphToURIParameterString(onlySelected: boolean | undefined, compressionRate: number | undefined)
 	{
-		if (typeof onlySelected == "undefined")
+		if (typeof onlySelected == 'undefined')
 		{
 			onlySelected=false;
 		}
 
-		if (typeof compressionRate == "undefined")
+		if (typeof compressionRate == 'undefined')
 		{
 			compressionRate=2;
 		}
 		
-		return location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+encodeURI(this.generateCompressedJSON(onlySelected, compressionRate));
+		return location.protocol + '//' + location.host + location.pathname+'?source=param&uri='+encodeURI(this.generateCompressedJSON(onlySelected, compressionRate));
 	}
 
 	graphToStringJSON(onlySelected: boolean | undefined, compressionRate: number | undefined)
 	{
-		if (typeof onlySelected == "undefined")
+		if (typeof onlySelected == 'undefined')
 		{
 			onlySelected=false;
 		}
 
-		if (typeof compressionRate == "undefined")
+		if (typeof compressionRate == 'undefined')
 		{
 			compressionRate=0;
 		}
@@ -770,13 +770,13 @@ export default class TheoryGraph {
 		// TODO: Use JSON.stringify for cleaner code
 		var allNodePositions: Record<string, vis.Position>={};
 		
-		var json="{\"nodes\":[";
-		if (typeof onlySelected == "undefined")
+		var json='{"nodes":[';
+		if (typeof onlySelected == 'undefined')
 		{
 			onlySelected=false;
 		}
 		
-		if (typeof compressionRate == "undefined")
+		if (typeof compressionRate == 'undefined')
 		{
 			compressionRate=0;
 		}
@@ -803,15 +803,15 @@ export default class TheoryGraph {
 		var counter=0;
 		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
-			var currentNodeJson="{";
+			var currentNodeJson='{';
 			var curNode = this.originalNodes[i];
 			
-			if(onlySelected==true && typeof nodeIdMapping[curNode.id] == "undefined")
+			if(onlySelected==true && typeof nodeIdMapping[curNode.id] == 'undefined')
 			{
 				continue;
 			}
 			
-			if(typeof mapping[curNode.id] == "undefined")
+			if(typeof mapping[curNode.id] == 'undefined')
 			{
 				mapping[curNode.id]=counter;
 				counter++;
@@ -828,15 +828,15 @@ export default class TheoryGraph {
 			
 			if(curNode.mathml)
 			{
-				currentNodeJson+=',"mathml":"'+curNode.mathml.split('"').join("'")+'"';
+				currentNodeJson+=',"mathml":"'+curNode.mathml.split('"').join('\'')+'"';
 			}
 
 			if(curNode.previewhtml)
 			{
-				currentNodeJson+=',"previewhtml":"'+curNode.previewhtml.split('"').join("'")+'"';
+				currentNodeJson+=',"previewhtml":"'+curNode.previewhtml.split('"').join('\'')+'"';
 			}
 			
-			if(typeof curNode.url != "undefined" && curNode.url!="" && compressionRate<2)
+			if(typeof curNode.url != 'undefined' && curNode.url!='' && compressionRate<2)
 			{
 				currentNodeJson+=',"url":"'+curNode.url+'"';
 			}
@@ -847,71 +847,71 @@ export default class TheoryGraph {
 				currentNodeJson+=',"y":"'+allNodePositions[curNode.id].y+'"';
 			}
 			
-			currentNodeJson+="},";
+			currentNodeJson+='},';
 			json+=currentNodeJson;
 		}
 		
-		json=json.substring(0, json.length - 1)+"],\"edges\":[";
+		json=json.substring(0, json.length - 1)+'],"edges":[';
 		
 		for (var i = 0; i < this.originalEdges.length; i++) 
 		{				
 			var currEdge = this.originalEdges[i];
-			if(typeof mapping[currEdge.to] != "undefined" && typeof mapping[currEdge.from] != "undefined" )
+			if(typeof mapping[currEdge.to] != 'undefined' && typeof mapping[currEdge.from] != 'undefined' )
 			{
-				var currentEdgeJson="{";
+				var currentEdgeJson='{';
 				
 				currentEdgeJson+='"to":"'+currEdge.to+'",';
 				currentEdgeJson+='"from":"'+currEdge.from+'",';
 				currentEdgeJson+='"style":"'+currEdge.style+'"';
 				
-				if(typeof currEdge.label != "undefined" && currEdge.label!="" && compressionRate<2)
+				if(typeof currEdge.label != 'undefined' && currEdge.label!='' && compressionRate<2)
 				{
 					currentEdgeJson+=',"label":"'+currEdge.label+'"';
 				}
 				
-				if(typeof currEdge.weight != "undefined" && currEdge.weight!="" && compressionRate<2)
+				if(typeof currEdge.weight != 'undefined' && currEdge.weight!='' && compressionRate<2)
 				{
 					currentEdgeJson+=',"weight":"'+currEdge.weight+'"';
 				}
 				
-				if(typeof currEdge.url != "undefined" && currEdge.url!="" && compressionRate<2)
+				if(typeof currEdge.url != 'undefined' && currEdge.url!='' && compressionRate<2)
 				{
 					currentEdgeJson+=',"url":"'+currEdge.url+'"';
 				}
 				
-				currentEdgeJson+="},";
+				currentEdgeJson+='},';
 				json+=currentEdgeJson;
 			}
 		}
 		
 		if(this.allClusters.length>0)
 		{
-			json=json.substring(0, json.length - 1)+"],\"cluster\":[";
+			json=json.substring(0, json.length - 1)+'],"cluster":[';
 			
 			for (var i = 0; i < this.allClusters.length; i++) 
 			{		
-				var currentClusterJson="{\"nodeIds\":";
+				var currentClusterJson='{"nodeIds":';
 				currentClusterJson+=JSON.stringify(this.clusterPositions[this.allClusters[i]][0]);
-				currentClusterJson+=",";
+				currentClusterJson+=',';
 				
-				currentClusterJson+="\"nodePositions\":";
+				currentClusterJson+='"nodePositions":';
 				currentClusterJson+=JSON.stringify(this.clusterPositions[this.allClusters[i]][1]);
-				currentClusterJson+="";
+				currentClusterJson+='';
 				
-				currentClusterJson+="},";
+				currentClusterJson+='},';
 				json+=currentClusterJson;
 			}
 		}
 
-		json=json.substring(0, json.length - 1)+"]}";
+		json=json.substring(0, json.length - 1)+']}';
 		return json;
 	}
 	
 	loadGraphByLocalStorage(parameterName?: string)
 	{
-		if (typeof parameterName == "undefined")
+		if (typeof parameterName == 'undefined')
 		{
-			parameterName="tgviewGraphData";
+			parameterName='tgviewGraphData';
 		}
 
 		var graphData=localStorage.getItem(parameterName);
@@ -920,7 +920,7 @@ export default class TheoryGraph {
 	
 	loadGraphByURIParameter(_?: string)
 	{
-		var graphData=getParameterByName("uri");
+		var graphData=getParameterByName('uri');
 		this.drawGraph(JSON.parse(graphData!));
 	}
 	
@@ -931,15 +931,15 @@ export default class TheoryGraph {
 		for(var i=0;i<this.originalEdges.length;i++)
 		{
 			//console.log(type+""+originalEdges[i]["style"]);
-			if(type==this.originalEdges[i]["style"] || ("graph"+type)==this.originalEdges[i]["style"] )
+			if(type==this.originalEdges[i]['style'] || ('graph'+type)==this.originalEdges[i]['style'] )
 			{
 				if(hideEdge==true)
 				{
-					edgesToHide.push({id: this.originalEdges[i]["id"]!, hidden: hideEdge!});
+					edgesToHide.push({id: this.originalEdges[i]['id']!, hidden: hideEdge!});
 				}
 				else if(hideEdge==false && (this.hiddenNodes[this.originalEdges[i].to!]==false && this.hiddenNodes[this.originalEdges[i].from!]==false))
 				{
-					edgesToHide.push({id: this.originalEdges[i]["id"]!, hidden: hideEdge!});
+					edgesToHide.push({id: this.originalEdges[i]['id']!, hidden: hideEdge!});
 				}
 			}
 		}
@@ -949,7 +949,7 @@ export default class TheoryGraph {
 	
 	hideEdgesById(edgeIds: IdType[] | undefined, hideEdge: boolean)
 	{
-		if(typeof edgeIds=="undefined" || edgeIds.length==0)
+		if(typeof edgeIds=='undefined' || edgeIds.length==0)
 			return;
 		
 		var edgesToHide=[];
@@ -958,7 +958,7 @@ export default class TheoryGraph {
 			edgesToHide.push({id: edgeIds[i], hidden: hideEdge});
 		}
 		this.edges.update(edgesToHide);
-		this.actionLogger.addToStateHistory("hideEdges", {"hideEdges":edgesToHide,"hidden":hideEdge});
+		this.actionLogger.addToStateHistory('hideEdges', {'hideEdges':edgesToHide,'hidden':hideEdge});
 	}
 	
 	
@@ -985,7 +985,7 @@ export default class TheoryGraph {
 		}
 		this.allManuallyHiddenNodes=[];
 
-		this.actionLogger.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":false});
+		this.actionLogger.addToStateHistory('hideNodes', {'hideNodes':nodesToHide,'hideEdges':edgesToHide,'hidden':false});
 	}
 	
 	/**
@@ -995,7 +995,7 @@ export default class TheoryGraph {
 	 */
 	hideNodesById(nodeIds: string[] | undefined, hideNode: boolean)
 	{
-		if(typeof nodeIds=="undefined" || nodeIds.length==0)
+		if(typeof nodeIds=='undefined' || nodeIds.length==0)
 		{
 			nodeIds=this.network.getSelectedNodes().map(e => e.toString());
 		}
@@ -1014,18 +1014,18 @@ export default class TheoryGraph {
 		{
 			if(hideNode==true && (this.hiddenNodes[this.originalEdges[i].to!] == true || this.hiddenNodes[this.originalEdges[i].from!] == true))
 			{
-				edgesToHide.push({id: this.originalEdges[i]["id"], hidden: hideNode});
+				edgesToHide.push({id: this.originalEdges[i]['id'], hidden: hideNode});
 			}
 
 			if(hideNode==false && (this.hiddenNodes[this.originalEdges[i].to!]==false && this.hiddenNodes[this.originalEdges[i].from!]==false))
 			{
-				edgesToHide.push({id: this.originalEdges[i]["id"], hidden: hideNode});
+				edgesToHide.push({id: this.originalEdges[i]['id'], hidden: hideNode});
 			}
 		}
 		this.edges.update(edgesToHide);
 		
-		this.allManuallyHiddenNodes.push({"nodes":nodesToHide, "edges":edgesToHide});
-		this.actionLogger.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideNode});
+		this.allManuallyHiddenNodes.push({'nodes':nodesToHide, 'edges':edgesToHide});
+		this.actionLogger.addToStateHistory('hideNodes', {'hideNodes':nodesToHide,'hideEdges':edgesToHide,'hidden':hideNode});
 	}
 	
 	hideNodes(type: string, hideEdge: boolean)
@@ -1036,10 +1036,10 @@ export default class TheoryGraph {
 		for(var i=0;i<this.originalNodes.length;i++)
 		{
 			//console.log(type+""+originalEdges[i]["style"]);
-			if(type==this.originalNodes[i]["style"] || ("graph"+type)==this.originalNodes[i]["style"] )
+			if(type==this.originalNodes[i]['style'] || ('graph'+type)==this.originalNodes[i]['style'] )
 			{
-				nodesToHide.push({id: this.originalNodes[i]["id"], hidden: hideEdge});
-				this.hiddenNodes[this.originalNodes[i]["id"]!]=hideEdge;
+				nodesToHide.push({id: this.originalNodes[i]['id'], hidden: hideEdge});
+				this.hiddenNodes[this.originalNodes[i]['id']!]=hideEdge;
 			}
 		}
 		this.nodes.update(nodesToHide);
@@ -1055,10 +1055,10 @@ export default class TheoryGraph {
 		{
 			if(hideEdge==true && (this.hiddenNodes[this.originalEdges[i].to!] == true || this.hiddenNodes[this.originalEdges[i].from!] == true))
 			{
-				edgesToHide.push({id: this.originalEdges[i]["id"]!, hidden: hideEdge});
+				edgesToHide.push({id: this.originalEdges[i]['id']!, hidden: hideEdge});
 			}
 			
-			if(typeof mappedEdges[this.originalEdges[i]["style"]!] != "undefined" && mappedEdges[this.originalEdges[i]["style"]!]!=hideEdge)
+			if(typeof mappedEdges[this.originalEdges[i]['style']!] != 'undefined' && mappedEdges[this.originalEdges[i]['style']!]!=hideEdge)
 			{
 				continue;
 			}
@@ -1066,7 +1066,7 @@ export default class TheoryGraph {
 			
 			if(hideEdge==false && (this.hiddenNodes[this.originalEdges[i].to!]==false && this.hiddenNodes[this.originalEdges[i].from!]==false))
 			{
-				edgesToHide.push({id: this.originalEdges[i]["id"], hidden: hideEdge});
+				edgesToHide.push({id: this.originalEdges[i]['id'], hidden: hideEdge});
 			}
 		}
 		this.edges.update(edgesToHide);
@@ -1085,7 +1085,7 @@ export default class TheoryGraph {
 			}
 		}
 
-		this.edgesNameToHide.push({"hidden": hideEdge,"type": type});
+		this.edgesNameToHide.push({'hidden': hideEdge,'type': type});
 	}
 	
 	downloadCanvasAsImage(_: HTMLButtonElement)
@@ -1116,7 +1116,7 @@ export default class TheoryGraph {
 		this.network.redraw();
 		this.network.fit();
 		
-		this.network.once("afterDrawing",() => 
+		this.network.once('afterDrawing',() => 
 		{
 			
 			//button.href = network.canvas.frame.canvas.toDataURL();
@@ -1126,7 +1126,7 @@ export default class TheoryGraph {
 			downloadLink.target   = '_blank';
 			downloadLink.download = 'graph.png';
 
-			var image=this.network.canvas.frame.canvas.toDataURL("image/png");
+			var image=this.network.canvas.frame.canvas.toDataURL('image/png');
 
 			var URL: typeof window.URL = window.URL || (window as any).webkitURL;
 			var downloadUrl = image;
@@ -1149,7 +1149,7 @@ export default class TheoryGraph {
 			this.network.setSize(originalWidth,originalHeight);
 			this.network.redraw();
 			this.network.fit();
-			this.statusLogger.setStatusText("");
+			this.statusLogger.setStatusText('');
 		});
 	}
 	
@@ -1177,7 +1177,7 @@ export default class TheoryGraph {
 	selectNodes(nodeIds: vis.IdType[])
 	{
 		this.network.selectNodes(nodeIds);
-		this.actionLogger.addToStateHistory("select", {"nodes": nodeIds});
+		this.actionLogger.addToStateHistory('select', {'nodes': nodeIds});
 	}
 	
 	selectNodesWithIdLike(searchId: string)
@@ -1192,7 +1192,7 @@ export default class TheoryGraph {
 			}
 			
 		}
-		this.actionLogger.addToStateHistory("select", {"nodes": nodeIds});
+		this.actionLogger.addToStateHistory('select', {'nodes': nodeIds});
 		this.network.selectNodes(nodeIds);
 	}
 	
@@ -1209,13 +1209,13 @@ export default class TheoryGraph {
 					childrenCount += childNodes[i].childrenCount || 1;
 				}
 				clusterOptions.childrenCount = childrenCount;
-				clusterOptions.label = "# " + childrenCount + "";
+				clusterOptions.label = '# ' + childrenCount + '';
 				clusterOptions.font = {size: Math.min(childrenCount+20,40)}
 				clusterOptions.id = 'cluster_' + this.clusterId;
 				this.zoomClusters.push({id:'cluster_' + this.clusterId, scale:scale});
 				return clusterOptions;
 			},
-			clusterNodeProperties: {borderWidth: 2, shape: 'database', color:"orange"}
+			clusterNodeProperties: {borderWidth: 2, shape: 'database', color:'orange'}
 		}
 		this.network.clusterOutliers(clusterOptionsByData);
 	}
@@ -1252,7 +1252,7 @@ export default class TheoryGraph {
 			right: NaN,
 		});
 
-		this.actionLogger.addToStateHistory("cageNodes", {"nodeIds":nodeIds,"color":color,"index":this.allNodeRegions.length-1});
+		this.actionLogger.addToStateHistory('cageNodes', {'nodeIds':nodeIds,'color':color,'index':this.allNodeRegions.length-1});
 		this.network.redraw();
 	}
 	
@@ -1270,7 +1270,7 @@ export default class TheoryGraph {
 		{
 			var curNode = this.originalNodes[i];
 			var nodePosition = this.network.getPositions([curNode.id]);
-			if(typeof nodePosition!="undefined" && typeof this.network.body.nodes[curNode.id] !="undefined" && this.network.body.nodes[curNode.id].options.hidden!=true)
+			if(typeof nodePosition!='undefined' && typeof this.network.body.nodes[curNode.id] !='undefined' && this.network.body.nodes[curNode.id].options.hidden!=true)
 			{
 				var nodeXY = this.network.canvasToDOM({x: nodePosition[curNode.id].x, y: nodePosition[curNode.id].y});
 				if (xRange.start <= nodeXY.x && nodeXY.x <= xRange.end && yRange.start <= nodeXY.y && nodeXY.y <= yRange.end) 
@@ -1279,13 +1279,13 @@ export default class TheoryGraph {
 				}
 			}
 		}
-		this.actionLogger.addToStateHistory("select", {"nodes": nodesIdInDrawing});
+		this.actionLogger.addToStateHistory('select', {'nodes': nodesIdInDrawing});
 		this.network.selectNodes(nodesIdInDrawing);
 	}
 	
 	colorizeNodesByName(nodeNames: string | undefined | null, color: string)
 	{
-		if(typeof nodeNames == "undefined" || nodeNames==null || nodeNames==undefined)
+		if(typeof nodeNames == 'undefined' || nodeNames==null || nodeNames==undefined)
 		{
 			return;
 		}
@@ -1294,7 +1294,7 @@ export default class TheoryGraph {
 		var nodeNamesArray=[];
 		if( typeof nodeNames == 'string' ) 
 		{
-			nodeNamesArray = nodeNames.replace(" ", "").split(",");
+			nodeNamesArray = nodeNames.replace(' ', '').split(',');
 			
 		}
 		else
@@ -1304,8 +1304,8 @@ export default class TheoryGraph {
 		
 		for(var i=0;i<nodeNamesArray.length;i++)
 		{
-			console.log("^"+nodeNamesArray[i].replace("*", "(.*)")+"$");
-			var re = new RegExp("^"+nodeNamesArray[i].split("*").join("(.*)")+"$");
+			console.log('^'+nodeNamesArray[i].replace('*', '(.*)')+'$');
+			var re = new RegExp('^'+nodeNamesArray[i].split('*').join('(.*)')+'$');
 			for (var j = 0; j < this.originalNodes.length; j++) 
 			{
 				if (re.test(this.originalNodes[j].label!)) 
@@ -1332,7 +1332,7 @@ export default class TheoryGraph {
 		
 		for(var i=0;i<membership.length;i++)
 		{
-			if(typeof clusteredNodes[membership[i]] === "undefined")
+			if(typeof clusteredNodes[membership[i]] === 'undefined')
 			{
 				clusteredNodes[membership[i]]=[];
 				usedClusters.push(membership[i]);
@@ -1366,7 +1366,7 @@ export default class TheoryGraph {
 		
 		if(color==undefined)
 		{
-			color="blue";
+			color='blue';
 		}
 		
 		if(this.network!=null)
@@ -1386,7 +1386,7 @@ export default class TheoryGraph {
 	
 	cluster(nodeIds?: string[],name?: string, givenClusterId?: number)
 	{
-		if(typeof givenClusterId ==="undefined")
+		if(typeof givenClusterId ==='undefined')
 		{
 			givenClusterId=this.clusterId;
 		}
@@ -1424,17 +1424,17 @@ export default class TheoryGraph {
                   clusterOptions.mass = totalMass;
                   return clusterOptions;
               },
-              clusterNodeProperties: {id: 'cluster_' +givenClusterId , borderWidth: 2, shape: 'database', color:"orange", label:name} as vis.NodeOptions
+              clusterNodeProperties: {id: 'cluster_' +givenClusterId , borderWidth: 2, shape: 'database', color:'orange', label:name} as vis.NodeOptions
 			}
 			this.network.clustering.cluster(options);
-			this.actionLogger.addToStateHistory("cluster", {"clusterId": 'cluster_' +givenClusterId, "name": name, "nodes": nodeIds});
+			this.actionLogger.addToStateHistory('cluster', {'clusterId': 'cluster_' +givenClusterId, 'name': name, 'nodes': nodeIds});
 			this.clusterId++;
 		}
 	}
 	
 	getGraph(jsonURL: string)
 	{
-		this.statusLogger.setStatusText("Downloading graph...");
+		this.statusLogger.setStatusText('Downloading graph...');
 		this.statusLogger.setStatusCursor('wait');
 		
 		// TODO: This is really unsafe if other stuff is on the page
@@ -1478,7 +1478,7 @@ export default class TheoryGraph {
 			return;
 		}
 		
-		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
+		if(typeof data['nodes'] == 'undefined' || typeof data['edges'] == 'undefined')
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
 			this.statusLogger.setStatusCursor('auto');
@@ -1490,7 +1490,7 @@ export default class TheoryGraph {
 	
 	drawGraph(data: string | IDirtyGraph, status: number | string=200)
 	{
-		if(status!=200 && status!="success") 
+		if(status!=200 && status!='success') 
 		{
 			this.statusLogger.setStatusText('<font color="red">Downloading graph failed (HTTP-Error-Code: '+status+')</font>');
 			this.statusLogger.setStatusCursor('auto');
@@ -1504,7 +1504,7 @@ export default class TheoryGraph {
 			return;
 		}
 		
-		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
+		if(typeof data['nodes'] == 'undefined' || typeof data['edges'] == 'undefined')
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
 			this.statusLogger.setStatusCursor('auto');
@@ -1534,7 +1534,7 @@ export default class TheoryGraph {
 	
 	addUsedButNotDefinedNodes()
 	{
-		this.statusLogger.setStatusText("Adding used but not defined nodes...");
+		this.statusLogger.setStatusText('Adding used but not defined nodes...');
 		var mappedNodes: Record<string, vis.Node> = {};
 		for(var i=0;i< this.originalNodes.length;i++ )
 		{
@@ -1546,7 +1546,7 @@ export default class TheoryGraph {
 			if(this.originalEdges[i].from != undefined && mappedNodes[this.originalEdges[i].from]==undefined)
 			{
 				var nodeLabel=this.originalEdges[i].from as string;
-				var exploded=nodeLabel.split("?");
+				var exploded=nodeLabel.split('?');
 				if(exploded[1]!=undefined)
 				{
 					nodeLabel=exploded[1];
@@ -1554,20 +1554,20 @@ export default class TheoryGraph {
 				
 				var addNode=
 				{
-					"id" : this.originalEdges[i].from!,
-					"style" : "border",
-					"label" : nodeLabel,
-					"url" : this.originalEdges[i].from as string
+					'id' : this.originalEdges[i].from!,
+					'style' : 'border',
+					'label' : nodeLabel,
+					'url' : this.originalEdges[i].from as string
 				};
 				
 				this.originalNodes.push(cleanNode(addNode, this.config.NODE_STYLES));
 				mappedNodes[this.originalEdges[i].from]=addNode;
-				console.log("Border-Node: "+nodeLabel+" ("+this.originalEdges[i].from+")");
+				console.log('Border-Node: '+nodeLabel+' ('+this.originalEdges[i].from+')');
 			}
 			if(this.originalEdges[i].to!=undefined && mappedNodes[this.originalEdges[i].to]==undefined)
 			{
 				var nodeLabel=this.originalEdges[i].to;
-				var exploded=nodeLabel.split("?");
+				var exploded=nodeLabel.split('?');
 				if(exploded[1]!=undefined)
 				{
 					nodeLabel=exploded[1];
@@ -1575,15 +1575,15 @@ export default class TheoryGraph {
 				
 				var addNode=
 				{
-					"id" : this.originalEdges[i].to,
-					"style" : "border",
-					"label" : nodeLabel,
-					"url" : this.originalEdges[i].to
+					'id' : this.originalEdges[i].to,
+					'style' : 'border',
+					'label' : nodeLabel,
+					'url' : this.originalEdges[i].to
 				};
 				
 				this.originalNodes.push(cleanNode(addNode, this.config.NODE_STYLES));
 				mappedNodes[this.originalEdges[i].to]=addNode;
-				console.log("Border-Node: "+nodeLabel+" ("+this.originalEdges[i].to+")");
+				console.log('Border-Node: '+nodeLabel+' ('+this.originalEdges[i].to+')');
 			}
 		}
 	}
@@ -1591,7 +1591,7 @@ export default class TheoryGraph {
 	// TODO: Compare and unify with drawgraph
 	addNodesAndEdges(data: IDirtyGraph | string, status: number | string=200)
 	{
-		if(status!=200 && status!="success") // TODO: what kind of type is this? use either number or string
+		if(status!=200 && status!='success') // TODO: what kind of type is this? use either number or string
 		{
 			this.statusLogger.setStatusText('<font color="red">Downloading nodes failed (HTTP-Error-Code: '+status+')</font>');
 			this.statusLogger.setStatusCursor('auto');
@@ -1605,7 +1605,7 @@ export default class TheoryGraph {
 			return;
 		}
 		
-		if(typeof data["nodes"] == 'undefined' || typeof data["edges"] == 'undefined')
+		if(typeof data['nodes'] == 'undefined' || typeof data['edges'] == 'undefined')
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is invalid (maybe incorrect JSON?)</font>');
 			this.statusLogger.setStatusCursor('auto');
@@ -1624,7 +1624,7 @@ export default class TheoryGraph {
 		this.originalEdges=this.originalEdges.concat(edgesJSON);
 		this.originalNodes=this.originalNodes.concat(nodesJSON);
 		
-		this.statusLogger.setStatusText("<font color=\"green\">Successfully recieved "+nodesJSON.length+" node(s) and "+edgesJSON.length+" edge(s)!</font>");
+		this.statusLogger.setStatusText('<font color="green">Successfully recieved '+nodesJSON.length+' node(s) and '+edgesJSON.length+' edge(s)!</font>');
 		this.statusLogger.setStatusCursor('auto');
 	}
 	
@@ -1633,18 +1633,18 @@ export default class TheoryGraph {
 		let node = cleanNode(nodeIn, this.config.NODE_STYLES)
 
 		this.originalNodes.push(node);
-		if(node["mathml"]!="") // TODO: More unclear node types
+		if(node['mathml']!='') // TODO: More unclear node types
 		{
 			node = this.nodeToSVGMath(node);
 		}
 
-		if(node["previewhtml"]!="")
+		if(node['previewhtml']!='')
 		{
 			node = this.nodeToSVGHTML(node);
 		}
 		this.nodes.update(node);
 		
-		this.actionLogger.addToStateHistory("addNode", {"node": node});
+		this.actionLogger.addToStateHistory('addNode', {'node': node});
 	}
 	
 	addEdge(edgeIn: DirtyEdge)
@@ -1653,7 +1653,7 @@ export default class TheoryGraph {
 		this.originalEdges.push(edge);
 		this.edges.update(edge);
 		
-		this.actionLogger.addToStateHistory("addEdge", {"edge": edge});
+		this.actionLogger.addToStateHistory('addEdge', {'edge': edge});
 	}
 	
 	deleteEdges(edgeIds: string[])
@@ -1675,7 +1675,7 @@ export default class TheoryGraph {
 		});
 
 		this.edges.remove(edgeIds);
-		this.actionLogger.addToStateHistory("deleteEdges", {"edges": deletedEdges});
+		this.actionLogger.addToStateHistory('deleteEdges', {'edges': deletedEdges});
 	}
 	
 	deleteNodes(nodeIds: string[], edgeIds?: string[])
@@ -1718,7 +1718,7 @@ export default class TheoryGraph {
 			});
 			this.edges.remove(edgeIds);
 		}
-		this.actionLogger.addToStateHistory("deleteNodes", {"nodes": deletedNodes,"edges":deletedEdges});
+		this.actionLogger.addToStateHistory('deleteNodes', {'nodes': deletedNodes,'edges':deletedEdges});
 	}
 	
 	saveEdge(edgeIn: DirtyEdge)
@@ -1736,7 +1736,7 @@ export default class TheoryGraph {
 		}
 
 		this.edges.update(edge);
-		this.actionLogger.addToStateHistory("editEdge", {"newEdge": edge,"oldEdge":oldEdge});
+		this.actionLogger.addToStateHistory('editEdge', {'newEdge': edge,'oldEdge':oldEdge});
 	}
 	
 	saveNode(nodeIn: DirtyNode)
@@ -1753,16 +1753,16 @@ export default class TheoryGraph {
 			}
 		}
 		
-		if(typeof node["mathml"]!="undefined" && node["mathml"]!="")
+		if(typeof node['mathml']!='undefined' && node['mathml']!='')
 		{
 			node = this.nodeToSVGMath(node);
 		}
-		if(typeof node["previewhtml"]!="undefined" &&  node["previewhtml"]!="")
+		if(typeof node['previewhtml']!='undefined' &&  node['previewhtml']!='')
 		{
 			node = this.nodeToSVGHTML(node);
 		}
 		this.nodes.update(node);
-		this.actionLogger.addToStateHistory("editNode", {"newNode": node,"oldNode":oldNode});
+		this.actionLogger.addToStateHistory('editNode', {'newNode': node,'oldNode':oldNode});
 	}
 	
 	isUniqueId(id: vis.IdType)
@@ -1796,7 +1796,7 @@ export default class TheoryGraph {
 			return;
 		}
 		
-		this.statusLogger.setStatusText("Downloading nodes...");
+		this.statusLogger.setStatusText('Downloading nodes...');
 		this.statusLogger.setStatusCursor('wait');
 		
 		$.ajaxSetup(
@@ -1848,7 +1848,7 @@ export default class TheoryGraph {
 				this.allClusters.splice(index, 1);
 			}
 			
-			this.actionLogger.addToStateHistory("uncluster", {"clusterId": nodeId, "nodes": toUpdate, "name":node/*.label*/});
+			this.actionLogger.addToStateHistory('uncluster', {'clusterId': nodeId, 'nodes': toUpdate, 'name':node/*.label*/});
 			this.nodes.update(toUpdate);
 			this.network.redraw();
         }
@@ -1856,7 +1856,7 @@ export default class TheoryGraph {
 	
 	estimateExtraSVGHeight(expression: string): number
 	{
-		if(expression.indexOf("frac") == -1 && expression.indexOf("under") == -1  && expression.indexOf("over") == -1)
+		if(expression.indexOf('frac') == -1 && expression.indexOf('under') == -1  && expression.indexOf('over') == -1)
 		{
 			return 0;
 		}
@@ -1870,20 +1870,20 @@ export default class TheoryGraph {
 
 	nodeToSVGHTML(node: CleanNode): CleanNode
 	{
-		this.dom.$$('string_span').html(node["previewhtml"] || '');
+		this.dom.$$('string_span').html(node['previewhtml'] || '');
 		var width=this.dom.$$('string_span').width()!;
 		var height=this.dom.$$('string_span').height()!;
-		this.dom.$$('string_span').html("");
+		this.dom.$$('string_span').html('');
 		var svg;
 		
-		if(node["shape"]=="image")
+		if(node['shape']=='image')
 		{
 			var overallheight=height;
 			svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(width+16*1)+' '+(16*1+overallheight)+'" width="'+(width+16*1)+'px" height="'+(16*1+overallheight)+'px" preserveAspectRatio="none">' +
 			//svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMinYMin">' +
 			'<foreignObject x="8" y="8" width="'+(width+15)+'" height="'+overallheight+'">' +
 			'<div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;margin-left: auto;margin-right: auto;display: flex;align-items: center;justify-content: center">' +
-			node["previewhtml"] +
+			node['previewhtml'] +
 			'</div></foreignObject>' +
 			'</svg>';
 		}
@@ -1892,41 +1892,41 @@ export default class TheoryGraph {
 			svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+(30*1+width)+'px" height="'+(30*1+height)+'px" preserveAspectRatio="none">' +
 			'<foreignObject x="15" y="13" width="100%" height="100%">' +
 			'<div xmlns="http://www.w3.org/1999/xhtml">' +
-			node["previewhtml"] +
+			node['previewhtml'] +
 			'</div></foreignObject>' +
 			'</svg>';
 		}
-		node["image"]="data:image/svg+xml;charset=utf-8,"+ encodeURIComponent(svg);
+		node['image']='data:image/svg+xml;charset=utf-8,'+ encodeURIComponent(svg);
 		return node
 	}
 
 	nodeToSVGMath(node: CleanNode): CleanNode
 	{
-		this.dom.$$('string_span').html(node["mathml"]!);
+		this.dom.$$('string_span').html(node['mathml']!);
 		var width=this.dom.$$('string_span').width()!;
 		var height=this.dom.$$('string_span').height()!;
-		this.dom.$$('string_span').html("");
+		this.dom.$$('string_span').html('');
 		var svg;
 		
-		if(node["shape"]=="image")
+		if(node['shape']=='image')
 		{
-			var overallheight=height+this.estimateExtraSVGHeight(node["mathml"]!);
+			var overallheight=height+this.estimateExtraSVGHeight(node['mathml']!);
 			svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(width+16*1)+' '+(16*1+overallheight)+'" width="'+(width+16*1)+'px" height="'+(16*1+overallheight)+'px" preserveAspectRatio="none">' +
 			//svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMinYMin">' +
 			'<foreignObject x="8" y="8" width="'+(width+15)+'" height="'+overallheight+'">' +
-			node["mathml"] +
+			node['mathml'] +
 			'</foreignObject>' +
 			'</svg>';
 		}
 		else
 		{
-			svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+(30*1+width)+'px" height="'+(30*1+height+this.estimateExtraSVGHeight(node["mathml"]!))+'px" preserveAspectRatio="none">' +
+			svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+(30*1+width)+'px" height="'+(30*1+height+this.estimateExtraSVGHeight(node['mathml']!))+'px" preserveAspectRatio="none">' +
 			'<foreignObject x="15" y="13" width="100%" height="100%">' +
-			node["mathml"] +
+			node['mathml'] +
 			'</foreignObject>' +
 			'</svg>';
 		}
-		node["image"]="data:image/svg+xml;charset=utf-8,"+ encodeURIComponent(svg);
+		node['image']='data:image/svg+xml;charset=utf-8,'+ encodeURIComponent(svg);
 		return node
 	}
 	
@@ -1943,13 +1943,13 @@ export default class TheoryGraph {
 		}
 		
 		this.internalOptimizer = new Optimizer(this.originalNodes, this.originalEdges, hideEdgesType, this.statusLogger);
-		this.statusLogger.setStatusText("Constructing graph...");
+		this.statusLogger.setStatusText('Constructing graph...');
 		var processedNodes=0;
 		var nodesCount=0;
 		
 		for(var i=0;i<this.originalNodes.length;i++)
 		{
-			if(this.originalNodes[i]["image"]!="" && this.originalNodes[i]["image"]!=undefined)
+			if(this.originalNodes[i]['image']!='' && this.originalNodes[i]['image']!=undefined)
 			{
 				nodesCount++;
 			}
@@ -1957,12 +1957,12 @@ export default class TheoryGraph {
 
 		for(var i=0;i<this.originalNodes.length;i++)
 		{
-			this.hiddenNodes[this.originalNodes[i]["id"]]=false;
-			if(this.originalNodes[i]["image"]!="" && this.originalNodes[i]["image"]!=undefined)
+			this.hiddenNodes[this.originalNodes[i]['id']]=false;
+			if(this.originalNodes[i]['image']!='' && this.originalNodes[i]['image']!=undefined)
 			{
 				var callback = ((node: CleanNode, data: any) =>
 				{
-					node["mathml"]=data;
+					node['mathml']=data;
 					this.nodeToSVGMath(node);
 					processedNodes++;
 					if(processedNodes==nodesCount)
@@ -1971,15 +1971,15 @@ export default class TheoryGraph {
 					}
 				}).bind(this, this.originalNodes[i]) as JQuery.jqXHR.DoneCallback;
 
-				$.get(this.originalNodes[i]["image"] as string, callback);
+				$.get(this.originalNodes[i]['image'] as string, callback);
 			}
 			else 
 			{
-				if(this.originalNodes[i]["mathml"]!=undefined && this.originalNodes[i]["mathml"]!.length>10 && this.originalNodes[i]["mathml"]!="")
+				if(this.originalNodes[i]['mathml']!=undefined && this.originalNodes[i]['mathml']!.length>10 && this.originalNodes[i]['mathml']!='')
 				{
 					this.nodeToSVGMath(this.originalNodes[i]);
 				}
-				if(typeof this.originalNodes[i]["previewhtml"]!="undefined" &&  this.originalNodes[i]["previewhtml"]!="")
+				if(typeof this.originalNodes[i]['previewhtml']!='undefined' &&  this.originalNodes[i]['previewhtml']!='')
 				{
 					this.nodeToSVGHTML(this.originalNodes[i]);
 				}
@@ -1995,11 +1995,11 @@ export default class TheoryGraph {
 	// Called when the Visualization API is loaded.
 	startRendering(fixedPositions?: boolean) 
 	{
-		if(typeof fixedPositions == "undefined")
+		if(typeof fixedPositions == 'undefined')
 		{
 			fixedPositions=false;
 		}
-		this.statusLogger.setStatusText("Rendering graph...");
+		this.statusLogger.setStatusText('Rendering graph...');
 		if(fixedPositions==false)
 		{
 			var hideEdgesType: Record<string, boolean>={};
@@ -2083,7 +2083,7 @@ export default class TheoryGraph {
 			for(var i=0;i<this.originalEdges.length;i++)
 			{
 				var type=this.edgesNameToHide[j].type;
-				if(type==this.originalEdges[i]["style"] || ("graph"+type)==this.originalEdges[i]["style"] )
+				if(type==this.originalEdges[i]['style'] || ('graph'+type)==this.originalEdges[i]['style'] )
 				{
 					this.originalEdges[i].hidden=this.edgesNameToHide[j].hidden;
 				}
@@ -2121,14 +2121,14 @@ export default class TheoryGraph {
 		});
 		
 		// If the document is clicked somewhere
-		this.network.on("click", (e) =>
+		this.network.on('click', (e) =>
 		{
-			this.dom.$$("tooltip-container").hide(10);
+			this.dom.$$('tooltip-container').hide(10);
 			// If the clicked element is not the menu
-			if (!($(e.target).parents(".custom-menu").length > 0)) 
+			if (!($(e.target).parents('.custom-menu').length > 0)) 
 			{
 				// Hide it
-				this.dom.$(".custom-menu").hide(10);
+				this.dom.$('.custom-menu').hide(10);
 			}
 			if(this.manipulateSelectedRegion(e.pointer.canvas)==false)
 			{
@@ -2143,7 +2143,7 @@ export default class TheoryGraph {
 		});
 		
 		// If the document is clicked somewhere
-		this.network.on("selectNode", (e) => 
+		this.network.on('selectNode', (e) => 
 		{
 			//console.log(e);
 			
@@ -2165,7 +2165,7 @@ export default class TheoryGraph {
 
 		
 		// If the menu element is clicked
-		this.dom.$(".custom-menu li").click((e) =>
+		this.dom.$('.custom-menu li').click((e) =>
 		{
 			var nodesFound=this.network.getSelectedNodes();
 			var selectedNode: Partial<CleanNode>=this.network.body.nodes[nodesFound[0]];
@@ -2174,7 +2174,7 @@ export default class TheoryGraph {
 			{
 				for(var i=0;i<this.originalNodes.length;i++)
 				{
-					if(this.originalNodes[i]["id"]==nodesFound[0])
+					if(this.originalNodes[i]['id']==nodesFound[0])
 					{
 						selectedNode=this.originalNodes[i];
 						break;
@@ -2192,7 +2192,7 @@ export default class TheoryGraph {
 			var selectedEdge=undefined;
 			for(var i=0;i<this.originalEdges.length;i++)
 			{
-				if(this.originalEdges[i]["id"]==edgesFound[0])
+				if(this.originalEdges[i]['id']==edgesFound[0])
 				{
 					selectedEdge=this.originalEdges[i];
 					break;
@@ -2214,44 +2214,44 @@ export default class TheoryGraph {
 			if(selected!=undefined)
 			{
 				// This is the triggered action name
-				switch($(e.target).attr("data-action")) 
+				switch($(e.target).attr('data-action')) 
 				{
 					// A case for each action
-					case "openWindow": window.open(this.config.serverUrl+selected.url!); break;
-					case "showURL": alert(this.config.serverUrl+selected.url!); break;
-					case "openCluster": this.openCluster(selected.id!); break;
-					case "inferType": alert("Not implemented yet!"); break;
-					case "showDecl": alert("Not implemented yet!"); break;
-					case "childNodes": this.lazyLoadNodes(selectedNode.childsURL) ; break;
+					case 'openWindow': window.open(this.config.serverUrl+selected.url!); break;
+					case 'showURL': alert(this.config.serverUrl+selected.url!); break;
+					case 'openCluster': this.openCluster(selected.id!); break;
+					case 'inferType': alert('Not implemented yet!'); break;
+					case 'showDecl': alert('Not implemented yet!'); break;
+					case 'childNodes': this.lazyLoadNodes(selectedNode.childsURL) ; break;
 				}
 			}
 			
 			// Hide it AFTER the action was triggered
-			this.dom.$(".custom-menu").hide(10);
+			this.dom.$('.custom-menu').hide(10);
 		});
 		
-		this.network.on("oncontext", (params) =>
+		this.network.on('oncontext', (params) =>
 		{
-			this.dom.$$("tooltip-container").hide(10);
-			this.dom.$(".custom-menu").hide(10);
+			this.dom.$$('tooltip-container').hide(10);
+			this.dom.$('.custom-menu').hide(10);
 			
-			var node=this.network.getNodeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
+			var node=this.network.getNodeAt({x: params['pointer']['DOM']['x'],y: params['pointer']['DOM']['y']});
 			
 			if(node!=undefined)
 			{
 				this.network.selectNodes([node]);
 				// Show contextmenu
-				this.dom.$(".custom-menu").finish().show(10).
+				this.dom.$('.custom-menu').finish().show(10).
 				
 				// In the right position (the mouse)
 				css({
-					top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-					left: params["pointer"]["DOM"]["x"]*1+16+this.dom.getElementById("mainbox").offsetLeft + "px",
+					top: params['pointer']['DOM']['y']*1+20 + 'px',
+					left: params['pointer']['DOM']['x']*1+16+this.dom.getElementById('mainbox').offsetLeft + 'px',
 				});
 				return;
 			}
 			
-			var edge=this.network.getEdgeAt({x: params["pointer"]["DOM"]["x"],y: params["pointer"]["DOM"]["y"]});
+			var edge=this.network.getEdgeAt({x: params['pointer']['DOM']['x'],y: params['pointer']['DOM']['y']});
 			
 			if(typeof edge != undefined && edge!=undefined)
 			{
@@ -2260,29 +2260,29 @@ export default class TheoryGraph {
 				var selectedEdge=undefined;
 				for(var i=0;i<this.originalEdges.length;i++)
 				{
-					if(this.originalEdges[i]["id"]==edge)
+					if(this.originalEdges[i]['id']==edge)
 					{
 						selectedEdge=this.originalEdges[i];
 						break;
 					}
 				}
 					
-				if (selectedEdge!=undefined && typeof selectedEdge.clickText != "undefined")
+				if (selectedEdge!=undefined && typeof selectedEdge.clickText != 'undefined')
 				{
 					// Show contextmenu
-					this.dom.$$("tooltip-container").finish().show(10).
+					this.dom.$$('tooltip-container').finish().show(10).
 					html(selectedEdge.clickText ).
 					// In the right position (the mouse)
 					css({
-						top: params["pointer"]["DOM"]["y"]*1+20 + "px",
-						left: params["pointer"]["DOM"]["x"]*1+16+this.dom.getElementById("mainbox").offsetLeft + "px"
+						top: params['pointer']['DOM']['y']*1+20 + 'px',
+						left: params['pointer']['DOM']['x']*1+16+this.dom.getElementById('mainbox').offsetLeft + 'px'
 					});
 				}
 			}
 			
 		});
 		
-		this.network.on("stabilizationIterationsDone", (params) =>
+		this.network.on('stabilizationIterationsDone', (params) =>
 		{
 			this.network.stopSimulation();
 			var options = 
@@ -2316,12 +2316,12 @@ export default class TheoryGraph {
 			} 
 		});*/
 		
-		this.network.on("beforeDrawing", (ctx) => 
+		this.network.on('beforeDrawing', (ctx) => 
 		{
 			this.drawAllColoredRegions(ctx);
 		});
 		
-		this.network.on("afterDrawing", (ctx) =>
+		this.network.on('afterDrawing', (ctx) =>
 		{
 			this.drawAllColoredRegionsOnCanvas(ctx);
 			

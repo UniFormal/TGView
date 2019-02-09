@@ -1,6 +1,6 @@
-import { CleanNode, CleanEdge } from "../visgraph";
-import { IGraphJSONNode } from "../../graph";
-import StatusLogger from "../../dom/StatusLogger";
+import { CleanNode, CleanEdge } from '../visgraph';
+import { IGraphJSONNode } from '../../graph';
+import StatusLogger from '../../dom/StatusLogger';
 
 export default class LayoutBase {
 	constructor(nodes: CleanNode[], edges: CleanEdge[], protected readonly logger: StatusLogger, ignoreEdgesByType?: IEdgeIgnorance) {
@@ -22,7 +22,7 @@ export default class LayoutBase {
 	
 	protected mapEdgesIntoNodes(edges: CleanEdge[], ignoreEdgesByType?: IEdgeIgnorance)
 	{
-		this.logger.setStatusText("Mapping Edges to Nodes...");
+		this.logger.setStatusText('Mapping Edges to Nodes...');
 		var mappedNodes: {[key: string]: LayoutNode} = {};
 
 		for(var i=0;i< this.myAllNodes.length;i++ )
@@ -40,17 +40,17 @@ export default class LayoutBase {
 		{
 			if(edges[i].from == undefined || mappedNodes[edges[i].from]==undefined)
 			{
-				console.log("Not found: "+edges[i].from);
+				console.log('Not found: '+edges[i].from);
 			}
 			else
 			{
 				if(edges[i].to==undefined || mappedNodes[edges[i].to]==undefined)
 				{
-					console.log("Not found: "+edges[i].to);
+					console.log('Not found: '+edges[i].to);
 				}
 				else
 				{
-					if(typeof ignoreEdgesByType=="undefined" || typeof ignoreEdgesByType[edges[i].style]!="undefined" || typeof ignoreEdgesByType["graph"+edges[i].style]!="undefined")
+					if(typeof ignoreEdgesByType=='undefined' || typeof ignoreEdgesByType[edges[i].style]!='undefined' || typeof ignoreEdgesByType['graph'+edges[i].style]!='undefined')
 					{
 						mappedNodes[edges[i].from].toConnected.push(mappedNodes[edges[i].to]);
 						mappedNodes[edges[i].to].fromConnected.push(mappedNodes[edges[i].from]);
@@ -68,7 +68,7 @@ export default class LayoutBase {
 
 	private identifySubgraphs()
 	{
-		this.logger.setStatusText("Identify Subgraphs...");
+		this.logger.setStatusText('Identify Subgraphs...');
 		
 		var nodesToCheck: LayoutNode[] = [];
 		var graphNumber = 1;

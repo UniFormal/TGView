@@ -4,7 +4,7 @@
  * The main entry point for the TGView standalone html file
  */
 
-import TGView from "./src";
+import TGView from './src';
 
 // Load all of the required CSS
 import './src/css/styles.css';

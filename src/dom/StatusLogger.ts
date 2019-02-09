@@ -1,5 +1,5 @@
-import { Configuration } from "../Configuration";
-import DOMConstruct from "./DOMConstruct";
+import { Configuration } from '../Configuration';
+import DOMConstruct from './DOMConstruct';
 
 /**
  * Represents a class that can log to something
@@ -24,6 +24,6 @@ export default class StatusLogger {
 	}
 
 	setStatusCursor(cursor: 'wait' | 'pointer' | 'copy' | 'auto'){
-		this.dom.mainElement.style.cursor = cursor || "auto";
+		this.dom.mainElement.style.cursor = cursor || 'auto';
 	}
 }

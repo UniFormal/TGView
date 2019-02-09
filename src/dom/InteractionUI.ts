@@ -1,13 +1,13 @@
 import 'jqueryui'
 
-import TGView from "../core/TGView";
-import GlobalListener from "./GlobalListener";
-import StatusLogger from "./StatusLogger";
-import { Configuration } from "../Configuration";
-import TheoryGraph from "../graph/TheoryGraph";
-import ActionHistory from "../core/ActionHistory";
-import DOMConstruct from "./DOMConstruct";
-import { DirtyNode, DirtyEdge, IDirtyGraph } from "../graph/visgraph";
+import TGView from '../core/TGView';
+import GlobalListener from './GlobalListener';
+import StatusLogger from './StatusLogger';
+import { Configuration } from '../Configuration';
+import TheoryGraph from '../graph/TheoryGraph';
+import ActionHistory from '../core/ActionHistory';
+import DOMConstruct from './DOMConstruct';
+import { DirtyNode, DirtyEdge, IDirtyGraph } from '../graph/visgraph';
 
 export default class InteractionUI {
 	constructor(
@@ -36,8 +36,8 @@ export default class InteractionUI {
 
 
 		
-		this.dom.$$("helpDialog").dialog({autoOpen: false});
-		this.dom.$$("helpDialog").on("click", () => 
+		this.dom.$$('helpDialog').dialog({autoOpen: false});
+		this.dom.$$('helpDialog').on('click', () => 
 		{
 			this.dom.$$('helpDialog').dialog('open');
 		});
@@ -55,7 +55,7 @@ export default class InteractionUI {
 		this.generateCustomSideMenu();	
 		
 		var viewOnlyMode=this.options.preferences.viewOnlyMode;
-		if(typeof viewOnlyMode != "undefined" && viewOnlyMode==true)
+		if(typeof viewOnlyMode != 'undefined' && viewOnlyMode==true)
 		{
 			this.dom.getElementById('menuButtonsDiv').style.display = 'none';
 		}
@@ -68,7 +68,7 @@ export default class InteractionUI {
 	}
 
 	destroy() {
-		this.dom.$$("helpDialog" ).dialog('destroy');
+		this.dom.$$('helpDialog' ).dialog('destroy');
 		this.dom.getElementById('jsonLonger').removeEventListener('jsonLoader', this.handleJson);
 	}
 	
@@ -106,7 +106,7 @@ export default class InteractionUI {
 	
 	generateCustomSideMenu()
 	{
-		var html="";
+		var html='';
 		for(var i=0;i<this.options.GRAPH_TYPES.length;i++)
 		{
 			html+='<li data-action="'+this.options.GRAPH_TYPES[i].id+'" title="'+this.options.GRAPH_TYPES[i].tooltip+'">'+this.options.GRAPH_TYPES[i].menuText+'</li>';
@@ -117,11 +117,11 @@ export default class InteractionUI {
 		
 	addColors()
 	{
-		var mainEle=this.dom.getElementById("colorPicker");
+		var mainEle=this.dom.getElementById('colorPicker');
 		var colorArray=this.options.colorizingNodesArray;
 		for(var i=0;i<colorArray.length;i++)
 		{
-			var div = document.createElement("div");
+			var div = document.createElement('div');
 			var boundFunc=this.colorizeSelectedNodes.bind(this, colorArray[i]);
 			
 			div.addEventListener(
@@ -130,7 +130,7 @@ export default class InteractionUI {
 				 false
 			);
 			div.title='Colorize all selected nodes';
-			div.classList.add("colorRect");
+			div.classList.add('colorRect');
 			div.style.cssText='background-color:'+colorArray[i];
 			
 			mainEle.appendChild(div);
@@ -141,18 +141,18 @@ export default class InteractionUI {
 	{
 		var usedEdgeTypes = this.theoryGraph.getUsedEdgeTypes();
 		
-		var mainEle=this.dom.getElementById("edgesShowHideDiv");
+		var mainEle=this.dom.getElementById('edgesShowHideDiv');
 		
-		var strong = document.createElement("strong");
-		strong.innerHTML="Hide/Show Edges";
+		var strong = document.createElement('strong');
+		strong.innerHTML='Hide/Show Edges';
 		mainEle.appendChild(strong);
-		mainEle.appendChild(document.createElement("br"));
+		mainEle.appendChild(document.createElement('br'));
 		
 		for(var i=0;i<usedEdgeTypes.length;i++)
 		{
-			var alias=(typeof this.options.ARROW_STYLES[usedEdgeTypes[i]] === "undefined" ? this.options.ARROW_STYLES[usedEdgeTypes[i].replace("graph","")].alias : this.options.ARROW_STYLES[usedEdgeTypes[i]].alias);
+			var alias=(typeof this.options.ARROW_STYLES[usedEdgeTypes[i]] === 'undefined' ? this.options.ARROW_STYLES[usedEdgeTypes[i].replace('graph','')].alias : this.options.ARROW_STYLES[usedEdgeTypes[i]].alias);
 			
-			var img = document.createElement("img");
+			var img = document.createElement('img');
 			
 			var boundFunc=this.theoryGraph.selectEdgesByType.bind(this.theoryGraph, usedEdgeTypes[i]);
 			
@@ -163,16 +163,16 @@ export default class InteractionUI {
 			);
 			img.src='img/select.png';
 			img.width=14;
-			img.style.cssText="width:14px";
-			img.title="Select all "+alias;
+			img.style.cssText='width:14px';
+			img.title='Select all '+alias;
 
 			mainEle.appendChild(img);
 			
-			var input = document.createElement("input");
-			input.type="checkbox";
-			input.id="edgesCheckbox_"+i;
+			var input = document.createElement('input');
+			input.type='checkbox';
+			input.id='edgesCheckbox_'+i;
 			input.value=usedEdgeTypes[i];
-			if(usedEdgeTypes[i]!=="meta" && usedEdgeTypes[i]!=="graphmeta")
+			if(usedEdgeTypes[i]!=='meta' && usedEdgeTypes[i]!=='graphmeta')
 			{
 				input.checked=true;
 			}
@@ -189,25 +189,25 @@ export default class InteractionUI {
 			
 			mainEle.appendChild(input);
 			
-			var label = document.createElement("label");
-			label.setAttribute('for', "edgesCheckbox_"+i);
+			var label = document.createElement('label');
+			label.setAttribute('for', 'edgesCheckbox_'+i);
 			label.innerHTML='Show '+alias;
 			
 			mainEle.appendChild(label);
-			mainEle.appendChild(document.createElement("br"));
+			mainEle.appendChild(document.createElement('br'));
 		}
 		
 		var usedNodeTypes = this.theoryGraph.getUsedNodeTypes();
-		mainEle.appendChild(document.createElement("br"));
-		var strong = document.createElement("strong");
-		strong.innerHTML="Hide/Show Nodes";
+		mainEle.appendChild(document.createElement('br'));
+		var strong = document.createElement('strong');
+		strong.innerHTML='Hide/Show Nodes';
 		mainEle.appendChild(strong);
-		mainEle.appendChild(document.createElement("br"));
+		mainEle.appendChild(document.createElement('br'));
 		for(var i=0;i<usedNodeTypes.length;i++)
 		{
-			var alias=(typeof this.options.NODE_STYLES[usedNodeTypes[i]] === "undefined" ? this.options.NODE_STYLES[usedNodeTypes[i].replace("graph","")].alias : this.options.NODE_STYLES[usedNodeTypes[i]].alias);
+			var alias=(typeof this.options.NODE_STYLES[usedNodeTypes[i]] === 'undefined' ? this.options.NODE_STYLES[usedNodeTypes[i].replace('graph','')].alias : this.options.NODE_STYLES[usedNodeTypes[i]].alias);
 
-			var img = document.createElement("img");
+			var img = document.createElement('img');
 			var boundFunc=this.theoryGraph.selectNodesByType.bind(this.theoryGraph, usedNodeTypes[i]);
 			
 			img.addEventListener(
@@ -218,14 +218,14 @@ export default class InteractionUI {
 			
 			img.src='img/select.png';
 			img.width=14;
-			img.style.cssText="width:14px";
-			img.title="Select all "+alias;
+			img.style.cssText='width:14px';
+			img.title='Select all '+alias;
 
 			mainEle.appendChild(img);
 			
-			var input = document.createElement("input");
-			input.type="checkbox";
-			input.id="nodesCheckbox_"+i;
+			var input = document.createElement('input');
+			input.type='checkbox';
+			input.id='nodesCheckbox_'+i;
 			input.value=usedNodeTypes[i];
 			
 			input.checked=true;
@@ -241,15 +241,15 @@ export default class InteractionUI {
 			
 			mainEle.appendChild(input);
 			
-			var label = document.createElement("label");
-			label.setAttribute('for', "nodesCheckbox_"+i);
+			var label = document.createElement('label');
+			label.setAttribute('for', 'nodesCheckbox_'+i);
 			label.innerHTML='Show '+alias;
 			
 			mainEle.appendChild(label);
 			
 			if(i!=usedNodeTypes.length-1)
 			{				
-				mainEle.appendChild(document.createElement("br"));
+				mainEle.appendChild(document.createElement('br'));
 			}
 		}
 	}
@@ -267,13 +267,13 @@ export default class InteractionUI {
 	selectNodes()
 	{
 		// TODO: Handle when prompt is cancelled
-		this.theoryGraph.selectNodesWithIdLike(prompt("Please enter a name which should be searched for!", "node_name")!);
+		this.theoryGraph.selectNodesWithIdLike(prompt('Please enter a name which should be searched for!', 'node_name')!);
 		//theoryGraph.focusOnNodes();
 	}
 	
 	downloadGraph()
 	{
-		this.statusLogger.setStatusText("Downloading Image...");
+		this.statusLogger.setStatusText('Downloading Image...');
 		this.theoryGraph.downloadCanvasAsImage(this.dom.getElementById<HTMLButtonElement>('downloadButton'));
 	}
 	
@@ -285,9 +285,9 @@ export default class InteractionUI {
 	clusterSelectedNodes()
 	{
 		// TODO: Handle prompt being cancelled
-		this.statusLogger.setStatusText("Clustering Nodes...");
-		this.theoryGraph.cluster(undefined, prompt("Please choose a name for the cluster", "")!);
-		this.statusLogger.setStatusText("");
+		this.statusLogger.setStatusText('Clustering Nodes...');
+		this.theoryGraph.cluster(undefined, prompt('Please choose a name for the cluster', '')!);
+		this.statusLogger.setStatusText('');
 	}
 	
 	colorizeSelectedNodes(color: string)
@@ -298,7 +298,7 @@ export default class InteractionUI {
 	changeMethod(idx?: number)
 	{
 		this.theoryGraph.manualFocus=false;
-		this.statusLogger.setStatusText("Relayouting graph...");
+		this.statusLogger.setStatusText('Relayouting graph...');
 		this.statusLogger.setStatusCursor('wait');
 		if(typeof idx !=='undefined')
 		{
@@ -308,7 +308,7 @@ export default class InteractionUI {
 			}
 			else if(idx==0)
 			{
-				this.options.THEORY_GRAPH_OPTIONS.layout={ownLayoutIdx:0, hierarchical: {sortMethod: "directed",direction: "LR"}};
+				this.options.THEORY_GRAPH_OPTIONS.layout={ownLayoutIdx:0, hierarchical: {sortMethod: 'directed',direction: 'LR'}};
 			}
 			else if(idx==3)
 			{
@@ -334,27 +334,27 @@ export default class InteractionUI {
 	
 	openNav() 
 	{
-		this.dom.getElementById("mySidenav").style.width = "400px";
+		this.dom.getElementById('mySidenav').style.width = '400px';
 	}
 
 	closeNav() 
 	{
-		this.dom.getElementById("mySidenav").style.width = "0";
+		this.dom.getElementById('mySidenav').style.width = '0';
 	}
 
 	openNav2() 
 	{
-		this.dom.getElementById("mySidenav2").style.width = "400px";
+		this.dom.getElementById('mySidenav2').style.width = '400px';
 	}
 
 	closeNav2() 
 	{
-		this.dom.getElementById("mySidenav2").style.width = "0";
+		this.dom.getElementById('mySidenav2').style.width = '0';
 	}
 	
 	cageSelectedNodes()
 	{
-		console.log("cageSelectedNodes");
+		console.log('cageSelectedNodes');
 		this.theoryGraph.cageNodes(undefined, undefined);
 	}
 	
@@ -375,7 +375,7 @@ export default class InteractionUI {
 	
 	downloadGraphJSON()
 	{
-		this.download("graph_data.json", this.theoryGraph.graphToStringJSON(undefined, undefined));
+		this.download('graph_data.json', this.theoryGraph.graphToStringJSON(undefined, undefined));
 	}
 
 	download(filename: string, text: string) 
@@ -396,21 +396,21 @@ export default class InteractionUI {
 	{
 		var generatedJson=this.theoryGraph.graphToIFrameString(undefined, undefined, undefined);
 		
-		var embeddingCode="<script>";
-		embeddingCode+="function sendMessageToIFrameFromLocalStorage"+generatedJson.id+"(param){ var tmp=localStorage.getItem(param); document.getElementById(options.external.prefix+'"+generatedJson.id+"').contentWindow.postMessage(tmp, '*'); }\r\n"+generatedJson.storage;
-		embeddingCode+="<\/script>\r\n";
-		embeddingCode+="<iframe style='width:100%;min-height:550px;' src='"+generatedJson.uri+"' onLoad=\"sendMessageToIFrameFromLocalStorage"+generatedJson.id+"('"+generatedJson.id+"')\" id='"+generatedJson.id+"'><\/iframe>";
+		var embeddingCode='<script>';
+		embeddingCode+='function sendMessageToIFrameFromLocalStorage'+generatedJson.id+'(param){ var tmp=localStorage.getItem(param); document.getElementById(options.external.prefix+\''+generatedJson.id+'\').contentWindow.postMessage(tmp, \'*\'); }\r\n'+generatedJson.storage;
+		embeddingCode+='<\/script>\r\n';
+		embeddingCode+='<iframe style=\'width:100%;min-height:550px;\' src=\''+generatedJson.uri+'\' onLoad="sendMessageToIFrameFromLocalStorage'+generatedJson.id+'(\''+generatedJson.id+'\')" id=\''+generatedJson.id+'\'><\/iframe>';
 		
-		this.dom.getElementById<HTMLTextAreaElement>("uriTextarea").value="";
-		this.dom.getElementById<HTMLTextAreaElement>("informationTextarea").value=embeddingCode;
+		this.dom.getElementById<HTMLTextAreaElement>('uriTextarea').value='';
+		this.dom.getElementById<HTMLTextAreaElement>('informationTextarea').value=embeddingCode;
 	}
 	
 	generateHTMLGraph()
 	{
 		var generatedJson=this.theoryGraph.graphToLocalStorageString(undefined, undefined, undefined);
 		
-		this.dom.getElementById<HTMLTextAreaElement>("uriTextarea").value=generatedJson.uri;
-		this.dom.getElementById<HTMLTextAreaElement>("informationTextarea").value=generatedJson.storage;
+		this.dom.getElementById<HTMLTextAreaElement>('uriTextarea').value=generatedJson.uri;
+		this.dom.getElementById<HTMLTextAreaElement>('informationTextarea').value=generatedJson.storage;
 	}
 	
 	generateParameterGraph()
@@ -419,21 +419,21 @@ export default class InteractionUI {
 		
 		if(generatedJson.length > 220)
 		{
-			this.dom.getElementById<HTMLTextAreaElement>("uriTextarea").value="";
-			this.dom.getElementById<HTMLTextAreaElement>("informationTextarea").value="";
-			alert("Graph is too big to be embedded in URI. Select HTML-Embedding or IFrame-Embedding instead!");
+			this.dom.getElementById<HTMLTextAreaElement>('uriTextarea').value='';
+			this.dom.getElementById<HTMLTextAreaElement>('informationTextarea').value='';
+			alert('Graph is too big to be embedded in URI. Select HTML-Embedding or IFrame-Embedding instead!');
 		}
 		else
 		{
-			this.dom.getElementById<HTMLTextAreaElement>("uriTextarea").value=generatedJson;
-			this.dom.getElementById<HTMLTextAreaElement>("informationTextarea").value="";
+			this.dom.getElementById<HTMLTextAreaElement>('uriTextarea').value=generatedJson;
+			this.dom.getElementById<HTMLTextAreaElement>('informationTextarea').value='';
 		}
 	}
 	
 	generateURIGraph()
 	{
-		this.dom.getElementById<HTMLTextAreaElement>("uriTextarea").value=window.location.href;
-		this.dom.getElementById<HTMLTextAreaElement>("informationTextarea").value="";
+		this.dom.getElementById<HTMLTextAreaElement>('uriTextarea').value=window.location.href;
+		this.dom.getElementById<HTMLTextAreaElement>('informationTextarea').value='';
 	}
 	
 
@@ -442,7 +442,7 @@ export default class InteractionUI {
 		data.id = this.dom.getElementById<HTMLInputElement>('node-id').value;
 		if(this.theoryGraph.isUniqueId(data.id)==false)
 		{
-			alert("The ID entered is already used, please enter an unique ID.");
+			alert('The ID entered is already used, please enter an unique ID.');
 			return;
 		}
 		
@@ -460,7 +460,7 @@ export default class InteractionUI {
 		edge.id = this.dom.getElementById<HTMLInputElement>('edge-id').value;
 		if(this.theoryGraph.isUniqueEdgeId(edge.id)==false)
 		{
-			alert("The ID entered is already used, please enter an unique ID.");
+			alert('The ID entered is already used, please enter an unique ID.');
 			return;
 		}
 		
@@ -520,13 +520,13 @@ export default class InteractionUI {
 	addNodeCallback(data: DirtyNode & {id: string, label: string}, callback: (any: null) => void) 
 	{
 		// filling in the popup DOM elements
-		this.dom.getElementById('operation').innerHTML = "Add Node";
+		this.dom.getElementById('operation').innerHTML = 'Add Node';
 		this.dom.getElementById<HTMLInputElement>('node-id').value = data.id;
 		this.dom.getElementById<HTMLInputElement>('node-label').value = data.label;
-		this.dom.getElementById<HTMLInputElement>('node-url').value = "";
-		this.dom.getElementById<HTMLInputElement>('node-mathml').value = "";
+		this.dom.getElementById<HTMLInputElement>('node-url').value = '';
+		this.dom.getElementById<HTMLInputElement>('node-mathml').value = '';
 		
-		var html="";
+		var html='';
 		Object.keys(this.options.NODE_STYLES).forEach((key) => 
 		{
 		   html+='<option value="'+key+'">'+this.options.NODE_STYLES[key].alias+'</option>';
@@ -541,14 +541,14 @@ export default class InteractionUI {
 	editNodeCallback(data: DirtyNode & {id: string}, callback: (any: null) => void) 
 	{
 		// filling in the popup DOM elements
-		this.dom.getElementById<HTMLInputElement>('operation').innerHTML = "Edit Node";
+		this.dom.getElementById<HTMLInputElement>('operation').innerHTML = 'Edit Node';
 		this.dom.getElementById<HTMLInputElement>('node-id').value = data.id;
 		this.dom.getElementById<HTMLInputElement>('node-id').disabled=true;
-		this.dom.getElementById<HTMLInputElement>('node-label').value = (typeof data.label !="undefined") ? data.label : "";
-		this.dom.getElementById<HTMLInputElement>('node-url').value = (typeof data.url !="undefined") ? data.url : "";
-		this.dom.getElementById<HTMLInputElement>('node-mathml').value = (typeof data.mathml !="undefined") ? data.mathml : "";
+		this.dom.getElementById<HTMLInputElement>('node-label').value = (typeof data.label !='undefined') ? data.label : '';
+		this.dom.getElementById<HTMLInputElement>('node-url').value = (typeof data.url !='undefined') ? data.url : '';
+		this.dom.getElementById<HTMLInputElement>('node-mathml').value = (typeof data.mathml !='undefined') ? data.mathml : '';
 		
-		var html="";
+		var html='';
 		Object.keys(this.options.NODE_STYLES).forEach((key) => 
 		{
 		   html+='<option value="'+key+'">'+this.options.NODE_STYLES[key].alias+'</option>';
@@ -556,7 +556,7 @@ export default class InteractionUI {
 		
 		this.dom.getElementById('node-style').innerHTML = html;
 		
-		if(typeof data.style !="undefined" )
+		if(typeof data.style !='undefined' )
 		{
 			this.dom.getElementById<HTMLInputElement>('node-style').value = data.style;
 		}
@@ -569,12 +569,12 @@ export default class InteractionUI {
 	private addEdgeCallbackHelper(data: DirtyEdge, callback: (any: null) => void)
 	{
 		// filling in the popup DOM elements
-		this.dom.getElementById('edge-operation').innerHTML = "Add Edge";
+		this.dom.getElementById('edge-operation').innerHTML = 'Add Edge';
 		this.dom.getElementById<HTMLInputElement>('edge-id').value = 'edge_' + Math.random().toString(36).substr(2, 9);
-		this.dom.getElementById<HTMLInputElement>('edge-label').value = "";
-		this.dom.getElementById<HTMLInputElement>('edge-url').value = "";
+		this.dom.getElementById<HTMLInputElement>('edge-label').value = '';
+		this.dom.getElementById<HTMLInputElement>('edge-url').value = '';
 		
-		var html="";
+		var html='';
 		Object.keys(this.options.ARROW_STYLES).forEach((key) =>
 		{
 		   html+='<option value="'+key+'">'+this.options.ARROW_STYLES[key].alias+'</option>';
@@ -590,7 +590,7 @@ export default class InteractionUI {
 	{
 		if (data.from == data.to) 
 		{
-			var r = confirm("Do you want to connect the node to itself?");
+			var r = confirm('Do you want to connect the node to itself?');
 			if (r == true) 
 			{
 				this.addEdgeCallbackHelper(data, callback);
@@ -605,24 +605,24 @@ export default class InteractionUI {
 	deleteEdgeCallback(data: {edges: string[]}, callback: (any: null) => void) 
 	{
 		console.log(data);
-		this.theoryGraph.deleteEdges(data["edges"]);
+		this.theoryGraph.deleteEdges(data['edges']);
 	}
 
 	deleteNodeCallback(data: {nodes: string[], edges?: string[]}, callback: (any: null) => void) 
 	{
 		console.log(data);
-		this.theoryGraph.deleteNodes(data["nodes"],data["edges"]);
+		this.theoryGraph.deleteNodes(data['nodes'],data['edges']);
 	}
 
 	private editEdgeCallbackHelper(data: DirtyEdge & {id: string}, callback: (any: null) => void) 
 	{
 		// filling in the popup DOM elements
-		this.dom.getElementById('edge-operation').innerHTML = "Edit Edge";
+		this.dom.getElementById('edge-operation').innerHTML = 'Edit Edge';
 		this.dom.getElementById<HTMLInputElement>('edge-id').value = data.id;
-		this.dom.getElementById<HTMLInputElement>('edge-label').value = (typeof data.label !="undefined") ? data.label : "";
-		this.dom.getElementById<HTMLInputElement>('edge-url').value = (typeof data.url !="undefined") ? data.url : "";
+		this.dom.getElementById<HTMLInputElement>('edge-label').value = (typeof data.label !='undefined') ? data.label : '';
+		this.dom.getElementById<HTMLInputElement>('edge-url').value = (typeof data.url !='undefined') ? data.url : '';
 
-		var html="";
+		var html='';
 		Object.keys(this.options.ARROW_STYLES).forEach((key) => 
 		{
 		   html+='<option value="'+key+'">'+this.options.ARROW_STYLES[key].alias+'</option>';
@@ -638,7 +638,7 @@ export default class InteractionUI {
 	{
 		if (data.from == data.to) 
 		{
-			var r = confirm("Do you want to connect the node to itself?");
+			var r = confirm('Do you want to connect the node to itself?');
 			if (r == true) 
 			{
 				this.editEdgeCallbackHelper(data, callback);

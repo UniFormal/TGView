@@ -1,6 +1,6 @@
-import LayoutBase, { IEdgeIgnorance, LayoutNode } from "./Base";
-import { CleanNode, CleanEdge } from "../visgraph";
-import StatusLogger from "../../dom/StatusLogger";
+import LayoutBase, { IEdgeIgnorance, LayoutNode } from './Base';
+import { CleanNode, CleanEdge } from '../visgraph';
+import StatusLogger from '../../dom/StatusLogger';
 export default class Optimizer extends LayoutBase {
     constructor(nodes: CleanNode[], edges: CleanEdge[], ignoreByType: IEdgeIgnorance, logger: StatusLogger) {
         super(nodes, edges, logger, ignoreByType);
@@ -189,7 +189,7 @@ export default class Optimizer extends LayoutBase {
 	
 	waterDrivenLayout(iterations: number, spacingValue: number, gravity=200, ignoreEdgesByType?: IEdgeIgnorance, edgesIn?: CleanEdge[])
 	{
-		if(typeof edgesIn!="undefined")
+		if(typeof edgesIn!='undefined')
 		{
 			this.mapEdgesIntoNodes(edgesIn, ignoreEdgesByType)
 		}
@@ -305,7 +305,7 @@ export default class Optimizer extends LayoutBase {
 		{
 			if(i%50==0)
 			{
-				this.logger.setStatusText("Beautify Layout: Iteration "+i+" of "+(iterations*2)+"...");
+				this.logger.setStatusText('Beautify Layout: Iteration '+i+' of '+(iterations*2)+'...');
 			}
 			
 			for( var j = 0; j < this.myAllNodes.length; j++ )
@@ -416,7 +416,7 @@ export default class Optimizer extends LayoutBase {
 				this.myAllNodes[i].y=level*distClusterCenter;
 			}
 			
-			console.log("Level["+level+"; real:"+this.myAllNodes[i].overallLength+"]: "+this.myAllNodes[i].x+" "+this.myAllNodes[i].y);
+			console.log('Level['+level+'; real:'+this.myAllNodes[i].overallLength+']: '+this.myAllNodes[i].x+' '+this.myAllNodes[i].y);
 			
 		}
 		
@@ -465,7 +465,7 @@ export default class Optimizer extends LayoutBase {
 		{
 			if(i%100==0)
 			{
-				this.logger.setStatusText("Beautify Layout: Iteration "+i+" of "+iterations+"...");
+				this.logger.setStatusText('Beautify Layout: Iteration '+i+' of '+iterations+'...');
 			}
 			
 			var energyBefore = energy;
@@ -475,7 +475,7 @@ export default class Optimizer extends LayoutBase {
 				var n=this.myAllNodes[j];
 				if(n.forcesFixed===false && n.hidden!=true)
 				{
-					if (useGravity==true && typeof n.overallWeight!="undefined")
+					if (useGravity==true && typeof n.overallWeight!='undefined')
 					{
 						n.dispX = 0;
 						n.dispY = n.overallWeight;
@@ -498,7 +498,7 @@ export default class Optimizer extends LayoutBase {
 							var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY ) + 0.001;
 							var repulsiveForce = - (kSquared / lengthDiff);
 													
-							if(typeof n.membership !== "undefined"  && typeof u.membership !== "undefined" && u.membership!=n.membership)
+							if(typeof n.membership !== 'undefined'  && typeof u.membership !== 'undefined' && u.membership!=n.membership)
 							{
 								repulsiveForce*=1.5;
 							}
@@ -518,7 +518,7 @@ export default class Optimizer extends LayoutBase {
 						var lengthDiff =  Math.sqrt( differenceNodesX * differenceNodesX + differenceNodesY * differenceNodesY ) + 0.001;
 						var attractiveForce = (lengthDiff * lengthDiff / kVal);
 
-						if(typeof n.membership !== "undefined"  && typeof u.membership !== "undefined" && u.membership==n.membership)
+						if(typeof n.membership !== 'undefined'  && typeof u.membership !== 'undefined' && u.membership==n.membership)
 						{
 							attractiveForce*=5;
 						}
