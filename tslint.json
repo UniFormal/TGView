@@ -1,5 +1,5 @@
 {
-    "defaultSeverity": "error",
+    "defaultSeverity": "warn",
     "jsRules": {},
     "rules": {
         "quotemark": [true, "single"]

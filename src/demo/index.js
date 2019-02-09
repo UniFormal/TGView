@@ -1,13 +1,13 @@
 /**
  * @file
  * 
- * The main entry point for the TGView standalone html file
+ * The main entry point for the TGView demo
  */
 
-import TGView from './src';
+import TGView from '..';
 
 // Load all of the required CSS
-import './src/css/styles.css';
+import '../css/styles.css';
 // <link href="deps/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
 import 'vis/dist/vis.min.css';
 //  <link href="deps/jqueryui/jquery-ui.min.css" rel="stylesheet" type="text/css">
