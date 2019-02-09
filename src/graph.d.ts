@@ -1,4 +1,10 @@
 /**
+ * @file
+ * 
+ * This file contains type definitions for user-provided objects. 
+ */
+
+/**
  * JSON representing a TGView menu entry
  */
 interface ITGViewMenuEntry {
@@ -24,15 +30,15 @@ export interface IGraphJSONGraph {
 
 interface IGraphJSONNode {
     /** style of this node, as found in NODE_STYLE */
-    style: string; // TODO: Allow any NODE_STYLE
+    style: string;
     /** shape of this node */
-    shape: "circle" | "ellipse" | "square" | "circularImage" | "image"; // TODO: Was this moved into the style
+    shape?: "" | "circle" | "ellipse" | "square" | "circularImage" | "image"; // TODO: Was this moved into the style
     /** internal id */
-    id: string;
+    id: number | string;
     /** text shown */
     label: string;
     /** html show in the node */
-    previewhtml: string;
+    previewhtml?: string;
     /** mathml of the node */
     mathml: string;
     /** url for showing node */

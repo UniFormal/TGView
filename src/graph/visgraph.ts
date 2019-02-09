@@ -3,22 +3,30 @@ import { INodeStyle, IArrowStyle } from "../Configuration";
 
 declare module 'vis' {
 	interface NetworkNodes {
-		[index: number]: Node // options: hidden?
-		[index: string]: Node // options: hidden?
+		[index: string]: CleanNode
 	}
 	interface Network {
-		getConnectedNodes(nodeOrEdgeId: IdType, direction: string): IdType[];
+		getConnectedNodes(nodeOrEdgeId: IdType, direction: string): string[];
 		body: { nodes: NetworkNodes };
 		canvas: {frame: {canvas: HTMLCanvasElement}};
 		clustering: Network;
 	}
-	interface Node {
-		widthConstraint?: Partial<{minimum: number, maximum: number}>
+	interface DataSet<T extends DataItem | DataGroup | Node | Edge> {
+		update(data: Partial<T> | Partial<T>[], senderId?: IdType): IdType[];
 	}
 }
 
-export type DirtyNode = Partial<CleanNode>;
-export type CleanNode = vis.Node & IGraphJSONNode;
+export type DirtyNode = Partial<vis.Node & IGraphJSONNode>;
+export type CleanNode = vis.Node & IGraphJSONNode & NodeRuntimeProps;
+
+interface NodeRuntimeProps {
+	id: string;
+
+	// TODO: Figure this out
+	options: Partial<CleanNode>,
+
+	membership: number;
+}
 
 /**
  * Cleans up a user-provided node and applies the appropriate style
@@ -37,6 +45,12 @@ export function cleanNode(nodeIn: DirtyNode, NODE_STYLES: Record<string, INodeSt
 		y: NaN,
 		url: '',
 		childsURL: '',
+
+		membership: NaN,
+
+		options: {
+			hidden: false,
+		},
 
 		// the input
 		...nodeIn,
@@ -83,8 +97,12 @@ export function cleanNode(nodeIn: DirtyNode, NODE_STYLES: Record<string, INodeSt
 }
 
 
-export type DirtyEdge = Partial<CleanEdge>;
-export type CleanEdge = vis.Edge & IGraphJSONEdge;
+export type DirtyEdge = Partial<vis.Edge & IGraphJSONEdge>;
+export type CleanEdge = vis.Edge & IGraphJSONEdge & EdgeRuntimeProps;
+
+interface EdgeRuntimeProps {
+	id: string;
+}
 
 /**
  * Cleans up a user-provided edge and applies the appropriate style
@@ -101,7 +119,9 @@ export function cleanEdge(edgeIn: DirtyEdge, ARROW_STYLES: Record<string, IArrow
 		url: '',
 
 		// the input
-		...edgeIn
+		...edgeIn,
+
+		id: (edgeIn.id != undefined ? edgeIn.id : 'no-id-provided').toString()
 	};
 
 	const style = ARROW_STYLES[edge.style || ''];
@@ -134,7 +154,7 @@ export function ensureUniqueIds<T extends {id?: string}>(array: Array<T>): Array
 	const knownIds = new Set<string>();
 	
 	return array.map((e, i) => {
-		if (e.id == undefined) {
+		if (e.id !== undefined) {
 
 			// if we have an already known id
 			// add a unique prefix to it to make sure it becomes unique

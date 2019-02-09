@@ -24,7 +24,7 @@ export default class TGView {
 
 		// create history logger and initialize it with the theory graph
 		this.actionHistory = new ActionHistory();
-		this.theoryGraph = new TheoryGraph(this.config, this.config.preferences.prefix + "mynetwork", this.statusLogger, this.actionHistory);
+		this.theoryGraph = new TheoryGraph(this.config, this.dom, "mynetwork", this.statusLogger, this.actionHistory);
 		this.actionHistory.init(this.theoryGraph);
 
 		// create remaining dom

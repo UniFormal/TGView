@@ -105,7 +105,7 @@ export default class LayoutBase {
 	}
 }
 
-export type IEdgeIgnorance = {[tp: string]: boolean};
+export type IEdgeIgnorance = Record<string, boolean>;
 
 export interface LayoutNode extends IGraphJSONNode {
 	graphNumber: number;

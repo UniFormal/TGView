@@ -23,7 +23,7 @@ export default class StatusLogger {
 		this.statusbar.innerHTML=text;
 	}
 
-	setStatusCursor(cursor: 'wait' | 'auto'){
+	setStatusCursor(cursor: 'wait' | 'pointer' | 'copy' | 'auto'){
 		this.dom.mainElement.style.cursor = cursor || "auto";
 	}
 }

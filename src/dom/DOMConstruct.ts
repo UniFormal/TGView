@@ -60,6 +60,9 @@ export default class DOMConstruct {
     * @param selector 
     */
    $<T extends HTMLElement = HTMLElement>(selector: string) : JQuery<T> {
+      if (selector.startsWith('#')) {
+         console.warn('Insecure use of DOMConstruct.$(): Fetch elements by id using DOMConstruct.$$() to add prefixes. ');
+      }
       return this.mainElement$.find(selector) as JQuery<T>;
    }
 }

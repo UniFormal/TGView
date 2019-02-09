@@ -187,7 +187,7 @@ export default class Optimizer extends LayoutBase {
 		return currentPath;
 	}
 	
-	waterDrivenLayout(iterations: number, spacingValue: number, gravity=200, ignoreEdgesByType: IEdgeIgnorance, edgesIn: CleanEdge[])
+	waterDrivenLayout(iterations: number, spacingValue: number, gravity=200, ignoreEdgesByType?: IEdgeIgnorance, edgesIn?: CleanEdge[])
 	{
 		if(typeof edgesIn!="undefined")
 		{
