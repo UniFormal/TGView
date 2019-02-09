@@ -44,7 +44,7 @@ export default class DOMConstruct {
 
       // make sure that the element is contained with the DOM
       if (!this.mainElement.contains(element)){
-         console.warn('Insecure use of DOMConstruct.getElementById(): Element with ID '+id+' is not conained with mainElement');
+         console.warn('Insecure use of DOMConstruct.getElementById(): Element with ID '+id+' is not contained within mainElement');
       }
 
       // else return the element itself

@@ -13,7 +13,7 @@ element.setAttribute('style', 'cursor: auto; overflow:hidden;');
 document.body.append(element);
 
 Promise.all([
-    import('../'),
+    import('../').then(e => e.default),
     // Load all of the required CSS
     import('../css/styles.css'),
     // <link href="deps/fontawesome/css/font-awesome.min.css" rel="stylesheet" />
