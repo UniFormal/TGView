@@ -34,6 +34,10 @@ export default class DOMConstruct {
    getElementById<T extends HTMLElement = HTMLElement>(id: string) : T {
       // TODO: Cache this function
 
+      if(id.startsWith(this.config.preferences.prefix)) {
+         console.warn('Possibly incorrect use of DOMConstruct.getElementById(): Id of element to fetch starts with prefix. ');
+      }
+
       // Find the element with the given id on the page
       const element = document.getElementById(this.config.preferences.prefix + id);
       if (!element) { throw new Error('Element with ID '+id+' does not exist'); }

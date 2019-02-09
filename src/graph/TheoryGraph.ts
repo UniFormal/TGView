@@ -695,7 +695,7 @@ export default class TheoryGraph {
 		return usedEdgeTypes;
 	}
 	
-	graphToIFrameString(parameterName: string, onlySelected: boolean, compressionRate: number)
+	graphToIFrameString(parameterName: string | undefined, onlySelected: boolean | undefined, compressionRate: number | undefined)
 	{
 		if (typeof parameterName == "undefined")
 		{
@@ -716,7 +716,7 @@ export default class TheoryGraph {
 		return {"storage":"localStorage.setItem('"+parameterName+"', '"+this.generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=iframe&uri="+parameterName, "id":parameterName};
 	}
 	
-	graphToLocalStorageString(parameterName: string, onlySelected: boolean, compressionRate: number)
+	graphToLocalStorageString(parameterName: string | undefined, onlySelected: boolean | undefined, compressionRate: number | undefined)
 	{
 		if (typeof parameterName == "undefined")
 		{
@@ -736,7 +736,7 @@ export default class TheoryGraph {
 		return {"storage":"localStorage.setItem('"+parameterName+"', '"+this.generateCompressedJSON(onlySelected, compressionRate).split("'").join("\\'")+"');", "uri":location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+parameterName, "name":parameterName};
 	}
 	
-	graphToURIParameterString(onlySelected: boolean, compressionRate: number)
+	graphToURIParameterString(onlySelected: boolean | undefined, compressionRate: number | undefined)
 	{
 		if (typeof onlySelected == "undefined")
 		{
@@ -751,7 +751,7 @@ export default class TheoryGraph {
 		return location.protocol + '//' + location.host + location.pathname+"?source=param&uri="+encodeURI(this.generateCompressedJSON(onlySelected, compressionRate));
 	}
 
-	graphToStringJSON(onlySelected: boolean, compressionRate: number)
+	graphToStringJSON(onlySelected: boolean | undefined, compressionRate: number | undefined)
 	{
 		if (typeof onlySelected == "undefined")
 		{
@@ -1089,7 +1089,7 @@ export default class TheoryGraph {
 		this.edgesNameToHide.push({"hidden": hideEdge,"type": type});
 	}
 	
-	downloadCanvasAsImage(/*button*/)
+	downloadCanvasAsImage(_: HTMLButtonElement)
 	{
 		var minX=111110;
 		var minY=111110;
@@ -1221,7 +1221,7 @@ export default class TheoryGraph {
 		this.network.clusterOutliers(clusterOptionsByData);
 	}
 	
-	cageNodes(nodeIds: string[] | undefined,color: string)
+	cageNodes(nodeIds: string[] | undefined, color: string | undefined)
 	{
 		if(nodeIds===undefined)
 		{

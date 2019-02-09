@@ -30,7 +30,7 @@ export default class TGView {
 		// create remaining dom
 		this.legendPanel = new LegendPanel(this.dom, "mynetworkLegend", this.config, this.statusLogger); // DONE
 		this.tgDomListener = new GlobalListener(this.theoryGraph, this.config, this.dom, this); // DONE
-		this.ui = new InteractionUI(this.theoryGraph, this.tgDomListener, this.statusLogger, this.config, this.actionHistory, this);
+		this.ui = new InteractionUI(this.dom, this.theoryGraph, this.tgDomListener, this.statusLogger, this.config, this.actionHistory, this);
 		this.treeMenu = new GraphTreeMenu(this.config, this.dom, this); // DONE
 
 		// update the theory graph
@@ -81,7 +81,7 @@ export default class TGView {
 			this.theoryGraph.loadGraphByLocalStorage(getParameterByName(Configuration.graphDataURLDataSourceParameterNameTGView) || undefined);
 		}
 		else if (source == "param") {
-			this.theoryGraph.loadGraphByURIParameter(getParameterByName(Configuration.graphDataURLDataSourceParameterNameTGView) || undefined));
+			this.theoryGraph.loadGraphByURIParameter(getParameterByName(Configuration.graphDataURLDataSourceParameterNameTGView) || undefined);
 		}
 		else if (source == "iframe") {
 			this.waitForJSONMessage.bind(this)();
@@ -114,7 +114,7 @@ export default class TGView {
 	 * @param tp Type of graph to c
 	 * @param gd 
 	 */
-	private createNewGraph(tp?: string, gd?: string) {
+	createNewGraph(tp?: string, gd?: string) {
 		var type = tp || this.lastGraphTypeUsed;
 		var graphdata = gd || this.lastGraphDataUsed;
 

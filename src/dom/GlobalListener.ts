@@ -122,7 +122,7 @@ export default class GlobalListener {
 		this.wrapper.recievedDataJSON = (e.originalEvent as any).data;
 	}
 		
-	private switchSelectionMode()
+	switchSelectionMode()
 	{
 		if(this.selectionMode==false)
 		{
