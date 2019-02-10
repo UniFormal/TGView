@@ -29,8 +29,8 @@ yarn build
 As an editor, it is highly recommended to use [Visual Studio Code](https://code.visualstudio.com/) as it has built-in support for TypeScript. 
 Furthermore, the excellent [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) extension can be used. 
 
-## Using TGView as a library in
+## Using TGView as a library
 
 To use TGView as a library in other Webpack / JavaScript / TypeScript projects, a `package.json` file is provided. 
-During installation of the package this file will automatically run the TypeScript Compiler to generate pure JavaScript code into the `lib/` folder. 
+During installation of the package this file will automatically cause the TypeScript Compiler to generate pure JavaScript code into the `lib/` folder. 
 This code can then be used as an entry point of other scripts. 
