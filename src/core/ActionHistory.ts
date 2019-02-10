@@ -234,13 +234,6 @@ export default class ActionHistory {
 
 type IAction = IClusteringAction | ISelectAction | IAddNodeAction | IEditNodeAction | IDeleteNodesAction | IAddEdgeAction | IEditEdgeAction | IDeleteEdgesAction | IHideNodesAction | ICageNodesAction | IHideEdgesAction | ISelectEdgesAction; 
 
-/** an action within the history */
-interface ILegacyAction {
-	// TODO: Make ach acttion well-defined w.r.t. their parameters
-	func?: 'hideEdges' | 'selectEdges'
-	param: any;
-}
-
 interface IActionBase<S extends string, T extends {}> {
 	func: S,
 	param: T 

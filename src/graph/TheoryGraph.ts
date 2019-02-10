@@ -1123,7 +1123,7 @@ export default class TheoryGraph {
 
 			var image=this.network.canvas.frame.canvas.toDataURL('image/png');
 
-			var URL: typeof window.URL = window.URL || (window as any).webkitURL;
+			var URL = window.URL /*|| window.webkitURL*/;
 			var downloadUrl = image;
 
 			// set object URL as the anchor's href
@@ -1912,7 +1912,7 @@ export default class TheoryGraph {
 			this.hiddenNodes[this.originalNodes[i]['id']]=false;
 			if(this.originalNodes[i]['image']!='' && this.originalNodes[i]['image']!=undefined)
 			{
-				var callback = ((node: CleanNode, data: any) =>
+				var callback = ((node: CleanNode, data: string) =>
 				{
 					node['mathml']=data;
 					this.nodeToSVGMath(node);
@@ -1963,7 +1963,7 @@ export default class TheoryGraph {
 					hideEdgesType[type]=true;
 				}
 			}
-			if(typeof this.config.THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof (this.config.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx === 'undefined' || (this.config.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx==1)
+			if(typeof this.config.THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof this.config.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || this.config.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
 			{
 				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
 				var spacingValue = parseInt(this.dom.getElementById<HTMLInputElement>('nodeSpacingBox').value, 10);
@@ -1981,7 +1981,7 @@ export default class TheoryGraph {
 				}
 				opti.destroy();
 			}
-			else if((this.config.THEORY_GRAPH_OPTIONS as any).layout.ownLayoutIdx==2)
+			else if(this.config.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==2)
 			{
 				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
 				opti.GenerateRandomSolution();

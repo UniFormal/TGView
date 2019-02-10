@@ -121,7 +121,7 @@ export default class GlobalListener {
 	private selectionMode = false;
 
 	private onMessage(e: JQuery.TriggeredEvent<Window>) {
-		this.wrapper.recievedDataJSON = (e.originalEvent as any).data;
+		this.wrapper.recievedDataJSON = (e.originalEvent as unknown as {data: string}).data;
 	}
 		
 	switchSelectionMode()

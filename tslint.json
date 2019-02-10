@@ -3,7 +3,8 @@
     "jsRules": {},
     "rules": {
         "quotemark": [true, "single"],
-        "prefer-readonly": [true]
+        "prefer-readonly": [true],
+        "no-any": [true]
     },
     "rulesDirectory": []
 }

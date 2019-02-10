@@ -95,9 +95,10 @@ export default class GraphTreeMenu {
 	private handleMouseMove(event: MouseEvent) 
 	{
 		//var dot, eventDoc, doc, body, pageX, pageY;
-		var eventDoc, doc, body;
 		event = event || window.event; // IE-ism
 
+		/*
+		// NO IE-compatibility needed
 		// If pageX/Y aren't available and clientX/Y are,
 		// calculate pageX/Y - logic taken from jQuery.
 		// (This is to support old IE)
@@ -116,6 +117,7 @@ export default class GraphTreeMenu {
 			  (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
 			  (doc && doc.clientTop  || body && body.clientTop  || 0 );
 		}
+		*/
 
 		this.currentMouseX = event.pageX;
 		this.currentMouseY = event.pageY;

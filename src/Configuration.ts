@@ -134,7 +134,7 @@ export class Configuration {
 					useImageSize: true,  // only for image and circularImage shapes
 					useBorderWithImage: true  // only for image shape
 				}
-			} as any,
+			} as NodeOptions,
 			edges:
 			{
 				smooth:

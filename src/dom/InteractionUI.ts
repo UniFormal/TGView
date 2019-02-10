@@ -98,7 +98,7 @@ export default class InteractionUI {
 		this.dom.getElementById('jsonRadio').addEventListener('click',()  => { this.downloadGraphJSON() },false);
 		
 		this.dom.getElementById('nodeSpacingBox').addEventListener('change',() => { this.changeMethod(); },false);
-		this.dom.getElementById('layoutBox').addEventListener('change',(e) => { this.changeMethod((e as any).target.value); },false);
+		this.dom.getElementById('layoutBox').addEventListener('change',(e) => { this.changeMethod((e.target as HTMLSelectElement).value); },false);
 		
 		//document.getElementById(options.external.prefix+'').addEventListener('click',function() {  },false);
 		//document.getElementById(options.external.prefix+'').addEventListener('click',function() {  },false);
@@ -235,7 +235,7 @@ export default class InteractionUI {
 			input.addEventListener(
 				 'click',
 				 (e) => {
-					const t = e.target as any;
+					const t = e.target as HTMLInputElement;
 					this.hideNodes(t.value, !t.checked)
 				},
 				 false
@@ -297,22 +297,23 @@ export default class InteractionUI {
 		this.theoryGraph.colorizeNodes(undefined, color);
 	}
 	
-	changeMethod(idx?: number)
+	changeMethod(idx?: string)
 	{
+		const iidx = idx ? parseInt(idx, 10) : -1;
 		this.theoryGraph.manualFocus=false;
 		this.statusLogger.setStatusText('Relayouting graph...');
 		this.statusLogger.setStatusCursor('wait');
 		if(typeof idx !=='undefined')
 		{
-			if(idx==1 || idx==2 || idx==4)
+			if(iidx==1 || iidx==2 || iidx==4)
 			{
-				this.options.THEORY_GRAPH_OPTIONS.layout={ownLayoutIdx:idx};
+				this.options.THEORY_GRAPH_OPTIONS.layout={ownLayoutIdx:iidx};
 			}
-			else if(idx==0)
+			else if(iidx==0)
 			{
 				this.options.THEORY_GRAPH_OPTIONS.layout={ownLayoutIdx:0, hierarchical: {sortMethod: 'directed',direction: 'LR'}};
 			}
-			else if(idx==3)
+			else if(iidx==3)
 			{
 				this.theoryGraph.manualFocus=true;
 				this.statusLogger.setStatusCursor('wait');
@@ -325,13 +326,13 @@ export default class InteractionUI {
 	handleJson(e: Event)
 	{
 		var reader = new FileReader();
-		reader.onload = (event) =>
+		reader.onload = (event: ProgressEvent) =>
 		{
-			const result = (event.target as any).result as string;
+			const result = (event.target as unknown as {result: string}).result;
 			console.log(result);
 			this.theoryGraph.loadJSONGraph(JSON.parse(result));
 		}
-		reader.readAsText((e.target as any).files[0]);   		
+		reader.readAsText((e.target as unknown as {files: Blob[]}).files[0]);   		
 	}		
 	
 	openNav() 
