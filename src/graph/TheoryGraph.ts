@@ -133,7 +133,7 @@ export default class TheoryGraph {
 		}
 	}
 
-	focusOnNodes(nodeIds?: string[]) {
+	private focusOnNodes(nodeIds?: string[]) {
 		var nodesToShow: string[] = [];
 		if (typeof nodeIds == 'undefined')
 		{
@@ -242,7 +242,7 @@ export default class TheoryGraph {
 		this.hideEdgesById(edgesToShow,false);
 	}
 	
-	manipulateSelectedRegion(coords: Position)
+	private manipulateSelectedRegion(coords: Position)
 	{
 		// If the document is hold somewhere
 		var updateNodes: IPositionWithId[] = [];
@@ -311,7 +311,7 @@ export default class TheoryGraph {
 		return selectRegion;
 	}
 	
-	selectRegion(coords: Position)
+	private selectRegion(coords: Position)
 	{
 		var redraw=false;
 		for(var i=0;i<this.allNodeRegions.length;i++)
@@ -339,7 +339,7 @@ export default class TheoryGraph {
 		this.network.redraw();
 	}
 	
-	drawAllColoredRegionsOnCanvas(ctx: CanvasRenderingContext2D)
+	private drawAllColoredRegionsOnCanvas(ctx: CanvasRenderingContext2D)
 	{
 		for(var i=0;i<this.allNodeRegions.length;i++)
 		{
@@ -371,7 +371,7 @@ export default class TheoryGraph {
 		}
 	}
 	
-	drawAllColoredRegions(ctx: CanvasRenderingContext2D)
+	private drawAllColoredRegions(ctx: CanvasRenderingContext2D)
 	{
 		if(this.allNodeRegions.length==0)
 		{
@@ -433,7 +433,8 @@ export default class TheoryGraph {
 		this.repositionNodes();
 	}
 
-	intersectRect(a: vis.BoundingBox, b: vis.BoundingBox): boolean
+	// TODO: Move to utils?
+	private intersectRect(a: vis.BoundingBox, b: vis.BoundingBox): boolean
 	{
 		return (a.left <= b.right &&
 			b.left <= a.right &&
@@ -441,7 +442,7 @@ export default class TheoryGraph {
 			b.top <= a.bottom)
 	}
 	
-	liesInAnyRegion(box: vis.BoundingBox,id: IdType): number
+	private liesInAnyRegion(box: vis.BoundingBox,id: IdType): number
 	{
 		for(var j=0;j<this.allNodeRegions.length;j++)
 		{
@@ -454,7 +455,7 @@ export default class TheoryGraph {
 		return -1;
 	}
 	
-	repositionNodes()
+	private repositionNodes()
 	{
 		//var allNodePositions=network.getPositions();
 		var newPositions: IPositionWithId[]=[];
@@ -764,7 +765,7 @@ export default class TheoryGraph {
 		return this.generateCompressedJSON(onlySelected, compressionRate);
 	}
 	
-	generateCompressedJSON(onlySelected: boolean, compressionRate: number)
+	private generateCompressedJSON(onlySelected: boolean, compressionRate: number)
 	{	
 		// TODO: Use JSON.stringify for cleaner code
 		var allNodePositions: Record<string, vis.Position>={};
@@ -987,11 +988,6 @@ export default class TheoryGraph {
 		this.actionLogger.addToStateHistory({func: 'hideNodes', param: {'hideNodes':nodesToHide,'hideEdges':edgesToHide,'hidden':false}});
 	}
 	
-	/**
-	 * 
-	 * @param nodeIds Ids of nodes to hide
-	 * @param hideNode 
-	 */
 	hideNodesById(nodeIds: string[] | undefined, hideNode: boolean)
 	{
 		if(typeof nodeIds=='undefined' || nodeIds.length==0)
@@ -1073,7 +1069,7 @@ export default class TheoryGraph {
 		//actionLoggerIn.addToStateHistory({func: "hideNodes", param: {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideEdge}});
 	}
 	
-	setEdgesHidden(type: string, hideEdge: boolean)
+	private setEdgesHidden(type: string, hideEdge: boolean)
 	{
 		for(var i=0;i<this.edgesNameToHide.length;i++)
 		{
@@ -1152,27 +1148,6 @@ export default class TheoryGraph {
 		});
 	}
 	
-    openOutlierClusters(scale: number): boolean
-	{
-        var newClusters = [];
-        var declustered = false;
-        for (var i = 0; i < this.zoomClusters.length; i++) 
-		{
-            if (this.zoomClusters[i].scale < scale) 
-			{
-                this.network.openCluster(this.zoomClusters[i].id);
-                this.lastClusterZoomLevel = scale;
-                declustered = true;
-            }
-            else 
-			{
-                newClusters.push(this.zoomClusters[i])
-            }
-        }
-		this.zoomClusters = newClusters;
-		return declustered;
-    }
-	
 	selectNodes(nodeIds: string[])
 	{
 		this.network.selectNodes(nodeIds);
@@ -1193,30 +1168,6 @@ export default class TheoryGraph {
 		}
 		this.actionLogger.addToStateHistory({func: 'select', param: {'nodes': nodeIds}});
 		this.network.selectNodes(nodeIds);
-	}
-	
-	clusterOutliers(scale: number)
-	{
-		var clusterOptionsByData: vis.ClusterOptions = 
-		{
-			processProperties: (clusterOptions, childNodes) =>
-			{
-				this.clusterId = this.clusterId + 1;
-				var childrenCount = 0;
-				for (var i = 0; i < childNodes.length; i++) 
-				{
-					childrenCount += childNodes[i].childrenCount || 1;
-				}
-				clusterOptions.childrenCount = childrenCount;
-				clusterOptions.label = '# ' + childrenCount + '';
-				clusterOptions.font = {size: Math.min(childrenCount+20,40)}
-				clusterOptions.id = 'cluster_' + this.clusterId;
-				this.zoomClusters.push({id:'cluster_' + this.clusterId, scale:scale});
-				return clusterOptions;
-			},
-			clusterNodeProperties: {borderWidth: 2, shape: 'database', color:'orange'}
-		}
-		this.network.clusterOutliers(clusterOptionsByData);
 	}
 	
 	cageNodes(nodeIds: string[] | undefined, color: string | undefined)
@@ -1489,7 +1440,7 @@ export default class TheoryGraph {
 		this.loadDataSet(data.nodes, data.edges, true);
 	}
 	
-	drawGraph(data: string | IDirtyGraph, status: number | string=200)
+	private drawGraph(data: string | IDirtyGraph, status: number | string=200)
 	{
 		if(status!=200 && status!='success') 
 		{
@@ -1533,7 +1484,7 @@ export default class TheoryGraph {
 		this.startConstruction(fixedPositions);
 	}
 	
-	addUsedButNotDefinedNodes()
+	private addUsedButNotDefinedNodes()
 	{
 		this.statusLogger.setStatusText('Adding used but not defined nodes...');
 		var mappedNodes: Record<string, vis.Node> = {};
@@ -1590,7 +1541,7 @@ export default class TheoryGraph {
 	}
 	
 	// TODO: Compare and unify with drawgraph
-	addNodesAndEdges(data: IDirtyGraph | string, status: number | string=200)
+	private addNodesAndEdges(data: IDirtyGraph | string, status: number | string=200)
 	{
 		if(status!=200 && status!='success') // TODO: what kind of type is this? use either number or string
 		{
@@ -1766,7 +1717,7 @@ export default class TheoryGraph {
 		this.actionLogger.addToStateHistory({func: 'editNode', param: {'newNode': node,'oldNode': oldNode!}});
 	}
 	
-	isUniqueId(id: vis.IdType)
+	isUniqueId(id: string)
 	{
 		for(var i=0;i<this.originalNodes.length;i++)
 		{
@@ -1778,7 +1729,7 @@ export default class TheoryGraph {
 		return true;
 	}
 	
-	isUniqueEdgeId(id: vis.IdType)
+	isUniqueEdgeId(id: string)
 	{
 		for(var i=0;i<this.originalEdges.length;i++)
 		{
@@ -1790,7 +1741,7 @@ export default class TheoryGraph {
 		return true;
 	}
 	
-	lazyLoadNodes(jsonURL?: string)
+	private lazyLoadNodes(jsonURL?: string)
 	{
 		if(jsonURL==undefined || jsonURL.length<3)
 		{
@@ -1855,7 +1806,7 @@ export default class TheoryGraph {
         }
 	}
 	
-	estimateExtraSVGHeight(expression: string): number
+	private estimateExtraSVGHeight(expression: string): number
 	{
 		if(expression.indexOf('frac') == -1 && expression.indexOf('under') == -1  && expression.indexOf('over') == -1)
 		{
@@ -1869,7 +1820,7 @@ export default class TheoryGraph {
 	}
 	
 
-	nodeToSVGHTML(node: CleanNode): CleanNode
+	private nodeToSVGHTML(node: CleanNode): CleanNode
 	{
 		this.dom.$$('string_span').html(node['previewhtml'] || '');
 		var width=this.dom.$$('string_span').width()!;
@@ -1901,7 +1852,7 @@ export default class TheoryGraph {
 		return node
 	}
 
-	nodeToSVGMath(node: CleanNode): CleanNode
+	private nodeToSVGMath(node: CleanNode): CleanNode
 	{
 		this.dom.$$('string_span').html(node['mathml']!);
 		var width=this.dom.$$('string_span').width()!;
@@ -1931,7 +1882,7 @@ export default class TheoryGraph {
 		return node
 	}
 	
-	startConstruction(fixedPositions=false)
+	private startConstruction(fixedPositions=false)
 	{	
 		var hideEdgesType: Record<string, boolean>={};
 		for(var j=0;j<this.edgesNameToHide.length;j++)
@@ -1994,7 +1945,7 @@ export default class TheoryGraph {
 	}
 	
 	// Called when the Visualization API is loaded.
-	startRendering(fixedPositions?: boolean) 
+	private startRendering(fixedPositions?: boolean) 
 	{
 		if(typeof fixedPositions == 'undefined')
 		{
