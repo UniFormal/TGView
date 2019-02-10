@@ -10,6 +10,7 @@ import Clusterer from './layout/Clusterer';
 import Optimizer from './layout/Optimizer';
 
 import {default as $} from 'jquery';
+import { deleteRegionPng, moveRegionPng, addRegionPng } from '../css/images';
 
 interface INodeRegion extends vis.BoundingBox {
 	nodeIds: string[];
@@ -29,9 +30,9 @@ type IPositionWithId = Pick<CleanNode, 'id'> & Partial<Pick<CleanNode, 'x' | 'y'
 
 export default class TheoryGraph {
 	constructor(private readonly config: Configuration, private readonly dom: DOMConstruct, private readonly containerName: string, private readonly statusLogger: StatusLogger, private readonly actionLogger: ActionHistory){
-		this.removeRegionImg.src = 'img/delete_region.png';
-		this.moveRegionImg.src = 'img/move_region.png';
-		this.addNodeToRegionImg.src = 'img/add_region.png';
+		this.removeRegionImg.src = deleteRegionPng;
+		this.moveRegionImg.src = moveRegionPng;
+		this.addNodeToRegionImg.src = addRegionPng;
 	}
 
 	// we store the nodes and edges in three ways:

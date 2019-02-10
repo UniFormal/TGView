@@ -3,6 +3,8 @@
  *
  * This file contains configuration to run the demo locally.
  */
+
+const ProvidePlugin = require("webpack").ProvidePlugin; 
 const path = require("path");
 const HTMLPlugin = require("html-webpack-plugin");
 //const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
@@ -76,6 +78,12 @@ module.exports = (_, argv) => {
         }
       }
     },
-    plugins: [new HTMLPlugin({title: 'TGView'})]
+    plugins: [
+      new HTMLPlugin({title: 'TGView'}),
+      // this is required by jstree -- and only jstree
+      new ProvidePlugin({
+        'jQuery': 'jquery'
+      })
+    ]
   };
 };

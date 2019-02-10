@@ -3,11 +3,11 @@ select {
   font: 10pt sans;
 }
 
-.jssocials-share-link {
+.tgview.jssocials-share-link {
   border-radius: 50%;
 }
 
-.sidenav {
+.tgview.sidenav {
   -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
   -webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
   box-shadow: inset 0px 1px 0px 0px #ffffff;
@@ -47,7 +47,7 @@ select {
   padding-top: 40px;
 }
 
-.sidenav .closebtn {
+.tgview.sidenav .closebtn {
   position: absolute;
   top: 0;
   right: 16px;
@@ -60,7 +60,7 @@ select {
   transition: 0.3s;
 }
 
-.sidenav2 {
+.tgview.sidenav2 {
   -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
   -webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
   box-shadow: inset 0px 1px 0px 0px #ffffff;
@@ -100,7 +100,7 @@ select {
   padding-top: 40px;
 }
 
-.sidenav2 .closebtn {
+.tgview.sidenav2 .closebtn {
   position: absolute;
   top: 0;
   left: 16px;
@@ -113,7 +113,7 @@ select {
   transition: 0.3s;
 }
 
-#wholeNetwork {
+.tgview.wholeNetwork {
   position: relative;
   width: 1200px;
   height: 600px;
@@ -121,20 +121,22 @@ select {
   float: left;
 }
 
-table.legend_table {
+table.tgview.legend_table {
   font-size: 11px;
   border-width: 1px;
   border-color: #d3d3d3;
   border-style: solid;
 }
 
-table.legend_table,
+table.tgview.legend_table,
 td {
   border-width: 1px;
   border-color: #d3d3d3;
   border-style: solid;
   padding: 2px;
 }
+
+/*
 div.table_content {
   width: 80px;
   text-align: center;
@@ -142,16 +144,16 @@ div.table_content {
 div.table_description {
   width: 100px;
 }
-
-#operation {
+*/
+.tgview.operation {
   font-size: 28px;
 }
 
-#edge-operation {
+.tgview.edge-operation {
   font-size: 28px;
 }
 
-#network-popUp {
+.tgview.network-popUp {
   display: none;
   position: absolute;
   top: 350px;
@@ -167,7 +169,7 @@ div.table_description {
   text-align: center;
 }
 
-#network-edge-popUp {
+.tgview.network-edge-popUp {
   display: none;
   position: absolute;
   top: 350px;
@@ -188,7 +190,7 @@ body {
   height: 100%;
 }
 
-.theoryTreeClass {
+.tgview.theoryTreeClass {
   overflow: auto;
   box-shadow: 0 0 5px #ccc;
   padding: 10px;
@@ -198,7 +200,7 @@ body {
 }
 
 /* The whole context menu */
-.custom-menu {
+.tgview.custom-menu {
   display: none;
   z-index: 1000;
   position: absolute;
@@ -213,7 +215,7 @@ body {
 }
 
 /* The whole context menu */
-.custom-menu-side {
+.tgview.custom-menu-side {
   display: none;
   z-index: 1000;
   position: absolute;
@@ -227,7 +229,7 @@ body {
   padding: 0;
 }
 
-.custom-tooltip {
+.tgview.custom-tooltip {
   display: none;
   z-index: 1000;
   position: absolute;
@@ -240,29 +242,30 @@ body {
   padding: 4px;
 }
 /* Each of the context menu items in the list */
-.custom-menu-side li {
+.tgview.custom-menu-side li {
   padding: 8px 12px;
   cursor: pointer;
   list-style-type: none;
   transition: all 0.3s ease;
 }
 
-.custom-menu-side li:hover {
+.tgview.custom-menu-side li:hover {
   background-color: #def;
 }
 
 /* Each of the context menu items in the list */
-.custom-menu li {
+.tgview.custom-menu li {
   padding: 8px 12px;
   cursor: pointer;
   list-style-type: none;
   transition: all 0.3s ease;
 }
 
-.custom-menu li:hover {
+.tgview.custom-menu li:hover {
   background-color: #def;
 }
 
+/* UNUSED?
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -280,18 +283,18 @@ body {
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
   background-clip: padding-box;
 }
-
-#colorPicker {
+*/
+.tgview.colorPicker {
   margin-left: 8px;
   float: left;
 }
 
-#generalMenu {
+.tgview.generalMenu {
   margin-top: 2px;
   float: left;
 }
 
-.toolSelector {
+.tgview.toolSelector {
   width: 370px;
   top: 0px;
   position: relative;
@@ -327,7 +330,7 @@ body {
   float: left;
 }
 
-.colorRect {
+.tgview.colorRect {
   width: 24px;
   height: 24px;
   margin-right: 4px;
@@ -338,7 +341,7 @@ body {
   border: 1px solid #dcdcdc;
 }
 
-.standardIcon {
+.tgview.standardIcon {
   cursor: pointer;
   background-image: url("img/standard.png");
   width: 24px;
@@ -347,7 +350,7 @@ body {
   background-repeat: no-repeat;
 }
 
-.downloadIcon {
+.tgview.downloadIcon {
   cursor: pointer;
   background-image: url("img/download.png");
   width: 24px;
@@ -356,7 +359,7 @@ body {
   background-repeat: no-repeat;
 }
 
-.crosshairIcon {
+.tgview.crosshairIcon {
   cursor: pointer;
   background-image: url("img/crosshair.png");
   width: 24px;
@@ -365,7 +368,7 @@ body {
   background-repeat: no-repeat;
 }
 
-.undoIcon {
+.tgview.undoIcon {
   cursor: pointer;
   background-image: url("img/undo.png");
   width: 24px;
@@ -374,7 +377,7 @@ body {
   background-repeat: no-repeat;
 }
 
-.redoIcon {
+.tgview.redoIcon {
   cursor: pointer;
   background-image: url("img/redo.png");
   width: 24px;
@@ -383,7 +386,7 @@ body {
   background-repeat: no-repeat;
 }
 
-.myButton {
+.tgview.myButton {
   -moz-box-shadow: inset 0px 1px 0px 0px #dcecfb;
   -webkit-box-shadow: inset 0px 1px 0px 0px #dcecfb;
   box-shadow: inset 0px 1px 0px 0px #dcecfb;
@@ -414,7 +417,7 @@ body {
 
   margin-top: 18px;
 }
-.myButton:hover {
+.tgview.myButton:hover {
   background: -webkit-gradient(
     linear,
     left top,

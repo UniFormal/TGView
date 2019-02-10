@@ -7,7 +7,8 @@ import { Configuration } from '../Configuration';
 import TheoryGraph from '../graph/TheoryGraph';
 import ActionHistory from '../core/ActionHistory';
 import DOMConstruct from './DOMConstruct';
-import { DirtyNode, DirtyEdge, IDirtyGraph } from '../graph/visgraph';
+import { DirtyNode, DirtyEdge } from '../graph/visgraph';
+import { selectPng } from '../css/images';
 
 export default class InteractionUI {
 	constructor(
@@ -131,6 +132,7 @@ export default class InteractionUI {
 			);
 			div.title='Colorize all selected nodes';
 			div.classList.add('colorRect');
+			div.classList.add('tgview');
 			div.style.cssText='background-color:'+colorArray[i];
 			
 			mainEle.appendChild(div);
@@ -161,7 +163,7 @@ export default class InteractionUI {
 				 boundFunc,
 				 false
 			);
-			img.src='img/select.png';
+			img.src=selectPng;
 			img.width=14;
 			img.style.cssText='width:14px';
 			img.title='Select all '+alias;
@@ -216,7 +218,7 @@ export default class InteractionUI {
 				 false
 			);
 			
-			img.src='img/select.png';
+			img.src=selectPng;
 			img.width=14;
 			img.style.cssText='width:14px';
 			img.title='Select all '+alias;
