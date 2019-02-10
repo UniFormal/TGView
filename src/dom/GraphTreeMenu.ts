@@ -86,7 +86,7 @@ export default class GraphTreeMenu {
 		tree.off('open_node.jstree');
 	}
 
-	private alreadyAdded: Record<string, boolean> = {};
+	private readonly alreadyAdded: Record<string, boolean> = {};
 
 	private lazyParent = '#';
 	private currentMouseX = 0;

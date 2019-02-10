@@ -10,8 +10,8 @@ export default class Optimizer extends LayoutBase {
     private readonly DependencyHeight: number = 30;
 	
     private field: {[key: number]: number}={};
-	private myWidth = 12000;
-	private myHeight=12000;
+	private readonly myWidth = 12000;
+	private readonly myHeight = 12000;
 
 	destroy() {
 		super.destroy();

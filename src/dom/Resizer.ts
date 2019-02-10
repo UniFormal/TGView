@@ -7,7 +7,7 @@ import DOMConstruct from './DOMConstruct';
  * @class
  */
 export default class Resizer {
-	constructor(private dom: DOMConstruct) {
+	constructor(private readonly dom: DOMConstruct) {
 		this.doResize = this.doResize.bind(this);
 		this.resizeMenuDiv = this.resizeMenuDiv.bind(this);
 		this.dom.mainElement$.ready(() => {

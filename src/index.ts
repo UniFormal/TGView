@@ -40,19 +40,19 @@ export default class TGView {
 		this.init();
 	}
 
-	private config: Configuration;
-	private dom: DOMConstruct;
+	private readonly config: Configuration;
+	private readonly dom: DOMConstruct;
 
-	private resizer: Resizer;
-	private statusLogger: StatusLogger;
+	private readonly resizer: Resizer;
+	private readonly statusLogger: StatusLogger;
 
-	private actionHistory: ActionHistory;
-	private theoryGraph: TheoryGraph;
+	private readonly actionHistory: ActionHistory;
+	private readonly theoryGraph: TheoryGraph;
 
-	private legendPanel: LegendPanel;
-	private tgDomListener: GlobalListener;
-	private ui: InteractionUI;
-	private treeMenu: GraphTreeMenu;
+	private readonly legendPanel: LegendPanel;
+	private readonly tgDomListener: GlobalListener;
+	private readonly ui: InteractionUI;
+	private readonly treeMenu: GraphTreeMenu;
 
 	recievedDataJSON: string = '';
 	lastGraphDataUsed = '';

@@ -12,7 +12,7 @@ export default class LegendPanel {
 		this.container = dom.getElementById(name);
 	}
 
-	private container: HTMLElement;
+	private readonly container: HTMLElement;
 
 	private originalNodes: CleanNode[] = [];
 	private originalEdges: CleanEdge[] = [];
@@ -22,8 +22,8 @@ export default class LegendPanel {
 	private nodes: vis.DataSet<CleanNode> = null!;
 	private edges: vis.DataSet<CleanEdge> = null!;
 
-	private smallNodeSize = 5;
-	private bigNodeSize = 130;
+	private readonly smallNodeSize = 5;
+	private readonly bigNodeSize = 130;
 
 	destroy() {
 		// clear edges, then nodes
@@ -35,7 +35,7 @@ export default class LegendPanel {
 		
 		// empty saved state
 		this.originalEdges = [];
-		this.originalEdges = [];
+		this.originalNodes = [];
 	}
 
 	load(usedNodeTypes: string[], usedEdgeTypes: string[]) {

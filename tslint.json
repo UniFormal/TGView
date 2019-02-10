@@ -2,7 +2,8 @@
     "defaultSeverity": "warn",
     "jsRules": {},
     "rules": {
-        "quotemark": [true, "single"]
+        "quotemark": [true, "single"],
+        "prefer-readonly": [true]
     },
     "rulesDirectory": []
 }

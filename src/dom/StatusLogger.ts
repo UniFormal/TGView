@@ -8,12 +8,12 @@ import DOMConstruct from './DOMConstruct';
  * @class
  */
 export default class StatusLogger {
-	constructor(private dom: DOMConstruct, logElementId: string)
+	constructor(private readonly dom: DOMConstruct, logElementId: string)
 	{
 		this.statusbar = this.dom.getElementById(logElementId);
 	}
 
-	private statusbar: HTMLElement;
+	private readonly statusbar: HTMLElement;
 	destroy() {
 		// reset the cursor of the status bar
 		this.setStatusCursor('auto');
