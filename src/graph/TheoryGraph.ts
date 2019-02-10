@@ -4,7 +4,7 @@ import StatusLogger from '../dom/StatusLogger';
 import ActionHistory from '../core/ActionHistory';
 import { Configuration } from '../Configuration';
 import { Position, IdType, ClusterOptions, Network, DataSet } from 'vis';
-import { CleanEdge, CleanNode, ensureUniqueIds, cleanNode, cleanEdge, DirtyEdge, DirtyNode, IDirtyGraph } from './visgraph';
+import { CleanEdge, CleanNode, ensureUniqueIds, cleanNode, cleanEdge, DirtyEdge, DirtyNode, IDirtyGraph, IPositionWithId } from './visgraph';
 import DOMConstruct from '../dom/DOMConstruct';
 import Clusterer from './layout/Clusterer';
 import Optimizer from './layout/Optimizer';
@@ -25,8 +25,6 @@ export interface IRectangle {
 	startX: number;
 	startY: number;
 }
-
-type IPositionWithId = Pick<CleanNode, 'id'> & Partial<Pick<CleanNode, 'x' | 'y'>>
 
 export default class TheoryGraph {
 	constructor(private readonly config: Configuration, private readonly dom: DOMConstruct, private readonly containerName: string, private readonly statusLogger: StatusLogger, private readonly actionLogger: ActionHistory){
@@ -145,14 +143,14 @@ export default class TheoryGraph {
 		if(nodeIds==undefined || nodeIds.length==0) { return; }
 		
 		nodesToShow=nodesToShow.concat(nodeIds);
-		var edgesToShow: vis.IdType[]=[];
+		var edgesToShow: string[]=[];
 
 		for(var i=0;i<nodeIds.length;i++)
 		{
 			var middleNodePos=this.network.getPositions(nodeIds[i]);
 			var connectedEdges=this.network.getConnectedEdges(nodeIds[i]);
 			
-			edgesToShow=edgesToShow.concat(connectedEdges);
+			edgesToShow=edgesToShow.concat(connectedEdges.map(e => e.toString()));
 			var toNodes=this.network.getConnectedNodes(nodeIds[i],'to').map(e => e.toString());
 			var fromNodes=this.network.getConnectedNodes(nodeIds[i],'from').map(e => e.toString());
 			
@@ -633,23 +631,23 @@ export default class TheoryGraph {
 	
 	selectNodesByType(type: string)
 	{
-		var nodeIds = this.network.getSelectedNodes();
+		var nodeIds = this.network.getSelectedNodes().map(e => e.toString());
 		for (var i = 0; i < this.originalNodes.length; i++) 
 		{
 			var curNode = this.originalNodes[i];
 			if(curNode['style']==type)
 			{
-				nodeIds.push(curNode.id);
+				nodeIds.push(curNode.id.toString());
 			}
 			
 		}
-		this.actionLogger.addToStateHistory('select', {'nodes': nodeIds});
+		this.actionLogger.addToStateHistory({func: 'select', param: {nodes: nodeIds}});
 		this.network.selectNodes(nodeIds);
 	}
 	
-	selectEdgesById(edgeIds: vis.IdType[])
+	selectEdgesById(edgeIds: string[])
 	{
-		this.actionLogger.addToStateHistory('selectEdges', {'edges': edgeIds});
+		this.actionLogger.addToStateHistory({func: 'selectEdges', param: {edges: edgeIds}});
 		this.network.selectEdges(edgeIds);
 	}
 	
@@ -665,7 +663,7 @@ export default class TheoryGraph {
 			}
 			
 		}
-		this.actionLogger.addToStateHistory('selectEdges', {'edges': edgeIds});
+		this.actionLogger.addToStateHistory({func: 'selectEdges', param: {'edges': edgeIds}});
 		this.network.selectEdges(edgeIds);
 	}
 	
@@ -945,28 +943,28 @@ export default class TheoryGraph {
 			}
 		}
 		this.edges.update(edgesToHide);
-		//actionLoggerIn.addToStateHistory("hideEdges", {"hideEdges":edgesToHide,"hidden":hideEdge});
+		//actionLoggerIn.addToStateHistory({func: "hideEdges", params: {"hideEdges":edgesToHide,"hidden":hideEdge}});
 	}
 	
-	hideEdgesById(edgeIds: IdType[] | undefined, hideEdge: boolean)
+	hideEdgesById(edgeIds: string[] | undefined, hideEdge: boolean)
 	{
 		if(typeof edgeIds=='undefined' || edgeIds.length==0)
 			return;
 		
-		var edgesToHide=[];
+		var edgesToHide: Pick<CleanEdge, 'id' | 'hidden'>[]=[];
 		for(var i=0;i<edgeIds.length;i++)
 		{
 			edgesToHide.push({id: edgeIds[i], hidden: hideEdge});
 		}
 		this.edges.update(edgesToHide);
-		this.actionLogger.addToStateHistory('hideEdges', {'hideEdges':edgesToHide,'hidden':hideEdge});
+		this.actionLogger.addToStateHistory({func: 'hideEdges', param: {'hideEdges':edgesToHide,'hidden':hideEdge}});
 	}
 	
 	
 	showAllManuallyHiddenNodes()
 	{
-		var nodesToHide=[];
-		var edgesToHide=[];
+		var nodesToHide: Pick<CleanNode, 'id' | 'hidden'>[]=[];
+		var edgesToHide: Pick<CleanEdge, 'id' | 'hidden'>[]=[];
 		for(var i=0;i<this.allManuallyHiddenNodes.length;i++)
 		{
 			for(var j=0;j<this.allManuallyHiddenNodes[i].nodes.length;j++)
@@ -986,7 +984,7 @@ export default class TheoryGraph {
 		}
 		this.allManuallyHiddenNodes=[];
 
-		this.actionLogger.addToStateHistory('hideNodes', {'hideNodes':nodesToHide,'hideEdges':edgesToHide,'hidden':false});
+		this.actionLogger.addToStateHistory({func: 'hideNodes', param: {'hideNodes':nodesToHide,'hideEdges':edgesToHide,'hidden':false}});
 	}
 	
 	/**
@@ -1026,7 +1024,7 @@ export default class TheoryGraph {
 		this.edges.update(edgesToHide);
 		
 		this.allManuallyHiddenNodes.push({'nodes':nodesToHide, 'edges':edgesToHide});
-		this.actionLogger.addToStateHistory('hideNodes', {'hideNodes':nodesToHide,'hideEdges':edgesToHide,'hidden':hideNode});
+		this.actionLogger.addToStateHistory({func: 'hideNodes', param: {'hideNodes':nodesToHide,'hideEdges':edgesToHide,'hidden':hideNode}});
 	}
 	
 	hideNodes(type: string, hideEdge: boolean)
@@ -1072,7 +1070,7 @@ export default class TheoryGraph {
 		}
 		this.edges.update(edgesToHide);
 		
-		//actionLoggerIn.addToStateHistory("hideNodes", {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideEdge});
+		//actionLoggerIn.addToStateHistory({func: "hideNodes", param: {"hideNodes":nodesToHide,"hideEdges":edgesToHide,"hidden":hideEdge}});
 	}
 	
 	setEdgesHidden(type: string, hideEdge: boolean)
@@ -1175,10 +1173,10 @@ export default class TheoryGraph {
 		return declustered;
     }
 	
-	selectNodes(nodeIds: vis.IdType[])
+	selectNodes(nodeIds: string[])
 	{
 		this.network.selectNodes(nodeIds);
-		this.actionLogger.addToStateHistory('select', {'nodes': nodeIds});
+		this.actionLogger.addToStateHistory({func: 'select', param: {'nodes': nodeIds}});
 	}
 	
 	selectNodesWithIdLike(searchId: string)
@@ -1193,7 +1191,7 @@ export default class TheoryGraph {
 			}
 			
 		}
-		this.actionLogger.addToStateHistory('select', {'nodes': nodeIds});
+		this.actionLogger.addToStateHistory({func: 'select', param: {'nodes': nodeIds}});
 		this.network.selectNodes(nodeIds);
 	}
 	
@@ -1253,7 +1251,7 @@ export default class TheoryGraph {
 			right: NaN,
 		});
 
-		this.actionLogger.addToStateHistory('cageNodes', {'nodeIds':nodeIds,'color':color,'index':this.allNodeRegions.length-1});
+		this.actionLogger.addToStateHistory({func: 'cageNodes', param: {'nodeIds':nodeIds,'color':color,'index':this.allNodeRegions.length-1}});
 		this.network.redraw();
 	}
 	
@@ -1280,7 +1278,7 @@ export default class TheoryGraph {
 				}
 			}
 		}
-		this.actionLogger.addToStateHistory('select', {'nodes': nodesIdInDrawing});
+		this.actionLogger.addToStateHistory({func: 'select', param: {'nodes': nodesIdInDrawing}});
 		this.network.selectNodes(nodesIdInDrawing);
 	}
 	
@@ -1385,11 +1383,13 @@ export default class TheoryGraph {
 		}
 	}
 	
-	cluster(nodeIds?: string[],name?: string, givenClusterId?: number)
+	cluster(nodeIds?: string[],name?: string, givenClusterId?: string)
 	{
+		// TODO: The parameter clusterID looks weird
+		// because of the way it is treated in case of an undo / redo
 		if(typeof givenClusterId ==='undefined')
 		{
-			givenClusterId=this.clusterId;
+			givenClusterId=this.clusterId.toString();
 		}
 		
 		if(nodeIds==undefined)
@@ -1428,7 +1428,7 @@ export default class TheoryGraph {
               clusterNodeProperties: {id: 'cluster_' +givenClusterId , borderWidth: 2, shape: 'database', color:'orange', label:name} as vis.NodeOptions
 			}
 			this.network.clustering.cluster(options);
-			this.actionLogger.addToStateHistory('cluster', {'clusterId': 'cluster_' +givenClusterId, 'name': name, 'nodes': nodeIds});
+			this.actionLogger.addToStateHistory({func: 'cluster', param: {'clusterId': 'cluster_' +givenClusterId, 'name': name, 'nodes': nodeIds}});
 			this.clusterId++;
 		}
 	}
@@ -1645,7 +1645,7 @@ export default class TheoryGraph {
 		}
 		this.nodes.update(node);
 		
-		this.actionLogger.addToStateHistory('addNode', {'node': node});
+		this.actionLogger.addToStateHistory({func: 'addNode', param: {'node': node}});
 	}
 	
 	addEdge(edgeIn: DirtyEdge)
@@ -1654,12 +1654,12 @@ export default class TheoryGraph {
 		this.originalEdges.push(edge);
 		this.edges.update(edge);
 		
-		this.actionLogger.addToStateHistory('addEdge', {'edge': edge});
+		this.actionLogger.addToStateHistory({func: 'addEdge', param: {'edge': edge}});
 	}
 	
 	deleteEdges(edgeIds: string[])
 	{
-		var deletedEdges: vis.Edge[] =[];
+		var deletedEdges: CleanEdge[] =[];
 		this.originalEdges = this.originalEdges.filter((item) => 
 		{
 			var keepEdge=true;
@@ -1676,13 +1676,13 @@ export default class TheoryGraph {
 		});
 
 		this.edges.remove(edgeIds);
-		this.actionLogger.addToStateHistory('deleteEdges', {'edges': deletedEdges});
+		this.actionLogger.addToStateHistory({func: 'deleteEdges', param: {'edges': deletedEdges}});
 	}
 	
 	deleteNodes(nodeIds: string[], edgeIds?: string[])
 	{
-		var deletedNodes: vis.Node[] = [];
-		var deletedEdges: vis.Edge[] = [];
+		var deletedNodes: CleanNode[] = [];
+		var deletedEdges: CleanEdge[] = [];
 
 		this.originalNodes = this.originalNodes.filter((item) =>
 		{
@@ -1719,12 +1719,12 @@ export default class TheoryGraph {
 			});
 			this.edges.remove(edgeIds);
 		}
-		this.actionLogger.addToStateHistory('deleteNodes', {'nodes': deletedNodes,'edges':deletedEdges});
+		this.actionLogger.addToStateHistory({func: 'deleteNodes', param: {'nodes': deletedNodes,'edges':deletedEdges}});
 	}
 	
 	saveEdge(edgeIn: DirtyEdge)
 	{
-		var oldEdge={};
+		let oldEdge: CleanEdge | undefined = undefined;
 		let edge = cleanEdge(edgeIn, this.config.ARROW_STYLES);
 		for(var i=0;i<this.originalEdges.length;i++)
 		{
@@ -1737,13 +1737,13 @@ export default class TheoryGraph {
 		}
 
 		this.edges.update(edge);
-		this.actionLogger.addToStateHistory('editEdge', {'newEdge': edge,'oldEdge':oldEdge});
+		this.actionLogger.addToStateHistory({func: 'editEdge', param: {'newEdge': edge,'oldEdge':oldEdge!}});
 	}
 	
 	saveNode(nodeIn: DirtyNode)
 	{
-		var oldNode={};
-		let node = cleanNode(nodeIn, this.config.NODE_STYLES);
+		let oldNode: CleanNode | undefined = undefined;
+		let node: CleanNode = cleanNode(nodeIn, this.config.NODE_STYLES);
 		for(var i=0;i<this.originalNodes.length;i++)
 		{
 			if(this.originalNodes[i].id==node.id)
@@ -1763,7 +1763,7 @@ export default class TheoryGraph {
 			node = this.nodeToSVGHTML(node);
 		}
 		this.nodes.update(node);
-		this.actionLogger.addToStateHistory('editNode', {'newNode': node,'oldNode':oldNode});
+		this.actionLogger.addToStateHistory({func: 'editNode', param: {'newNode': node,'oldNode': oldNode!}});
 	}
 	
 	isUniqueId(id: vis.IdType)
@@ -1830,13 +1830,13 @@ export default class TheoryGraph {
 		$.get(jsonURL, this.addNodesAndEdges.bind(this));
 	}
 	
-	openCluster(nodeId: vis.IdType)
+	openCluster(nodeId: string)
 	{
 		if (this.network.isCluster(nodeId) == true) 
 		{
 			var node = this.network.body.nodes[nodeId].label; //options.label
               this.network.openCluster(nodeId);
-			  var toUpdate=[];
+			  var toUpdate: IPositionWithId[] =[];
 			  for (var i=0;i<this.clusterPositions[nodeId][0].length;i++) 
 			  {
 				  var id=this.clusterPositions[nodeId][0][i];
@@ -1849,7 +1849,7 @@ export default class TheoryGraph {
 				this.allClusters.splice(index, 1);
 			}
 			
-			this.actionLogger.addToStateHistory('uncluster', {'clusterId': nodeId, 'nodes': toUpdate, 'name':node/*.label*/});
+			this.actionLogger.addToStateHistory({func: 'uncluster', param: {'clusterId': nodeId, 'nodes': toUpdate.map(e => e.id), 'name':node/*.label*/}});
 			this.nodes.update(toUpdate);
 			this.network.redraw();
         }

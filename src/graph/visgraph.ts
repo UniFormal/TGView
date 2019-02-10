@@ -178,3 +178,5 @@ export function ensureUniqueIds<T extends {id?: string}>(array: Array<T>): Array
 		return e;
 	});
 }
+
+export type IPositionWithId = Pick<CleanNode, 'id'> & Partial<Pick<CleanNode, 'x' | 'y'>>;

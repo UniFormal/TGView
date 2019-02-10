@@ -1,4 +1,5 @@
 import TheoryGraph from '../graph/TheoryGraph';
+import { IPositionWithId, CleanNode, CleanEdge } from '../graph/visgraph';
 
 /**
  * Represents a History of actions that occured
@@ -21,8 +22,8 @@ export default class ActionHistory {
 		this.undoneHistoryStates = [];
 	}
 
-	addToStateHistory(func: IAction['func'], parameterArray: IAction['param']) {
-		this.historyStates.push({ 'func': func, 'param': parameterArray });
+	addToStateHistory(action: IAction) {
+		this.historyStates.push(action);
 
 		if (!this.lastActionWasUndoRedo) {
 			this.undoneHistoryStates = [];
@@ -62,7 +63,7 @@ export default class ActionHistory {
 			this.historyStates.pop();
 		}
 		else if (lastState.func == 'addNode') {
-			this.theoryGraph.deleteNodes(lastState.param.node.id);
+			this.theoryGraph.deleteNodes([lastState.param.node.id]);
 			this.historyStates.pop();
 			repeatlastAction = false;
 		}
@@ -100,7 +101,7 @@ export default class ActionHistory {
 			this.theoryGraph.removeNodeRegion(lastState.param.index);
 		}
 		else if (lastState.func == 'hideNodes') {
-			this.theoryGraph.hideNodesById(lastState.param.nodesToHide, !lastState.param.hidden);
+			this.theoryGraph.hideNodesById(lastState.param.hideNodes.map(e => e.id), !lastState.param.hidden);
 			this.historyStates.pop();
 		}
 		else if (lastState.func == 'hideEdges') {
@@ -184,7 +185,7 @@ export default class ActionHistory {
 			this.theoryGraph.cageNodes(lastState.param.nodeIds, lastState.param.color);
 		}
 		else if (lastState.func == 'hideNodes') {
-			this.theoryGraph.hideNodesById(lastState.param.nodesToHide, lastState.param.hidden);
+			this.theoryGraph.hideNodesById(lastState.param.hideNodes.map(e => e.id), lastState.param.hidden);
 		}
 		else if (lastState.func == 'hideEdges') {
 			var edgeIds = [];
@@ -231,9 +232,29 @@ export default class ActionHistory {
 	}
 }
 
+type IAction = IClusteringAction | ISelectAction | IAddNodeAction | IEditNodeAction | IDeleteNodesAction | IAddEdgeAction | IEditEdgeAction | IDeleteEdgesAction | IHideNodesAction | ICageNodesAction | IHideEdgesAction | ISelectEdgesAction; 
+
 /** an action within the history */
-interface IAction {
+interface ILegacyAction {
 	// TODO: Make ach acttion well-defined w.r.t. their parameters
-	func?: 'cluster' | 'uncluster' | 'select' | 'unselect' | 'addNode' | 'editNode' | 'deleteNodes' | 'addEdge' | 'editEdge' | 'deleteEdges' | 'cageNodes' | 'hideNodes' | 'hideEdges' | 'selectEdges'
+	func?: 'hideEdges' | 'selectEdges'
 	param: any;
 }
+
+interface IActionBase<S extends string, T extends {}> {
+	func: S,
+	param: T 
+}
+
+type IClusteringAction = IActionBase<'cluster' | 'uncluster', {clusterId: string, name: string, nodes: string[]}>;
+type ISelectAction = IActionBase<'select' | 'unselect', {nodes: string[]}>; // 'unselect' unused (never assigned)
+type IAddNodeAction = IActionBase<'addNode', {node: CleanNode}>;
+type IEditNodeAction = IActionBase<'editNode', {newNode: CleanNode, oldNode: CleanNode}>;
+type IDeleteNodesAction = IActionBase<'deleteNodes', {nodes: CleanNode[], edges: CleanEdge[]}>;
+type IAddEdgeAction = IActionBase<'addEdge', {edge: CleanEdge}>;
+type IEditEdgeAction = IActionBase<'editEdge', {oldEdge: CleanEdge, newEdge: CleanEdge}>;
+type IDeleteEdgesAction = IActionBase<'deleteEdges', {edges: CleanEdge[]}>;
+type ICageNodesAction = IActionBase<'cageNodes', {nodeIds: string[], color: string, index: number}>;
+type IHideNodesAction = IActionBase<'hideNodes', {hideNodes: Pick<CleanEdge, 'id' | 'hidden'>[], hideEdges: Pick<CleanEdge, 'id' | 'hidden'>[], hidden: boolean}>;
+type IHideEdgesAction = IActionBase<'hideEdges', {hideEdges: Pick<CleanEdge, 'id' | 'hidden'>[], hidden: boolean}>;
+type ISelectEdgesAction = IActionBase<'selectEdges', {edges: string[]}>;

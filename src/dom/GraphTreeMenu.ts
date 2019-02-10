@@ -47,7 +47,7 @@ export default class GraphTreeMenu {
 				var x = this.currentMouseX + 4;
 	
 				// TODO: no-globals
-				$('.custom-menu-side').finish().show(10).
+				this.dom.$('.custom-menu-side').finish().show(10).
 				// In the right position (the mouse)
 				css({
 					top: y + 'px',
