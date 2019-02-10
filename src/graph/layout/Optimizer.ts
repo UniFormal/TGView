@@ -65,7 +65,6 @@ export default class Optimizer extends LayoutBase {
 			return;
 		}
 
-		var solution = false;
 		for( var i = 0; i < iterations; i++ )
 		{
 			x = (Math.random() * this.myWidth/this.DependencyWidth)|0;
@@ -123,6 +122,7 @@ export default class Optimizer extends LayoutBase {
      */
 	private ccw(  x1: number,  y1: number,  x2: number,  y2: number,  x3: number,  y3: number ): number
 	{
+		// TODO: Move to utils?
 		var val = (y2 - y1) * (x3 - x2) - (x2 - x1) * (y3 - y2);
 		if( val == 0 )
 		{
