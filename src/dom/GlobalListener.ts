@@ -28,7 +28,7 @@ export default class GlobalListener {
 		this.dom.mainElement$.ready(() => {
 			//$('button').button();
 			// Accordion
-			this.dom.$('.accordion').accordion({ header: 'h3' });
+			// this.dom.$('.accordion').accordion({ header: 'h3' });
 			// Tabs
 			// TODO: Does not exist
 			// this.dom.$$('tabs').tabs();
@@ -101,10 +101,10 @@ export default class GlobalListener {
 		}
 
 		// destroy the ui
-		this.dom.$('.accordion').accordion('destroy');
+		// this.dom.$('.accordion').accordion('destroy');
 		// this.dom.$$('tabs').tabs('destroy');
-		this.dom.$$('radio1').buttonset('destroy');
-		this.dom.$$('methodCluster').selectmenu('destroy');
+		// his.dom.$$('radio1').buttonset('destroy');
+		// this.dom.$$('methodCluster').selectmenu('destroy');
 
 		// reset a couple of variables
 		this.canvasTools = undefined;

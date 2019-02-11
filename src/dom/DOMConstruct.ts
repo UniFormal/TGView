@@ -31,7 +31,7 @@ export default class DOMConstruct {
     * Gets an element of the created DOM
     * @param id 
     */
-   getElementById<T extends HTMLElement = HTMLElement>(id: string) : T {
+   getElementById<T extends HTMLElement = HTMLElement>(id: string, surpressOutsideOfElementWarning: boolean = false) : T {
       // TODO: Cache this function
 
       if(id.startsWith(this.config.preferences.prefix)) {
@@ -43,7 +43,7 @@ export default class DOMConstruct {
       if (!element) { throw new Error('Element with ID '+id+' does not exist'); }
 
       // make sure that the element is contained with the DOM
-      if (!this.mainElement.contains(element)){
+      if (!surpressOutsideOfElementWarning && !this.mainElement.contains(element)){
          console.warn('Insecure use of DOMConstruct.getElementById('+DOMConstruct.formatSelector(id)+'): Element with ID '+id+' is not contained within mainElement');
       }
 
@@ -55,8 +55,8 @@ export default class DOMConstruct {
     * Gets an element of the created DOM as a jQuery reference
     * @param id 
     */
-   $$<T extends HTMLElement = HTMLElement>(id: string) : JQuery<T> {
-      return JQuery(this.getElementById<T>(id));
+   $$<T extends HTMLElement = HTMLElement>(id: string, surpressOutsideOfElementWarning: boolean = false) : JQuery<T> {
+      return JQuery(this.getElementById<T>(id, surpressOutsideOfElementWarning));
    }
 
    /**

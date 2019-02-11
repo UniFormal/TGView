@@ -54,7 +54,7 @@ export default class GraphTreeMenu {
 			}
 		);
 			
-		this.dom.$('theory_tree').on('open_node.jstree',
+		this.dom.$$('theory_tree').on('open_node.jstree',
 			(evt, data) =>
 			{
 				this.dom.$('.custom-menu-side').hide(10);

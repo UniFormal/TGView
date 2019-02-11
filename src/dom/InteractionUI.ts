@@ -21,11 +21,7 @@ export default class InteractionUI {
 		private readonly wrapperIn: TGView
 	) {
 		this.handleJson = this.handleJson.bind(this);
-		this.init();
-	}
-
-	private init()
-	{
+		
 		this.options.THEORY_GRAPH_OPTIONS.manipulation = {
 			addNode: this.addNodeCallback.bind(this),
 			editNode: this.editNodeCallback.bind(this),
@@ -35,13 +31,13 @@ export default class InteractionUI {
 			deleteEdge: this.deleteEdgeCallback.bind(this)
 		};
 
-
+		this.helpDialog = this.dom.$$('helpDialog');
 		
-		this.dom.$$('helpDialog').dialog({autoOpen: false});
-		this.dom.$$('helpDialog').on('click', () => 
-		{
-			this.dom.$$('helpDialog').dialog('open');
-		});
+		this.helpDialog
+			.dialog({autoOpen: false})
+			.on('click', () => {
+				this.helpDialog.dialog('open');
+			});
 		
 		/*
 		this.dom.$$("shareIcons").jsSocials(
@@ -68,8 +64,11 @@ export default class InteractionUI {
 		this.addDOMHandler();
 	}
 
+	private readonly helpDialog: JQuery<HTMLElement>;
+
+
 	destroy() {
-		this.dom.$$('helpDialog' ).dialog('destroy');
+		this.helpDialog.dialog('destroy');
 		this.dom.getElementById('jsonLoader').removeEventListener('change', this.handleJson);
 	}
 	
