@@ -35,7 +35,7 @@ export default class DOMConstruct {
       // TODO: Cache this function
 
       if(id.startsWith(this.config.preferences.prefix)) {
-         console.warn('Possibly incorrect use of DOMConstruct.getElementById(): Id of element to fetch starts with prefix. ');
+         console.warn('Possibly incorrect use of DOMConstruct.getElementById('+DOMConstruct.formatSelector(id)+'): Id of element to fetch starts with prefix. ');
       }
 
       // Find the element with the given id on the page
@@ -44,7 +44,7 @@ export default class DOMConstruct {
 
       // make sure that the element is contained with the DOM
       if (!this.mainElement.contains(element)){
-         console.warn('Insecure use of DOMConstruct.getElementById(): Element with ID '+id+' is not contained within mainElement');
+         console.warn('Insecure use of DOMConstruct.getElementById('+DOMConstruct.formatSelector(id)+'): Element with ID '+id+' is not contained within mainElement');
       }
 
       // else return the element itself
@@ -63,11 +63,33 @@ export default class DOMConstruct {
     * Gets an element of the created DOM using a jQuery selector
     * @param selector 
     */
-   $<T extends HTMLElement = HTMLElement>(selector: string) : JQuery<T> {
+   $<T extends HTMLElement = HTMLElement>(selector: string, surpressOutsideOfElementWarning: boolean = false) : JQuery<T> {
       if (selector.startsWith('#')) {
-         console.warn('Insecure use of DOMConstruct.$(): Fetch elements by id using DOMConstruct.$$() to add prefixes. ');
+         console.warn('Insecure use of DOMConstruct.$('+DOMConstruct.formatSelector(selector)+'): Fetch elements by id using DOMConstruct.$$() to add prefixes. ');
       }
-      return this.mainElement$.find(selector) as JQuery<T>;
+      
+      // try finding the element inside of the mainElement
+      const insideElement = this.mainElement$.find(selector) as JQuery<T>;
+      if(insideElement.length > 0) { 
+         return insideElement; 
+      }
+
+      const onEntirePage = JQuery(selector);
+
+      // if that doesn't work
+      if(!surpressOutsideOfElementWarning) {
+         if (onEntirePage.length > 0) {
+            console.warn('Insecure use of DOMConstruct.$('+DOMConstruct.formatSelector(selector)+'): No element found inside of mainElement. ');
+         } else {
+            console.warn('Insecure use of DOMConstruct.$('+DOMConstruct.formatSelector(selector)+'): Element not found. ');
+         }
+      }
+
+      return onEntirePage as JQuery<T>;
+   }
+
+   private static formatSelector(selector: string) {
+      return '\'' + selector.replace('\\', '\\\\').replace('\'', '\\\'') + '\'';
    }
 }
 
