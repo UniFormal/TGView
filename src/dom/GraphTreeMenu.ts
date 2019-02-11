@@ -33,11 +33,8 @@ export default class GraphTreeMenu {
 				'contextmenu', 'dnd', 'search',
 				'state', 'types', 'wholerow'
 			]
-		}); 
-
-		var jsonURL='https://neuralocean.de/graph/test/menu.json' || this.config.menuEntriesURL;
-
-		$.get(jsonURL, this.addTreeNodes.bind(this));
+		});
+		$.get(this.config.menuEntriesURL, this.addTreeNodes.bind(this));
 	
 		this.dom.$$('theory_tree').on('select_node.jstree',
 			(evt, data) =>
@@ -60,7 +57,7 @@ export default class GraphTreeMenu {
 		this.dom.$('theory_tree').on('open_node.jstree',
 			(evt, data) =>
 			{
-				$('.custom-menu-side').hide(10);
+				this.dom.$('.custom-menu-side').hide(10);
 				this.lazyParent=data.node.id;
 				data.node.children=[];
 				if(this.alreadyAdded[this.lazyParent]!=true)
