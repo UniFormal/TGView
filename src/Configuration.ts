@@ -3,12 +3,19 @@ import { Options as VOptions, NodeOptions } from 'vis';
 // @ts-check
 import { getParameterByName } from './utils';
 
+import { default as JQuery } from 'jquery';
+
 /**
  * Represents Options for TGView
  * @constructor
  */
 export class Configuration {
 	constructor(preferences: Partial<ITGViewOptions>) {
+
+		// find the main element (whatever it is)
+		const elementRef = preferences.mainContainer || 'tgViewMainEle';
+		const mainContainer = typeof elementRef === 'string' ? document.getElementById(elementRef) : elementRef instanceof HTMLElement ? elementRef : elementRef.get(0);
+
 		this.preferences = {
 			serverBaseURL: preferences.serverBaseURL || '/',
 			serverUrl: preferences.serverUrl,
@@ -22,7 +29,7 @@ export class Configuration {
 
 			highlight: preferences.highlight || getParameterByName(Configuration.graphDataURLHighlightParameterNameTGView) || undefined,
 
-			mainContainer: preferences.mainContainer || 'tgViewMainEle',
+			mainContainer: mainContainer,
 			prefix: preferences.prefix || 'custom-prefix-',
 		}
 
@@ -61,7 +68,7 @@ export class Configuration {
 	}
 
 	/** Options that were set externally */
-	readonly preferences: ITGViewOptions
+	readonly preferences: ResolvedTGViewOptions
 
 	// TODO: Can one of these two be made private?
 	// or removed entirely?
@@ -370,8 +377,12 @@ export interface ITGViewOptions {
 	graphdata?: string;
 	highlight?: string;
 
-	mainContainer: string;
+	mainContainer: HTMLElement | JQuery<HTMLElement> | string | null;
 	prefix: string; // TODO: Rename this to elementPrefix
+}
+
+export interface ResolvedTGViewOptions extends ITGViewOptions {
+	mainContainer: HTMLElement | null
 }
 
 /** Common Style properties for both arrow and nodes */

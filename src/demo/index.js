@@ -7,8 +7,6 @@
 // create an element and append it to the body
 const element = document.createElement('div');
 element.innerHTML = 'Loading TGView...';
-element.setAttribute('id', 'tgview-main');
-element.setAttribute('class', 'ui-form');
 element.setAttribute('style', 'cursor: auto; overflow: hidden; ');
 document.body.append(element);
 
@@ -25,7 +23,7 @@ Promise.all([
     window.onload = function() {
         window.instance = new TGView({
             prefix: 'tgview-prefix',
-            mainContainer: 'tgview-main',
+            mainContainer: element,
             serverBaseURL: 'https://mmt.mathhub.info/'
         });
     }

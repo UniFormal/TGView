@@ -8,7 +8,7 @@ import JQuery from 'jquery';
 export default class DOMConstruct {
    constructor(readonly config: Configuration) {
       // grab the main element
-      var mainElement = document.getElementById(this.config.preferences.mainContainer);
+      var mainElement = this.config.preferences.mainContainer;
       if (!mainElement) { throw new Error('Can not find mainElement'); }
 
       // store it
