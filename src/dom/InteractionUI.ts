@@ -44,7 +44,7 @@ export default class InteractionUI {
 		});
 		
 		/*
-		$("#"+options.external.prefix+"shareIcons").jsSocials(
+		this.dom.$$("shareIcons").jsSocials(
 		{
 		    showLabel: false,
 		    showCount: false,
@@ -70,7 +70,7 @@ export default class InteractionUI {
 
 	destroy() {
 		this.dom.$$('helpDialog' ).dialog('destroy');
-		this.dom.getElementById('jsonLonger').removeEventListener('jsonLoader', this.handleJson);
+		this.dom.getElementById('jsonLoader').removeEventListener('change', this.handleJson);
 	}
 	
 	addDOMHandler()

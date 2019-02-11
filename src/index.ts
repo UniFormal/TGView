@@ -64,8 +64,8 @@ export default class TGView {
 	private init() {
 
 		// If the menu element is clicked // TODO: Custom
-		this.dom.$('.custom-menu-side li').click(() => {
-			var type = $(this).attr('data-action');
+		this.dom.$('.custom-menu-side li').click((e) => {
+			var type = $(e.target).attr('data-action');
 
 			if (type != 'close') {
 				this.createNewGraph(type, this.lastGraphDataUsed);

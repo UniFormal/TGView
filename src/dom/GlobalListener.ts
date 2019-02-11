@@ -128,15 +128,15 @@ export default class GlobalListener {
 	{
 		if(this.selectionMode==false)
 		{
-			$('#'+this.config.preferences.prefix+'toolCanvas').css('display','block');
+			this.dom.$$('toolCanvas').css('display','block');
 			this.selectionMode=true;
-			document.getElementById(this.config.preferences.prefix+'toolCanvas')!.style.cursor = 'crosshair';
+			this.dom.getElementById('toolCanvas').style.cursor = 'crosshair';
 		}
 		else
 		{
-			$('#'+this.config.preferences.prefix+'toolCanvas').css('display','none');
+			this.dom.$$('toolCanvas').css('display','none');
 			this.selectionMode=false;
-			document.getElementById(this.config.preferences.prefix+'toolCanvas')!.style.cursor = 'auto';
+			this.dom.getElementById('toolCanvas')!.style.cursor = 'auto';
 		}
 	}
 }
