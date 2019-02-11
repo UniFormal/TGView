@@ -9,7 +9,7 @@ const element = document.createElement('div');
 element.innerHTML = 'Loading TGView...';
 element.setAttribute('id', 'tgview-main');
 element.setAttribute('class', 'ui-form');
-element.setAttribute('style', 'cursor: auto; overflow:hidden;');
+element.setAttribute('style', 'cursor: auto; overflow: hidden; ');
 document.body.append(element);
 
 Promise.all([
@@ -23,7 +23,7 @@ Promise.all([
 ]).then(([TGView]) => {
     // once the window has loaded
     window.onload = function() {
-        const instance = new TGView({
+        window.instance = new TGView({
             prefix: 'tgview-prefix',
             mainContainer: 'tgview-main',
             serverBaseURL: 'https://mmt.mathhub.info/'
