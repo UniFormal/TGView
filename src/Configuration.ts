@@ -5,6 +5,8 @@ import { getParameterByName } from './utils';
 
 import { default as JQuery } from 'jquery';
 
+import { IDirtyGraph } from './graph/visgraph';
+
 /**
  * Represents Options for TGView
  * @constructor
@@ -377,6 +379,7 @@ export interface ITGViewOptions {
 	source?: string; // TODO: This should be something like "uri" | "html" | undefined
 	type?: string;
 	graphdata?: string;
+	json?: IDirtyGraph;
 	highlight?: string;
 
 	mainContainer: HTMLElement | JQuery<HTMLElement> | string | null;
