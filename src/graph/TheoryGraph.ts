@@ -1423,7 +1423,7 @@ export default class TheoryGraph {
 
 	loadJSONGraph(data: string | IDirtyGraph)
 	{
-		if(typeof data === 'string') // data.length < 20 TODO: WHAT?
+		if(typeof data === 'string' && data.length<20) // data.length < 20 TODO: WHAT?
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
 			this.statusLogger.setStatusCursor('auto');

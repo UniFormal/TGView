@@ -26,6 +26,8 @@ export class Configuration {
 			source: preferences.source || getParameterByName(Configuration.graphDataURLSourceParameterNameTGView) || undefined,
 			type: preferences.type || getParameterByName(Configuration.graphDataURLTypeParameterNameTGView) || undefined,
 			graphdata: preferences.graphdata || getParameterByName(Configuration.graphDataURLDataParameterNameTGView) || undefined,
+			
+			json: preferences.json || undefined,
 
 			highlight: preferences.highlight || getParameterByName(Configuration.graphDataURLHighlightParameterNameTGView) || undefined,
 

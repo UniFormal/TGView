@@ -83,6 +83,9 @@ export default class TGView {
 		else if (source == 'param') {
 			this.theoryGraph.loadGraphByURIParameter(getParameterByName(Configuration.graphDataURLDataSourceParameterNameTGView) || undefined);
 		}
+		else if (source == 'json') {
+			this.theoryGraph.loadJSONGraph(this.config.preferences.json || undefined);
+		}
 		else if (source == 'iframe') {
 			this.waitForJSONMessage.bind(this)();
 		}
