@@ -1421,13 +1421,18 @@ export default class TheoryGraph {
 		$.get(jsonURL, this.drawGraph.bind(this));
 	}
 
-	loadJSONGraph(data: string | IDirtyGraph)
+	loadJSONGraph(data: string | IDirtyGraph | undefined)
 	{
-		if(typeof data === 'string' && data.length<20) // data.length < 20 TODO: WHAT?
+		if((typeof data === 'string' && data.length<20) || data === undefined) // data.length < 20 TODO: WHAT?
 		{
 			this.statusLogger.setStatusText('<font color="red">Graph-File is empty or corrupt</font>');
 			this.statusLogger.setStatusCursor('auto');
 			return;
+		}
+
+		// parse the string (if needed)
+		if(typeof data === 'string') {
+			data = JSON.parse(data) as IDirtyGraph;
 		}
 		
 		if(typeof data['nodes'] == 'undefined' || typeof data['edges'] == 'undefined')
