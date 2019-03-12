@@ -24,7 +24,7 @@ Promise.all([
         window.instance = new TGView({
             prefix: 'tgview-prefix',
             mainContainer: element,
-            serverBaseURL: 'http://localhost:8080/'
+            serverBaseURL: location.pathname === '/' ? 'https://mmt.mathhub.info/' : '/'
         });
     }
 });
