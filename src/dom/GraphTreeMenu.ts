@@ -37,7 +37,7 @@ export default class GraphTreeMenu {
 		$.get(this.config.menuEntriesURL, this.addTreeNodes.bind(this));
 	
 		this.dom.$$('theory_tree').on('select_node.jstree',
-			(evt, data) =>
+			(evt, data) => // TODO: Fix type of data
 			{
 				this.wrapper.lastGraphDataUsed=data.node.original.graphdata; // TODO: Fix me
 				var y = this.currentMouseY - 8;
@@ -55,7 +55,7 @@ export default class GraphTreeMenu {
 		);
 			
 		this.dom.$$('theory_tree').on('open_node.jstree',
-			(evt, data) =>
+			(evt, data) => // TODO: Fix type of data
 			{
 				this.dom.$('.custom-menu-side').hide(10);
 				this.lazyParent=data.node.id;
@@ -64,7 +64,7 @@ export default class GraphTreeMenu {
 				{
 					console.log(data.node);
 					console.log(this.lazyParent+' added: '+this.alreadyAdded[this.lazyParent]);
-					var jsonURL=this.config.menuEntriesURL+data.node.serverId;
+					var jsonURL=this.config.menuEntriesURL+data.node.original.serverId;
 					//var jsonURL="http://neuralocean.de/graph/test/menu.json";
 					//this.alreadyAdded[lazyParent]=true;
 					$.get(jsonURL, this.addTreeNodes.bind(this));
