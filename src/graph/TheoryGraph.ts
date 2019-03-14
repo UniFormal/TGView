@@ -1889,6 +1889,7 @@ export default class TheoryGraph {
 	
 	private startConstruction(fixedPositions=false)
 	{	
+		console.log("Fixed0: "+fixedPositions);
 		var hideEdgesType: Record<string, boolean>={};
 		for(var j=0;j<this.edgesNameToHide.length;j++)
 		{
@@ -1899,16 +1900,24 @@ export default class TheoryGraph {
 			}
 		}
 		
+		console.log(this.originalNodes);
+
 		this.internalOptimizer = new Optimizer(this.originalNodes, this.originalEdges, hideEdgesType, this.statusLogger);
 		this.statusLogger.setStatusText('Constructing graph...');
 		var processedNodes=0;
 		var nodesCount=0;
-		
+	
+		var countEmptyX=0;
+
 		for(var i=0;i<this.originalNodes.length;i++)
 		{
 			if(this.originalNodes[i]['image']!='' && this.originalNodes[i]['image']!=undefined)
 			{
 				nodesCount++;
+			}
+			if(this.originalNodes[i].x  === undefined)
+			{
+				countEmptyX++;
 			}
 		}
 
@@ -1924,6 +1933,7 @@ export default class TheoryGraph {
 					processedNodes++;
 					if(processedNodes==nodesCount)
 					{
+						console.log("Fixed2: "+fixedPositions);
 						this.startRendering();
 					}
 				}).bind(this, this.originalNodes[i]) as JQuery.jqXHR.DoneCallback;
@@ -1942,9 +1952,15 @@ export default class TheoryGraph {
 				}
 			}
 		}
-		
+				
+		if(countEmptyX>this.originalNodes.length/2)
+		{
+			fixedPositions=false;
+		}
+
 		if(nodesCount==0)
 		{
+			console.log("Fixed1: "+fixedPositions+" "+countEmptyX);
 			this.startRendering(fixedPositions);
 		}
 	}
