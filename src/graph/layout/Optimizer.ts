@@ -1,4 +1,4 @@
-import LayoutBase, { IEdgeIgnorance, LayoutNode } from './Base';
+import LayoutBase, { IEdgeIgnorance } from './Base';
 import { CleanNode, CleanEdge } from '../visgraph';
 import StatusLogger from '../../dom/StatusLogger';
 export default class Optimizer extends LayoutBase {
@@ -34,7 +34,7 @@ export default class Optimizer extends LayoutBase {
 		this.field[ y * this.myWidth + x ] = value;
 	}
 	
-	private InsertNodeAtGoodPosition(n: LayoutNode, lines: HelperLine[], iterations = 5 )
+	private InsertNodeAtGoodPosition(n: CleanNode, lines: HelperLine[], iterations = 5 )
 	{
 		var xOffset = this.DependencyWidth / 2;
 		var yOffset = this.DependencyHeight / 2;
@@ -132,13 +132,13 @@ export default class Optimizer extends LayoutBase {
 		return (val > 0) ? 1 : 2; // clock or counterclock wise
 	}
 	
-	private findRandomPath(startNode?: LayoutNode): LayoutNode[] | undefined
+	private findRandomPath(startNode?: CleanNode): CleanNode[] | undefined
 	{
 		if(startNode===undefined)
             return undefined;
         
 		var nodesToprocess=[startNode];
-		var currentPath: LayoutNode[] =[];
+		var currentPath: CleanNode[] =[];
 		while(nodesToprocess.length>0)
 		{
 			var n=nodesToprocess.pop()!;
@@ -275,7 +275,7 @@ export default class Optimizer extends LayoutBase {
 		var distClusterCenter=40*spacingValue;
 		var distNodes=40*spacingValue;
 		
-		var nodesOrderedByEdges: LayoutNode[][]=[];
+		var nodesOrderedByEdges: CleanNode[][]=[];
 		var maxEdgesDif=0;
 		var maxNode=this.myAllNodes[0];
 		for( var j = 0; j < this.myAllNodes.length; j++ )

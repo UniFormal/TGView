@@ -27,6 +27,28 @@ export type CleanNode = vis.Node & IGraphJSONNode & NodeRuntimeProps;
 interface NodeRuntimeProps {
   id: string;
 
+  x: number,
+	y: number,
+
+	graphNumber: number;
+	hidden: boolean;
+	toConnected: CleanNode[];
+	fromConnected: CleanNode[];
+	connectedNodes: CleanNode[];
+	connectedNodesById: {[id: string]: CleanNode};
+	modularityPart: number;
+	idx: number;
+
+	overallLength: number;
+	overallVisited: number;
+	overallWeight: number;
+	visited: boolean;
+
+	dispX: number,
+	dispY: number,
+
+	forcesFixed: boolean;
+
   // TODO: Figure this out
   options: Partial<CleanNode>;
 
@@ -62,6 +84,31 @@ export function cleanNode(
     options: {
       hidden: false
     },
+
+    graphNumber: -1,
+		hidden: false,
+
+		toConnected: [],
+		fromConnected: [],
+
+		connectedNodes: [],
+		connectedNodesById: {},
+
+		modularityPart: 0,
+		idx: -1,
+
+		overallLength: 0,
+		overallVisited: 0,
+		overallWeight: 0,
+		visited: false,
+
+		forcesFixed: false,
+		
+		dispX: 0,
+		dispY: 0,
+
+		x: 0,
+		y: 0,
 
     // the input
     ...nodeIn,

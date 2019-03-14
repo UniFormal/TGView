@@ -4,14 +4,14 @@ import StatusLogger from '../../dom/StatusLogger';
 
 export default class LayoutBase {
 	constructor(nodes: CleanNode[], edges: CleanEdge[], protected readonly logger: StatusLogger, ignoreEdgesByType?: IEdgeIgnorance) {
-		this.myAllNodes = nodes.map(CleanNode2LayoutNode); // TODO: Check if we do not already have the extra props
+		this.myAllNodes = nodes; // this is very intentionally a reference
 		this.edgesCount = edges.length;
 
 		this.mapEdgesIntoNodes(edges, ignoreEdgesByType);
 		this.identifySubgraphs();
 	}
 
-	protected myAllNodes: LayoutNode[];
+	protected myAllNodes: CleanNode[];
 	protected edgesCount: number;
 	protected countNodesInGraph : number[] = [];
 
@@ -23,7 +23,7 @@ export default class LayoutBase {
 	protected mapEdgesIntoNodes(edges: CleanEdge[], ignoreEdgesByType?: IEdgeIgnorance)
 	{
 		this.logger.setStatusText('Mapping Edges to Nodes...');
-		var mappedNodes: {[key: string]: LayoutNode} = {};
+		var mappedNodes: {[key: string]: CleanNode} = {};
 
 		for(var i=0;i< this.myAllNodes.length;i++ )
 		{
@@ -70,7 +70,7 @@ export default class LayoutBase {
 	{
 		this.logger.setStatusText('Identify Subgraphs...');
 		
-		var nodesToCheck: LayoutNode[] = [];
+		var nodesToCheck: CleanNode[] = [];
 		var graphNumber = 1;
 
 		// iterate over all the nodes
@@ -106,63 +106,3 @@ export default class LayoutBase {
 }
 
 export type IEdgeIgnorance = Record<string, boolean>;
-
-export interface LayoutNode extends IGraphJSONNode {
-	x: number,
-	y: number,
-
-	graphNumber: number;
-	hidden: boolean;
-	toConnected: LayoutNode[];
-	fromConnected: LayoutNode[];
-	connectedNodes: LayoutNode[];
-	connectedNodesById: {[id: string]: LayoutNode};
-	modularityPart: number;
-	idx: number;
-
-	overallLength: number;
-	overallVisited: number;
-	overallWeight: number;
-	visited: boolean;
-
-	dispX: number,
-	dispY: number,
-
-	forcesFixed: boolean;
-	membership?: number;
-}
-function CleanNode2LayoutNode(node: CleanNode): LayoutNode {
-	if (node.x === undefined  || node.y === undefined) {
-		console.warn('Node '+node.id+' is missing x or y, using (0, 0)');
-	}
-	return {
-		graphNumber: -1,
-		hidden: false,
-
-		toConnected: [],
-		fromConnected: [],
-
-		connectedNodes: [],
-		connectedNodesById: {},
-
-		modularityPart: 0,
-		idx: -1,
-
-		overallLength: 0,
-		overallVisited: 0,
-		overallWeight: 0,
-		visited: false,
-
-		forcesFixed: false,
-		
-		dispX: 0,
-		dispY: 0,
-
-		x: 0,
-		y: 0,
-
-		// this is at the end so that if we already have some extra props
-		// they get used
-		...node, 
-	}
-}
