@@ -50,7 +50,7 @@ export default class LayoutBase {
 				}
 				else
 				{
-					if(typeof ignoreEdgesByType=='undefined' || typeof ignoreEdgesByType[edges[i].style]!='undefined' || typeof ignoreEdgesByType['graph'+edges[i].style]!='undefined')
+					if( ignoreEdgesByType===undefined || ignoreEdgesByType[edges[i].style]!==true  ||  ignoreEdgesByType['graph'+edges[i].style]!==true )
 					{
 						mappedNodes[edges[i].from].toConnected.push(mappedNodes[edges[i].to]);
 						mappedNodes[edges[i].to].fromConnected.push(mappedNodes[edges[i].from]);
@@ -60,6 +60,10 @@ export default class LayoutBase {
 						
 						mappedNodes[edges[i].to].connectedNodesById[edges[i].from]=(mappedNodes[edges[i].from]);
 						mappedNodes[edges[i].from].connectedNodesById[edges[i].to]=(mappedNodes[edges[i].to]);
+					}
+					else
+					{
+						console.log('Ignore edge: '+edges[i].from+" Type: "+edges[i].style);
 					}
 				}
 			}

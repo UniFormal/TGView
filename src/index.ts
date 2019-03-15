@@ -33,9 +33,6 @@ export default class TGView {
 		this.ui = new InteractionUI(this.dom, this.theoryGraph, this.tgDomListener, this.statusLogger, this.config, this.actionHistory, this);
 		this.treeMenu = new GraphTreeMenu(this.config, this.dom, this); // DONE
 
-		// update the theory graph
-		this.theoryGraph.onConstructionDone = this.updateNetworkOnFirstCall.bind(this);
-
 		// and initialize all the things
 		this.init();
 	}
@@ -76,6 +73,7 @@ export default class TGView {
 		});
 
 		var source = this.config.preferences.source;
+		this.theoryGraph.onConstructionDone = this.updateNetworkOnFirstCall.bind(this);
 
 		if (source == 'html') {
 			this.theoryGraph.loadGraphByLocalStorage(getParameterByName(Configuration.graphDataURLDataSourceParameterNameTGView) || undefined);
