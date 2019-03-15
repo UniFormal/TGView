@@ -112,6 +112,7 @@ export default class LegendPanel {
 	}
 
 	private startRendering() {
+		console.log(this.originalNodes);
 		this.statusLogger.setStatusText('Rendering Legend...');
 		
 		this.nodes = new vis.DataSet(this.originalNodes);

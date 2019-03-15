@@ -568,7 +568,7 @@ export default class Optimizer extends LayoutBase {
 		var rows=(this.countNodesInGraph.length+1)>>1;
 		var graphRects: number[][]=[];
 		
-		for(var i=1;i<= this.countNodesInGraph.length;i++ )
+		for(var i=0;i<= this.myAllNodes.length;i++ )
 		{
 			graphRects[i]=[];
 			graphRects[i][0]=1000000;

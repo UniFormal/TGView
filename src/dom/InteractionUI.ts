@@ -143,7 +143,8 @@ export default class InteractionUI {
 		var usedEdgeTypes = this.theoryGraph.getUsedEdgeTypes();
 		
 		var mainEle=this.dom.getElementById('edgesShowHideDiv');
-		
+		mainEle.innerHTML="";
+
 		var strong = document.createElement('strong');
 		strong.innerHTML='Hide/Show Edges';
 		mainEle.appendChild(strong);
@@ -329,6 +330,7 @@ export default class InteractionUI {
 		{
 			const result = (event.target as unknown as {result: string}).result;
 			console.log(result);
+			this.theoryGraph.doCallAfterConstruction = true;
 			this.theoryGraph.loadJSONGraph(JSON.parse(result));
 		}
 		reader.readAsText((e.target as unknown as {files: Blob[]}).files[0]);   		

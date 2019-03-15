@@ -76,6 +76,8 @@ export default class TheoryGraph {
 	/** callback that is called when construction is done */
 	onConstructionDone: (() => void) | undefined;
 
+	doCallAfterConstruction: boolean = true;
+
 	/** boolean to set manual focus mode */
 	manualFocus: boolean = false;
 
@@ -1274,7 +1276,42 @@ export default class TheoryGraph {
 
 		// run the clustering algorithm and then remove the clusterer
 		const internalClusterer = new Clusterer(this.originalNodes, this.originalEdges, this.statusLogger);
-		const membership = internalClusterer.cluster();
+		
+		var populationSize=10;
+		var rounds=10;
+		var iterationsPerMutation=200;
+		var finalIterations=1000;
+
+		if(this.originalNodes.length>800)
+		{
+			populationSize=3;
+			rounds=3;
+			iterationsPerMutation=50;
+			finalIterations=2000;
+		}
+		else if(this.originalNodes.length>500)
+		{
+			populationSize=5;
+			rounds=3;
+			iterationsPerMutation=100;
+			finalIterations=2000;
+		}
+		else if(this.originalNodes.length>200)
+		{
+			populationSize=5;
+			rounds=5;
+			iterationsPerMutation=150;
+			finalIterations=1000;
+		}
+		else if(this.originalNodes.length>100)
+		{
+			populationSize=5;
+			rounds=10;
+			iterationsPerMutation=200;
+			finalIterations=1000;
+		}
+
+		const membership = internalClusterer.cluster(populationSize,rounds,iterationsPerMutation,finalIterations);
 		internalClusterer.destroy();
 		
 		var clusteredNodes: string[][] =[];
@@ -1909,13 +1946,15 @@ export default class TheoryGraph {
 	
 		var countEmptyX=0;
 
+		console.log("Optimizer call done");
+
 		for(var i=0;i<this.originalNodes.length;i++)
 		{
 			if(this.originalNodes[i]['image']!='' && this.originalNodes[i]['image']!=undefined)
 			{
 				nodesCount++;
 			}
-			if(this.originalNodes[i].x  === undefined)
+			if(this.originalNodes[i].x  === undefined || this.originalNodes[i].x  ===0)
 			{
 				countEmptyX++;
 			}
@@ -1952,7 +1991,7 @@ export default class TheoryGraph {
 				}
 			}
 		}
-				
+
 		if(countEmptyX>this.originalNodes.length/2)
 		{
 			fixedPositions=false;
@@ -1984,6 +2023,7 @@ export default class TheoryGraph {
 					hideEdgesType[type]=true;
 				}
 			}
+			console.log("Do optimizing");
 			if(typeof this.config.THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof this.config.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || this.config.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
 			{
 				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
@@ -2063,6 +2103,17 @@ export default class TheoryGraph {
 			}
 		}
 		
+		for(var i=0;i<this.originalNodes.length;i++)
+		{
+			this.originalNodes[i].fromConnected=[];
+			this.originalNodes[i].connectedNodes=[];
+			this.originalNodes[i].connectedNodesById={};
+			this.originalNodes[i].toConnected=[];
+		}
+
+		console.log("Create network");
+		console.log(this.originalNodes);
+
 		this.nodes = new DataSet(this.originalNodes);
 		this.edges = new DataSet(this.originalEdges);
 		
@@ -2084,12 +2135,10 @@ export default class TheoryGraph {
 		
 		this.network.on('afterDrawing', () =>
 		{	
-			if(this.onConstructionDone!=undefined)
+			if(this.onConstructionDone!=undefined && this.doCallAfterConstruction==true)
 			{
-				var tmp=this.onConstructionDone;
-				this.onConstructionDone=undefined;
-				tmp();
-				
+				this.doCallAfterConstruction=false;
+				this.onConstructionDone();
 			}
 		});
 		
