@@ -143,7 +143,7 @@ export default class InteractionUI {
 		var usedEdgeTypes = this.theoryGraph.getUsedEdgeTypes();
 		
 		var mainEle=this.dom.getElementById('edgesShowHideDiv');
-		mainEle.innerHTML="";
+		mainEle.innerHTML='';
 
 		var strong = document.createElement('strong');
 		strong.innerHTML='Hide/Show Edges';

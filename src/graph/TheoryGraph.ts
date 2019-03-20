@@ -1926,7 +1926,7 @@ export default class TheoryGraph {
 	
 	private startConstruction(fixedPositions=false)
 	{	
-		console.log("Fixed0: "+fixedPositions);
+		console.log('Fixed0: '+fixedPositions);
 		var hideEdgesType: Record<string, boolean>={};
 		for(var j=0;j<this.edgesNameToHide.length;j++)
 		{
@@ -1946,7 +1946,7 @@ export default class TheoryGraph {
 	
 		var countEmptyX=0;
 
-		console.log("Optimizer call done");
+		console.log('Optimizer call done');
 
 		for(var i=0;i<this.originalNodes.length;i++)
 		{
@@ -1972,7 +1972,7 @@ export default class TheoryGraph {
 					processedNodes++;
 					if(processedNodes==nodesCount)
 					{
-						console.log("Fixed2: "+fixedPositions);
+						console.log('Fixed2: '+fixedPositions);
 						this.startRendering();
 					}
 				}).bind(this, this.originalNodes[i]) as JQuery.jqXHR.DoneCallback;
@@ -1999,7 +1999,7 @@ export default class TheoryGraph {
 
 		if(nodesCount==0)
 		{
-			console.log("Fixed1: "+fixedPositions+" "+countEmptyX);
+			console.log('Fixed1: '+fixedPositions+' '+countEmptyX);
 			this.startRendering(fixedPositions);
 		}
 	}
@@ -2023,7 +2023,7 @@ export default class TheoryGraph {
 					hideEdgesType[type]=true;
 				}
 			}
-			console.log("Do optimizing");
+			console.log('Do optimizing');
 			if(typeof this.config.THEORY_GRAPH_OPTIONS.layout === 'undefined' || typeof this.config.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx === 'undefined' || this.config.THEORY_GRAPH_OPTIONS.layout.ownLayoutIdx==1)
 			{
 				var opti=new Optimizer(this.originalNodes,this.originalEdges, hideEdgesType, this.statusLogger);
@@ -2111,7 +2111,7 @@ export default class TheoryGraph {
 			this.originalNodes[i].toConnected=[];
 		}
 
-		console.log("Create network");
+		console.log('Create network');
 		console.log(this.originalNodes);
 
 		this.nodes = new DataSet(this.originalNodes);

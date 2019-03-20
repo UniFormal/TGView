@@ -2,9 +2,6 @@ import { Options as VOptions, NodeOptions } from 'vis';
 
 // @ts-check
 import { getParameterByName } from './utils';
-
-import { default as JQuery } from 'jquery';
-
 import { IDirtyGraph } from './graph/visgraph';
 
 /**

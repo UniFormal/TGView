@@ -63,7 +63,7 @@ export default class LayoutBase {
 					}
 					else
 					{
-						console.log('Ignore edge: '+edges[i].from+" Type: "+edges[i].style);
+						console.log('Ignore edge: '+edges[i].from+' Type: '+edges[i].style);
 					}
 				}
 			}
