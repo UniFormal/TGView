@@ -35,6 +35,7 @@ export default class DOMConstruct {
       // TODO: Cache this function
 
       if(id.startsWith(this.config.preferences.prefix)) {
+         // tslint:disable-next-line: no-console
          console.warn('Possibly incorrect use of DOMConstruct.getElementById('+DOMConstruct.formatSelector(id)+'): Id of element to fetch starts with prefix. ');
       }
 
@@ -44,6 +45,7 @@ export default class DOMConstruct {
 
       // make sure that the element is contained with the DOM
       if (!surpressOutsideOfElementWarning && !this.mainElement.contains(element)){
+         // tslint:disable-next-line: no-console
          console.warn('Insecure use of DOMConstruct.getElementById('+DOMConstruct.formatSelector(id)+'): Element with ID '+id+' is not contained within mainElement');
       }
 
@@ -65,6 +67,7 @@ export default class DOMConstruct {
     */
    $<T extends HTMLElement = HTMLElement>(selector: string, surpressOutsideOfElementWarning: boolean = false) : JQuery<T> {
       if (selector.startsWith('#')) {
+         // tslint:disable-next-line: no-console
          console.warn('Insecure use of DOMConstruct.$('+DOMConstruct.formatSelector(selector)+'): Fetch elements by id using DOMConstruct.$$() to add prefixes. ');
       }
       
@@ -79,8 +82,10 @@ export default class DOMConstruct {
       // if that doesn't work
       if(!surpressOutsideOfElementWarning) {
          if (onEntirePage.length > 0) {
+            // tslint:disable-next-line: no-console
             console.warn('Insecure use of DOMConstruct.$('+DOMConstruct.formatSelector(selector)+'): No element found inside of mainElement. ');
          } else {
+            // tslint:disable-next-line: no-console
             console.warn('Insecure use of DOMConstruct.$('+DOMConstruct.formatSelector(selector)+'): Element not found. ');
          }
       }

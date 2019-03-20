@@ -2,6 +2,7 @@
     "defaultSeverity": "warn",
     "jsRules": {},
     "rules": {
+        "no-console": [true],
         "quotemark": [true, "single"],
         "prefer-readonly": [true],
         "no-any": [true]
