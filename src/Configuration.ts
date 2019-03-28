@@ -18,6 +18,7 @@ export class Configuration {
 		this.preferences = {
 			serverBaseURL: preferences.serverBaseURL || '/',
 			serverUrl: preferences.serverUrl,
+			menuUrl: preferences.menuUrl,
 
 			isMathhub: preferences.isMathhub === undefined ? true : preferences.isMathhub,
 			viewOnlyMode: preferences.viewOnlyMode || false,
@@ -57,11 +58,18 @@ export class Configuration {
 			this.serverUrl = '/';
 		}
 
-		/**
-		 * URL for getting menu-entries in the side-menu
-		 * @type {string}
-		 */
-		this.menuEntriesURL = this.serverUrl + ':jgraph/menu?id=';
+		// menu url magic
+		// TODO: This should be a promise or something returning the menu entries
+		// TODO: Same for the node values
+		const menuUrl = this.preferences.menuUrl === undefined ? (this.serverUrl + ':jgraph/menu?id=' ) : this.preferences.menuUrl;
+
+		this.menuEntriesURL = (id?: string) => {
+			if (typeof menuUrl === 'string') {
+				return menuUrl + (id || '');
+			} else {
+				return menuUrl(id, this.serverUrl);
+			}
+		}
 
 		// URL parts for getting graphdata, construction looks like:
 		// graphDataURL + graphDataURLTypeParameterName + concreteTypeValue + "&" + graphDataURLDataParameterName + concreteGraphdataValue
@@ -80,8 +88,11 @@ export class Configuration {
 	/** the server url */
 	readonly serverUrl: string;
 
-	/** the url to the menu entries */
-	readonly menuEntriesURL: string;
+	/**
+	 * Builds an url to get a menu entry from
+	 * @param id Id of menu to get entries from
+	 */
+	readonly menuEntriesURL: (id?: string) => string;
 
 	/** the url to the graph data */
 	readonly graphDataURL: string;
@@ -369,6 +380,7 @@ export class Configuration {
 export interface ITGViewOptions {
 	serverBaseURL: string;
 	serverUrl?: string;
+	menuUrl?: string | ((id: string | undefined, base: string) => string)
 
 	isMathhub: boolean;
 	viewOnlyMode: boolean;

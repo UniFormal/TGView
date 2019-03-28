@@ -5,7 +5,8 @@
         "no-console": [true],
         "quotemark": [true, "single"],
         "prefer-readonly": [true],
-        "no-any": [true]
+        "no-any": [true],
+        "no-var-keyword": [true]
     },
     "rulesDirectory": []
 }

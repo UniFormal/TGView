@@ -8,137 +8,136 @@ import DOMConstruct from './DOMConstruct';
 
 export default class GraphTreeMenu {
 
-	constructor(private readonly config: Configuration, private readonly dom: DOMConstruct, private readonly wrapper: TGView) {
-		this.handleMouseMove = this.handleMouseMove.bind(this);
+	constructor(private readonly config: Configuration, dom: DOMConstruct, private readonly wrapper: TGView) {
+		this.tracker = new MouseTracker(dom.mainElement);
+		
+		this.treeElement = dom.$$('theory_tree'); 
+		this.contextMenuElement = dom.$$('side-menu'); // .custom-menu-side
 
-		this.dom.mainElement.onmousemove = this.handleMouseMove;
-
-		this.dom.$$('theory_tree').jstree(
-		{
-			'core' : 
-			{
-				'check_callback' : true,
-				'themes' : { 'stripes' : false,'icons':false },
-			},	
-			'types' : 
-			{
-				'default' : 
-				{
-					'valid_children' : ['default','file']
-				}
+		// create a jstree
+		this.treeElement.jstree({
+			core: {
+				check_callback: true,
+				themes: {
+					stripes: false,
+					icons: false
 				},
-	
-			'plugins' : 
-			[
-				'contextmenu', 'dnd', 'search',
-				'state', 'types', 'wholerow'
+			},
+			types: {
+				default: {
+					valid_children: ['default', 'file']
+				}
+			},
+			plugins: [
+				'dnd',
+				'search',
+				'state',
+				'types',
+				'wholerow'
 			]
 		});
-		$.get(this.config.menuEntriesURL, this.addTreeNodes.bind(this));
-	
-		this.dom.$$('theory_tree').on('select_node.jstree',
-			(evt, data) => // TODO: Fix type of data
-			{
-				this.wrapper.lastGraphDataUsed=data.node.original.graphdata; // TODO: Fix me
-				var y = this.currentMouseY - 8;
-				var x = this.currentMouseX + 4;
-	
-				// TODO: no-globals
-				this.dom.$('.custom-menu-side').finish().show(10).
-				// In the right position (the mouse)
-				css({
-					top: y + 'px',
-					left: x + 'px',
-				});
-				evt.preventDefault();
+
+		this.treeElement.on('select_node.jstree', (event, data) => {// TODO: Fix type of data
+			// if the ctrl key or the meta key are pressed
+			// show the default context menu 
+			if (event.ctrlKey || event.metaKey) {
+				event.stopImmediatePropagation();
+				return;
 			}
-		);
+
+			event.preventDefault();
 			
-		this.dom.$$('theory_tree').on('open_node.jstree',
-			(evt, data) => // TODO: Fix type of data
-			{
-				this.dom.$('.custom-menu-side').hide(10);
-				this.lazyParent=data.node.id;
-				data.node.children=[];
-				if(this.alreadyAdded[this.lazyParent]!=true)
-				{
-					console.log(data.node);
-					console.log(this.lazyParent+' added: '+this.alreadyAdded[this.lazyParent]);
-					var jsonURL=this.config.menuEntriesURL+data.node.original.serverId;
-					//var jsonURL="http://neuralocean.de/graph/test/menu.json";
-					//this.alreadyAdded[lazyParent]=true;
-					$.get(jsonURL, this.addTreeNodes.bind(this));
-				}
-			}
-		);
+			// store the last uri we loaded in the parent
+			this.wrapper.lastGraphDataUsed=data.node.original.graphdata;
+
+			// show the context menu
+			this.contextMenuElement.finish().show(10).css({
+				top: this.tracker.mouseY() - 8,
+				left: this.tracker.mouseX() + 4,
+			});
+		});
+			
+		this.treeElement.on('open_node.jstree', (_, data) => {
+			// clear the context menu
+			this.contextMenuElement.hide(10);
+
+			// remove node children
+			data.node.children=[];
+
+			// and get data from the json url
+			const jsonURL = this.config.menuEntriesURL(data.node.original.serverId);
+			$.get(jsonURL, (node) => this.addTreeNodes(node, data.node.id));
+		});
+
+		// and load the tree nodes lazily
+		$.get(this.config.menuEntriesURL(), (data) => this.addTreeNodes(data));
 	}
 
 	destroy() {
-		this.dom.mainElement.onmousemove = null;
+		this.tracker.destroy();
 
-		// remove jstree + handlers
-		const tree = this.dom.$$('theory_tree');
-		tree.jstree(true).destroy();
-		tree.off('select_node.jstree');
-		tree.off('open_node.jstree');
+		// clear event handlers
+		this.treeElement
+			.off('select_node.jstree')
+			.off('open_node.jstree')
+			.jstree(true).destroy();
 	}
 
-	private readonly alreadyAdded: Record<string, boolean> = {};
+	private tracker: MouseTracker;
+	private treeElement: JQuery<HTMLElement>;
+	private contextMenuElement: JQuery<HTMLElement>;
 
-	private lazyParent = '#';
-	private currentMouseX = 0;
-	private currentMouseY = 0;
-
-	private handleMouseMove(event: MouseEvent) 
+	/** Adds a list of tree nodes to the current parent */
+	private addTreeNodes(nodes: ITGViewMenuEntry[], parentElement: string = '#')
 	{
-		//var dot, eventDoc, doc, body, pageX, pageY;
-		event = event || window.event; // IE-ism
+		const jstree = this.treeElement.jstree();
+		nodes.forEach((childNode) => {
+			const id = childNode.id+Math.floor(Math.random() * 5000);
+			const children = childNode.hasChildren ? [{id: 'placeholder'}] : undefined;
 
-		/*
-		// NO IE-compatibility needed
-		// If pageX/Y aren't available and clientX/Y are,
-		// calculate pageX/Y - logic taken from jQuery.
-		// (This is to support old IE)
-		// TODO: We don't really need to support old IE if it only adds weird code
-		// that is what poly-fills are for
-		if (event.pageX == null && event.clientX != null) 
-		{
-			eventDoc = (event.target && (event.target as any).ownerDocument) || this.dom.mainElement;
-			doc = eventDoc.documentElement;
-			body = eventDoc.body;
-
-			(event as any).pageX = event.clientX +
-			  (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
-			  (doc && doc.clientLeft || body && body.clientLeft || 0);
-			  (event as any).pageY = event.clientY +
-			  (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
-			  (doc && doc.clientTop  || body && body.clientTop  || 0 );
-		}
-		*/
-
-		this.currentMouseX = event.pageX;
-		this.currentMouseY = event.pageY;
-	}
-
-	private addTreeNodes(data: ITGViewMenuEntry[])
-	{
-		var childNodes=data;
-		console.log(childNodes);
-		console.log(this.lazyParent+';');
-		for(var i=0;i<childNodes.length;i++)
-		{
-			var child=(childNodes[i].hasChildren==true) ? [{'id':'placeholder'}] : undefined;
-			var node=
-			{ 
-				'text' : childNodes[i].menuText, 
-				'id' : childNodes[i].id+Math.floor(Math.random() * 5000),
-				'serverId' : childNodes[i].id,
-				'graphdata': childNodes[i].uri, 
-				'typeGraph': childNodes[i].type, 
-				'children': child,
-				'state' : {'opened': !childNodes[i].hasChildren}
+			const node = { 
+				id,
+				
+				text: childNode.menuText, 
+				serverId: childNode.id,
+				graphdata: childNode.uri, 
+				typeGraph: childNode.type, 
+				children,
+				state: {
+					opened: !childNode.hasChildren
+				}
 			};
-			this.dom.$$('theory_tree').jstree().create_node(this.lazyParent, node, 'last',function() {console.log('Child created');});
-		}
+
+			jstree.create_node(parentElement, node, 'last', function(){});
+		});
 	}
+}
+
+class MouseTracker {
+	constructor(private element: HTMLElement) {
+		this.element.onmousemove = this.handleMouseMove;
+	}
+
+	destroy() {
+		this.element.onmousemove = null;
+	}
+
+	public mouseX(): number {
+		return this.pageX;
+	}
+	public mouseY(): number {
+		return this.pageY;
+	}
+
+	private pageX: number = 0;
+	private pageY: number = 0;
+
+	private readonly handleMouseMove = (event: MouseEvent) => {
+		// TODO: Do we need this IE-ism?
+		event = event || window.event;
+
+		// store the current mouse move
+		this.pageX = event.pageX;
+		this.pageY = event.pageY;
+	};
 }
