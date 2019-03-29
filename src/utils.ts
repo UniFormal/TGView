@@ -14,12 +14,8 @@ export function setLocation(curLoc: string): void {
  * Gets a random CSS color
  */
 export function getRandomColor(): string {
-	var letters = '0123456789ABCDEF';
-	var color = '#';
-	for (var i = 0; i < 6; i++) {
-		color += letters[Math.floor(Math.random() * 16)];
-	}
-	return color;
+	const letters = '0123456789ABCDEF';
+	return '#' + Array(6).map(() => letters[Math.floor(Math.random() * 16)]).join('');
 }
 
 
@@ -29,12 +25,15 @@ export function getRandomColor(): string {
  * HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
  * @returns {string} 
  */
-export function rainbow(numOfSteps: number, step: number) {
-	var r = 0; var g = 0; var b = 0;
-	var h = step / numOfSteps;
-	var i = ~~(h * 6);
-	var f = h * 6 - i;
-	var q = 1 - f;
+export function rainbow(numOfSteps: number, step: number): string {
+	let r = 0;
+	let g = 0;
+	let b = 0;
+	
+	const h = step / numOfSteps;
+	const i = ~~(h * 6);
+	const f = h * 6 - i;
+	const q = 1 - f;
 	switch (i % 6) {
 		case 0: r = 1; g = f; b = 0; break;
 		case 1: r = q; g = 1; b = 0; break;
@@ -43,7 +42,8 @@ export function rainbow(numOfSteps: number, step: number) {
 		case 4: r = f; g = 0; b = 1; break;
 		case 5: r = 1; g = 0; b = q; break;
 	}
-	var c = '#' + ('00' + (~ ~(r * 255)).toString(16)).slice(-2) + ('00' + (~ ~(g * 255)).toString(16)).slice(-2) + ('00' + (~ ~(b * 255)).toString(16)).slice(-2);
+
+	const c = '#' + ('00' + (~ ~(r * 255)).toString(16)).slice(-2) + ('00' + (~ ~(g * 255)).toString(16)).slice(-2) + ('00' + (~ ~(b * 255)).toString(16)).slice(-2);
 	return (c);
 }
 
@@ -58,8 +58,8 @@ export function getParameterByName(name: string, url?: string): string | null {
 		url = window.location.href;
 	}
 	name = name.replace(/[\[\]]/g, '\\$&');
-	var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)')
-	var results = regex.exec(url);
+	const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)')
+	const results = regex.exec(url);
 	if (!results) return null;
 	if (!results[2]) return '';
 	return decodeURIComponent(results[2].replace(/\+/g, ' '));
