@@ -1,4 +1,3 @@
-// import {setLocation, getRandomColor, rainbow, getParameterByName, getStartToEnd} from './utils.js';
 import {rainbow, getParameterByName, getStartToEnd} from '../utils';
 import StatusLogger from '../dom/StatusLogger';
 import ActionHistory from '../core/ActionHistory';
