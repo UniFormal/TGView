@@ -229,6 +229,17 @@ export class Configuration {
 			width: 1,
 			alias: 'Include-Edges'
 		},
+		attack: {
+		color: "#673232",
+		colorHighlight: "#7e1b1b",
+		colorHover: "#673232",
+		dashes: false,
+		circle: false,
+		directed: true,
+		smoothEdge: true,
+		width: 1,
+		alias: "Attack-Edges"
+	    },
 		modelinclude: {
 			color: 'black',
 			colorHighlight: 'black',
@@ -299,6 +310,33 @@ export class Configuration {
 			dashes: false,
 			alias: 'Model-Nodes'
 		},
+	 sceptically_accepted: {
+		shape: "circle",
+		color: "#ff9900",
+		colorBorder: "#ffa31a",
+		colorHighlightBorder: "#ffad33",
+		colorHighlight: "#ffb84d",
+		dashes: false,
+		alias: "Sceptically Accepted"
+	  },
+	  credulously_accepted: {
+		shape: "circle",
+		color: "#009900",
+		colorBorder: "#008000",
+		colorHighlightBorder: "#00b300",
+		colorHighlight: "#00cc00",
+		dashes: false,
+		alias: "Credulously Accepted"
+	  },
+	  rejected: {
+		shape: "circle",
+		color: "#ff4d4d",
+		colorBorder: "#ff0000",
+		colorHighlightBorder: "#ff6666",
+		colorHighlight: "#ff8080",
+		dashes: false,
+		alias: "Rejected-Nodes"
+	  },
 		border: {
 			shape: 'circle',
 			color: '#E8E8E8',
