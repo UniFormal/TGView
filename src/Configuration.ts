@@ -294,7 +294,18 @@ export class Configuration {
 			smoothEdge: true,
 			width: 1,
 			alias: 'Structure-Edges'
-		}
+		},
+		uses: {
+			color: 'cyan',
+			colorHighlight: 'cyan',
+			colorHover: 'cyan',
+			dashes: false,
+			circle: false,
+			directed: true,
+			smoothEdge: true,
+			width: 1,
+			alias: 'Uses-Edges'
+		},
 	};
 
 	/**
