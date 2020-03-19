@@ -22,7 +22,7 @@
     "tslint": "^5.12.1",
     "webpack": "^4.29.1",
     "webpack-cli": "^3.2.3",
-    "webpack-serve": "^2.0.3"
+    "webpack-serve": "^3.2.0"
   },
   "dependencies": {
     "@types/jquery": "^3.3.29",
