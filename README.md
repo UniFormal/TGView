@@ -19,9 +19,6 @@ To install all dependencies we make use of [`yarn`](https://yarnpkg.com/en/):
 # To install all dependencies
 yarn
 
-# To start up a development server that automatically recompiles when sources are changed
-yarn start
-
 # To build a static distribution into the dist/ folder (which can be served under any server)
 yarn build
 ```

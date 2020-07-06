@@ -1,14 +1,13 @@
 {
   "name": "tgview",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "tsc && webpack --mode production",
     "install": "tsc",
-    "start": "webpack-serve",
     "clean": "rm -rf lib/ dist/",
     "lint": "tslint -p tsconfig.json"
   },
@@ -21,8 +20,7 @@
     "ts-loader": "^7.0.5",
     "tslint": "^6.1.2",
     "webpack": "^4.29.1",
-    "webpack-cli": "^3.2.3",
-    "webpack-serve": "^3.2.0"
+    "webpack-cli": "^3.2.3"
   },
   "dependencies": {
     "@types/jquery": "^3.3.29",
